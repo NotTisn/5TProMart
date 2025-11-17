@@ -2,7 +2,7 @@ package com.fivetpromart.application.port.in;
 
 import com.fivetpromart.domain.model.AuthenticationTokens;
 
-public interface AuthenticationUseCasePort {
+public interface IAuthenticationUseCasePort {
     AuthenticationTokens login(String username, String password);
     AuthenticationTokens refresh(String refreshToken);
     void logout(String refreshToken);

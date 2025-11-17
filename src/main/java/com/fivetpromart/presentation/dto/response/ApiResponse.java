@@ -1,4 +1,4 @@
-package com.chefkix.dto.response;
+package com.fivetpromart.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

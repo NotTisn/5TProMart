@@ -1,32 +1,39 @@
-package com.fivetpromart.infrastructure.persistence.profile;
+package com.fivetpromart.infrastructure.persistence.profile.mapper;
 
 import com.fivetpromart.domain.model.Profile;
-import org.mapstruct.*;
+import com.fivetpromart.infrastructure.persistence.profile.ProfileDbo;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring") // 1. Báo MapStruct tạo ra Spring Bean
+/**
+ * GHI CHÚ QUAN TRỌNG VỀ LỖI "ArrayList":
+ * * Nếu bạn thêm một List phức tạp (ví dụ: List<Preference>
+ * vào Profile.java), bạn SẼ gặp lỗi "ArrayList".
+ * * Để sửa, bạn phải tạo một Mapper "con" (ví dụ: PreferenceMapper.class)
+ * và "đăng ký" nó ở đây, như sau:
+ *
+ * @Mapper(componentModel = "spring", uses = { PreferenceMapper.class })
+ * * (Hiện tại, chúng ta không cần "uses" vì Profile còn đơn giản)
+ */
+@Mapper(componentModel = "spring")
 public interface ProfilePersistenceMapper {
 
-    // === 2. Dịch từ Domain -> DBO ===
-    // MapStruct tự động bỏ qua 'fullName' từ Profile
-    // vì ProfileDbo không có trường đó.
+    // 1. Dịch từ Domain -> DBO
+    // MapStruct tự động bỏ qua 'fullName' (vì DBO không có)
     ProfileDbo toDbo(Profile domainEntity);
 
-    // === 3. Dịch từ DBO -> Domain ===
-    // Vì Profile của bạn dùng @Builder, MapStruct sẽ tự động dùng nó.
-    // Chúng ta bảo nó bỏ qua 'fullName' (vì DBO không có)
-    // để chúng ta xử lý thủ công ở dưới.
+    // 2. Dịch từ DBO -> Domain
+    // Bỏ qua 'fullName' (vì DBO không có) để xử lý thủ công
     @Mapping(target = "fullName", ignore = true)
     Profile toDomain(ProfileDbo dbo);
 
-    // === 4. Xử lý logic 'fullName' ===
-    // Đây là phần "phép thuật"
-    // MapStruct cho phép bạn "can thiệp" sau khi nó map các trường
-    // Nó biết bạn dùng builder, nên nó đưa cho bạn @MappingTarget là
-    // một Profile.Builder
+    // 3. Xử lý logic 'fullName' sau khi map
+    // (Đây là cách "sạch" để xử lý các trường suy ra)
     @AfterMapping
     default void setFullNameFromDbo(ProfileDbo dbo, @MappingTarget Profile.ProfileBuilder profileBuilder) {
 
-        // Chính là logic thủ công của bạn
         String firstName = dbo.getFirstName() != null ? dbo.getFirstName() : "";
         String lastName = dbo.getLastName() != null ? dbo.getLastName() : "";
         String fullName = (firstName + " " + lastName).trim();

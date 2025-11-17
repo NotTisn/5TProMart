@@ -1,4 +1,5 @@
 package com.fivetpromart.application.port.in;
 
-public interface IEmailUseCase {
+public interface IEmailUseCasePort {
+    void sendOtpEmail(String toEmail, String otp);
 }

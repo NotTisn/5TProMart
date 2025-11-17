@@ -1,4 +1,4 @@
-package com.fivetpromart.domain.port.out;
+package com.fivetpromart.application.port.out;
 
 import com.fivetpromart.domain.model.AuthenticationTokens;
 
