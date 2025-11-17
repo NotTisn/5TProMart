@@ -36,6 +36,6 @@ public class SignUpRequestAdapter implements ISignUpRequestRepository {
 
     @Override
     public void deleteByEmail(String email) {
-        jpaRepository.findByEmail(email).ifPresent(jpaRepository::delete);
+        jpaRepository.deleteByEmail(email);
     }
 }

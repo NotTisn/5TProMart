@@ -31,11 +31,10 @@ public class SignUpUseCase implements ISignUpUseCasePort { // Implement ISignUpU
     private String otpSecret;
 
     @Override
-    @Transactional
     public void initiateSignUp(SignUpRequestDto request) {
         // 1. Kiểm tra xem email/user đã tồn tại chưa
         if (signUpRequestRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalStateException("Email is already pending verification");
+            signUpRequestRepository.deleteByEmail(request.getEmail());
         }
 
         // 2. Tạo OTP
