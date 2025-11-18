@@ -48,8 +48,7 @@ public class SignUpController {
         // 5. Gọi Use Case
         signUpUseCase.verifyAndCompleteSignUp(
                 request.getEmail(),
-                request.getOtp(),
-                request.getPassword() // User phải nhập lại password
+                request.getOtp()
         );
 
         return ApiResponse.successNoContent("Account created successfully.");

@@ -6,5 +6,4 @@ import lombok.Data;
 public class VerifySignUpRequest {
     String email;
     String otp;
-    String password; // User phải gửi password ở bước 2 (an toàn hơn)
 }

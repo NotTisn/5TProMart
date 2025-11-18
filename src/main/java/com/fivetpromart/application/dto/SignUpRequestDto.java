@@ -13,7 +13,7 @@ public class SignUpRequestDto {
     String id;
     String email;
     String username;
-    String password; // Sẽ được dùng ở bước 2
+    String password;
     String otpHash;
     Instant createdAt;
     Instant expiresAt;

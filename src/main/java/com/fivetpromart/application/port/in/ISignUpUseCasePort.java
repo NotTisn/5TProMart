@@ -8,5 +8,5 @@ public interface ISignUpUseCasePort {
     void initiateSignUp(SignUpRequestDto request);
 
     // Bước 2: Xác thực OTP và hoàn tất
-    void verifyAndCompleteSignUp(String email, String otp, String password);
+    void verifyAndCompleteSignUp(String email, String otp);
 }

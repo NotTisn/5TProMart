@@ -1,9 +1,6 @@
 package com.fivetpromart.infrastructure.persistence.signup_pending;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +21,7 @@ import java.time.LocalDate;
 public class SignUpRequestDbo {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     @Column(unique = true, nullable = false)
@@ -31,6 +29,9 @@ public class SignUpRequestDbo {
 
     @Column(nullable = false)
     String username;
+
+    @Column(nullable = false)
+    String password;
 
     // Password nên được hash trước khi lưu tạm, hoặc không lưu (nếu an toàn hơn)
     // Ở đây ta giả định password được gửi lại ở bước 2

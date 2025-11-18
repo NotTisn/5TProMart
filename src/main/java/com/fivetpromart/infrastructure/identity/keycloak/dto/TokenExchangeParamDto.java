@@ -12,8 +12,8 @@ public class TokenExchangeParamDto {
     String grant_type;
     String client_id;
     String client_secret;
-    String refresh_token;
-    String email;
-    String password;
+//    String refresh_token;
+//    String email;
+//    String password;
     String scope;
 }

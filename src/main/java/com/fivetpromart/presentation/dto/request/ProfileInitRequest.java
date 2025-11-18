@@ -8,6 +8,7 @@ import java.time.LocalDate;
 public class ProfileInitRequest {
     String email;
     String username;
+    String password;
     String firstName;
     String lastName;
     String displayName;

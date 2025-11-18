@@ -1,6 +1,8 @@
 package com.fivetpromart.infrastructure.identity.keycloak.dto;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationParamDto {
     String username;
@@ -20,5 +23,5 @@ public class UserCreationParamDto {
     boolean emailVerified;
     String firstName;
     String lastName;
-    List<Credential> credentials;
+    List<Object> credentials;
 }
