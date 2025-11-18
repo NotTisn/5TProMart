@@ -2,6 +2,7 @@ package com.fivetpromart.application.usecase;
 
 import com.fivetpromart.application.dto.SignUpRequestDto;
 import com.fivetpromart.application.port.in.ISignUpUseCasePort;
+import com.fivetpromart.application.port.out.IEmailProviderPort;
 import com.fivetpromart.application.port.out.IProfileRepository;
 import com.fivetpromart.application.port.out.ISignUpRequestRepository;
 import com.fivetpromart.application.port.out.IdentityProviderPort;
@@ -26,6 +27,7 @@ public class SignUpUseCase implements ISignUpUseCasePort { // Implement ISignUpU
     private final ISignUpRequestRepository signUpRequestRepository;
     private final IdentityProviderPort identityProviderPort;
     private final IProfileRepository profileRepository;
+    private final IEmailProviderPort emailProviderPort;
 
     @Value("${app.otp.secret}")
     private String otpSecret;
@@ -53,7 +55,7 @@ public class SignUpUseCase implements ISignUpUseCasePort { // Implement ISignUpU
         signUpRequestRepository.save(request);
 
         // 5. Gửi email
-        //emailServicePort.sendOtpEmail(request.getEmail(), otp);
+        emailProviderPort.sendOtpEmail(request.getEmail(), otp);
     }
 
     @Override

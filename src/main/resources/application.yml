@@ -57,3 +57,10 @@ app:
     max-attempts: 5
   signup:
     cleanup-millis: 3600000
+
+notification:
+  email:
+    brevo-url: https://api.brevo.com
+    brevo-apikey: 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
+    sender-email: tinvo2005@gmail.com
+    sender-name: FiveTProMart Corp.
