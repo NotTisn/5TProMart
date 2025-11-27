@@ -12,6 +12,8 @@ public interface IdentityProviderPort {
 
     String createUser(String username, String email, String password);
 
+    void deleteUser(String userId);
+
     void sendActionEmail(String userId, String action);
 
     void resetPassword(String userId, String newPassword);

@@ -42,4 +42,11 @@ public interface IdentityClient {
             @RequestHeader("Authorization") String bearerToken, // 1. Admin Token
             @PathVariable("userId") String userId, // 3. User ID
             @RequestBody ResetPasswordParamDto param);
+
+    @DeleteMapping(
+            value = "/admin/realms/fivetpro/users/{userId}"
+    )
+    ResponseEntity<?> deleteUser(
+            @RequestHeader("authorization") String token,
+            @PathVariable String userId);
 }

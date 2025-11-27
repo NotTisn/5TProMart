@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -139,6 +138,37 @@ public class KeycloakIdentityAdapter implements IdentityProviderPort {
         } catch (Exception e) {
             log.error("Unexpected error in createUser: {}", e.getMessage(), e);
             throw new RuntimeException("Unexpected error creating user", e);
+        }
+    }
+
+    @Override
+    public void deleteUser(String userId) {
+        try {
+            // 1. Get admin token
+            log.debug("Step 1: Requesting Admin Client Credentials Token...");
+            var token = client.exchangeToken(
+                    TokenExchangeParamDto.builder()
+                            .grant_type("client_credentials")
+                            .client_id(clientId)
+                            .client_secret(clientSecret)
+                            .scope("openid")
+                            .build()
+            );
+            client.deleteUser(
+                    "Bearer " + token.getAccessToken(),
+                    userId
+            );
+
+        } catch (FeignException e) {
+            // Log chi tiết lỗi từ Keycloak trả về
+            log.error("KEYCLOAK ERROR during createUser. Status: {}", e.status());
+            log.error("Response Body: {}", e.contentUTF8());
+
+            String errorMessage = parseKeycloakError(e);
+            throw new RuntimeException("Failed to delete user in Keycloak: " + errorMessage, e);
+        } catch (Exception e) {
+            log.error("Unexpected error in createUser: {}", e.getMessage(), e);
+            throw new RuntimeException("Unexpected error deleting user", e);
         }
     }
 
