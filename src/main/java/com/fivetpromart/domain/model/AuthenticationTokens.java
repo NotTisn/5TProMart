@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationTokens {

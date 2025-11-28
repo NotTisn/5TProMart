@@ -1,10 +1,12 @@
 package com.fivetpromart.application.port.out;
 
+import com.fivetpromart.application.dto.AuthenticationTokensDto;
+import com.fivetpromart.application.dto.command.LoginCommand;
 import com.fivetpromart.domain.model.AuthenticationTokens;
 
 public interface IdentityProviderPort {
 
-    AuthenticationTokens login(String username, String password);
+    AuthenticationTokens login(LoginCommand loginCommand);
 
     AuthenticationTokens refreshToken(String refreshToken);
 

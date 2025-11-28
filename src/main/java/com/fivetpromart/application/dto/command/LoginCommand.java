@@ -1,0 +1,11 @@
+package com.fivetpromart.application.dto.command;
+
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class LoginCommand {
+    private String email;
+    private String password;
+}

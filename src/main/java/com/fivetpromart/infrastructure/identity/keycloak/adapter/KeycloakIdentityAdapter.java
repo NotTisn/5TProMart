@@ -1,6 +1,8 @@
 package com.fivetpromart.infrastructure.identity.keycloak.adapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fivetpromart.application.dto.AuthenticationTokensDto;
+import com.fivetpromart.application.dto.command.LoginCommand;
 import com.fivetpromart.domain.model.AuthenticationTokens;
 import com.fivetpromart.application.port.out.IdentityProviderPort;
 import com.fivetpromart.infrastructure.error.AppException;
@@ -40,16 +42,40 @@ public class KeycloakIdentityAdapter implements IdentityProviderPort {
     String clientSecret;
 
     @Override
-    public AuthenticationTokens login(String email, String password) {
-        var req = TokenExchangeParamDto.builder()
-                .grant_type("password")
-                .client_id(clientId)
-                .client_secret(clientSecret)
-                .scope("openid")
-                .build();
+    public AuthenticationTokens login(LoginCommand command) {
+        try {
+            // 1. Build Request (Thêm username/password từ command)
+            var req = TokenExchangeParamDto.builder()
+                    .grant_type("password")
+                    .client_id(clientId)
+                    .client_secret(clientSecret)
+                    .scope("openid")
+                    .username(command.getEmail())
+                    .password(command.getPassword())
+                    .build();
 
-        var response = client.exchangeToken(req);
-        return mapper.toDomain(response);
+            // 2. Gọi Keycloak
+            var response = client.exchangeToken(req);
+
+            // 3. Map sang Domain Model
+            return mapper.toDomain(response);
+
+        } catch (FeignException e) {
+            // Xử lý lỗi đăng nhập thất bại
+            if (e.status() == 401) {
+                // Sai mật khẩu hoặc user không tồn tại
+                throw new AppException(ErrorCode.UNAUTHENTICATED); // Hoặc ném lỗi "Bad Credentials"
+            }
+            if (e.status() == 400) {
+                // Lỗi request (thường do user bị disable hoặc chưa verify email)
+                log.error("Login failed (Bad Request): {}", e.contentUTF8());
+                throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION, "Tài khoản không hợp lệ hoặc bị khóa");
+            }
+
+            // Các lỗi khác (500, Timeout...)
+            log.error("Keycloak Login Error", e);
+            throw new RuntimeException("Login failed due to system error", e);
+        }
     }
 
     @Override
@@ -58,7 +84,7 @@ public class KeycloakIdentityAdapter implements IdentityProviderPort {
                 .grant_type("refresh_token")
                 .client_id(clientId)
                 .client_secret(clientSecret)
-//                .refresh_token(refreshToken)
+                .refresh_token(refreshToken)
                 .build();
 
         return mapper.toDomain(client.exchangeToken(req));
