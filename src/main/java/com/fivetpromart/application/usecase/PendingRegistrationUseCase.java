@@ -1,7 +1,8 @@
 package com.fivetpromart.application.usecase;
 
-import com.fivetpromart.application.dto.SignUpRequestDto;
-import com.fivetpromart.application.port.in.ISignUpUseCasePort;
+import com.fivetpromart.application.dto.RegistrationPendingDto;
+import com.fivetpromart.application.dto.command.RegistrationPendingCommand;
+import com.fivetpromart.application.port.in.IRegistrationPendingPort;
 import com.fivetpromart.application.port.out.IEmailProviderPort;
 import com.fivetpromart.application.port.out.IProfileRepository;
 import com.fivetpromart.application.port.out.ISignUpRequestRepository;
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PendingRegistrationUseCase implements ISignUpUseCasePort {
+public class PendingRegistrationUseCase implements IRegistrationPendingPort {
 
     private final ISignUpRequestRepository signUpRequestRepository;
     private final IdentityProviderPort identityProviderPort;
@@ -34,7 +35,7 @@ public class PendingRegistrationUseCase implements ISignUpUseCasePort {
 
     @Override
     @Transactional
-    public void initiateSignUp(SignUpRequestDto request) {
+    public void initiateSignUp(RegistrationPendingCommand request) {
         log.info("Initiating sign up for email: {}", request.getEmail());
 
         // 1. Chuẩn bị dữ liệu Profile & OTP

@@ -9,7 +9,7 @@ import java.time.LocalDate;
 // Nó giống hệt DBO, nhưng sự tách biệt này là quan trọng
 @Data
 @Builder
-public class SignUpRequestDto {
+public class RegistrationPendingDto {
     String id;
     String email;
     String username;

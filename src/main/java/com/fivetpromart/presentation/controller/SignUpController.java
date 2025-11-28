@@ -1,7 +1,8 @@
 package com.fivetpromart.presentation.controller;
 
-import com.fivetpromart.application.dto.SignUpRequestDto;
-import com.fivetpromart.application.port.in.ISignUpUseCasePort; // <-- Phải tiêm Interface
+import com.fivetpromart.application.dto.RegistrationPendingDto;
+import com.fivetpromart.application.dto.command.RegistrationPendingCommand;
+import com.fivetpromart.application.port.in.IRegistrationPendingPort; // <-- Phải tiêm Interface
 import com.fivetpromart.presentation.dto.request.ProfileInitRequest;
 import com.fivetpromart.presentation.dto.request.VerifySignUpRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class SignUpController {
 
     // 1. Tiêm Input Port (Interface), KHÔNG tiêm implementation
-    private final ISignUpUseCasePort signUpUseCase;
+    private final IRegistrationPendingPort signUpUseCase;
 
     // 2. Cần mapper để dịch DTO của Presentation -> DTO của Application
     private final SignUpPresentationMapper mapper;
@@ -30,7 +31,7 @@ public class SignUpController {
     public ApiResponse<Void> initiate(@Valid @RequestBody ProfileInitRequest request) {
 
         // 3. Dịch Presentation DTO -> Application DTO
-        SignUpRequestDto appDto = mapper.toApplicationDto(request);
+        RegistrationPendingCommand appDto = mapper.toApplicationDto(request);
 
         // 4. Gọi Use Case với DTO "sạch"
         signUpUseCase.initiateSignUp(appDto);

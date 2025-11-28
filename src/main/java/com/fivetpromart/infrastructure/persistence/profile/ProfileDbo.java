@@ -1,13 +1,10 @@
 package com.fivetpromart.infrastructure.persistence.profile; // Đổi tên package nếu cần, ví dụ: .persistence.entity
 
 import java.time.LocalDate;
+
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
 
 @Data
 @NoArgsConstructor
@@ -19,6 +16,7 @@ import jakarta.persistence.Column;
 public class ProfileDbo {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     @Column(name = "user_id", unique = true, nullable = false)
