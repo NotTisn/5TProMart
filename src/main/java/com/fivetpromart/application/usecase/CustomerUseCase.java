@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -86,5 +88,14 @@ public class CustomerUseCase implements ICustomerUseCasePort {
                 .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_EXISTED));
 
         customerRepository.delete(customer);
+    }
+
+    @Override
+    public List<CustomerDto> getAllCustomers() {
+        List<Customer> customers = customerRepository.findAll();
+
+        return customers.stream()
+                .map(mapper::toDto)
+                .toList();
     }
 }

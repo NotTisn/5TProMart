@@ -1,5 +1,6 @@
 package com.fivetpromart.presentation.controller;
 
+import com.fivetpromart.application.dto.CustomerDto;
 import com.fivetpromart.application.dto.command.CustomerCreationCommand;
 import com.fivetpromart.application.dto.command.CustomerUpdateCommand;
 import com.fivetpromart.application.port.in.ICustomerUseCasePort;
@@ -10,6 +11,8 @@ import com.fivetpromart.presentation.mapper.CustomerPresentationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -68,6 +71,21 @@ public class CustomerController {
         return ApiResponse.builder()
                 .success(true)
                 .message(null)
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<List<CustomerResponse>> getAllCustomers() {
+        List<CustomerDto> customerDtos = customerUseCase.getAllCustomers();
+
+        // Dùng Stream để map
+        List<CustomerResponse> responses = customerDtos.stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        return ApiResponse.<List<CustomerResponse>>builder()
+                .success(true)
+                .data(responses)
                 .build();
     }
 }

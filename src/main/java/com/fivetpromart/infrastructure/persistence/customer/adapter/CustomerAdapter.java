@@ -10,6 +10,7 @@ import com.fivetpromart.infrastructure.persistence.customer.repository.ICustomer
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -45,6 +46,14 @@ public class CustomerAdapter implements ICustomerRepository {
     public void delete(Customer customer) {
         CustomerDbo dbo = mapper.toDbo(customer);
         customerJpaRepository.delete(dbo);
+    }
+
+    @Override
+    public List<Customer> findAll() {
+        List<CustomerDbo> dbos = customerJpaRepository.findAll();
+        return dbos.stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
 }
