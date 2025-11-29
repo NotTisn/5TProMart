@@ -27,7 +27,7 @@ public class CustomerController {
     public ApiResponse<CustomerResponse> addNewCustomer(
             @Valid @RequestBody CustomerRequest request
     ) {
-        CustomerCreationCommand appDto = mapper.toDto(request);
+        CustomerCreationCommand appDto = mapper.toCommand(request);
         CustomerResponse appResponse = mapper.toResponse(customerUseCase.addNewCustomer(appDto));
 
         return ApiResponse.<CustomerResponse>builder()
@@ -43,7 +43,7 @@ public class CustomerController {
             @Valid @RequestBody CustomerRequest request // 3. Hứng dữ liệu từ Body
     ) {
         // Bước 1: Map dữ liệu từ Body sang Command
-        CustomerUpdateCommand command = mapper.toUpdateDto(request);
+        CustomerUpdateCommand command = mapper.toUpdateDomain(request);
 
         // Bước 2: "Tiêm" ID từ URL vào Command (Merge)
         // Lưu ý: Class CustomerUpdateCommand phải có @Builder(toBuilder = true)

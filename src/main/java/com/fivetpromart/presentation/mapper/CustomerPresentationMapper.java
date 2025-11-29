@@ -9,8 +9,8 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface CustomerPresentationMapper {
-    CustomerCreationCommand toDto(CustomerRequest domain);
+    CustomerCreationCommand toCommand(CustomerRequest domain);
     CustomerResponse toResponse(CustomerDto dto);
 
-    CustomerUpdateCommand toUpdateDto(CustomerRequest domain);
+    CustomerUpdateCommand toUpdateDomain(CustomerRequest domain);
 }

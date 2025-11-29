@@ -1,0 +1,32 @@
+package com.fivetpromart.application.usecase;
+
+import com.fivetpromart.application.dto.CategoryDto;
+import com.fivetpromart.application.mapper.CategoryDataMapper;
+import com.fivetpromart.application.port.in.ICategoryUseCasePort;
+import com.fivetpromart.application.port.out.ICategoryRepository;
+import com.fivetpromart.domain.model.Category;
+import com.fivetpromart.infrastructure.error.AppException;
+import com.fivetpromart.infrastructure.error.ErrorCode;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class CategoryUseCase implements ICategoryUseCasePort {
+
+    CategoryDataMapper mapper;
+    ICategoryRepository categoryRepository;
+
+    @Override
+    public CategoryDto addNewCategory(String categoryName) {
+        if(categoryName==null || categoryName.isBlank())
+            throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
+
+        Category category = Category.create(categoryName);
+        Category savedCategory = categoryRepository.save(category);
+
+        return mapper.ToDto(savedCategory);
+    }
+}
