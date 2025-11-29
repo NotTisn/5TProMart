@@ -69,7 +69,10 @@ public enum ErrorCode {
   DO_NOT_HAVE_PERMISSION(403, "You do not have this permission!", HttpStatus.FORBIDDEN),
   UNCATEGORIZED_EXCEPTION(500, "Uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR),
   NOT_FRIEND(400, "You are not friends", HttpStatus.BAD_REQUEST),
-  ;
+    PHONE_EXISTED(409, "Phone number existed", HttpStatus.CONFLICT),
+    PHONE_NOT_EXISTED(404, "Phone number not existed", HttpStatus.NOT_FOUND ),
+    INVALID_PHONE(400, "Invalid phone number", HttpStatus.BAD_REQUEST),
+    CANNOT_BE_EMPTY(400, "This field cannot be empty", HttpStatus.BAD_REQUEST),;
 
   private final int code;
   private final String message;

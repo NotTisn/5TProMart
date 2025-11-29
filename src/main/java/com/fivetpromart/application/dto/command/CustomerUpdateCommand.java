@@ -6,8 +6,9 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@Builder
-public class CustomerCommand {
+@Builder(toBuilder = true)
+public class CustomerUpdateCommand {
+    private String customerId;
     private String fullName;
     private String gender;
     private LocalDate dateOfBirth;

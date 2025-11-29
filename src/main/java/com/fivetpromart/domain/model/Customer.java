@@ -1,5 +1,7 @@
 package com.fivetpromart.domain.model;
 
+import com.fivetpromart.infrastructure.error.AppException;
+import com.fivetpromart.infrastructure.error.ErrorCode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,10 +28,13 @@ public class Customer {
     public static Customer create(String fullName, String phoneNumber, String gender, LocalDate dob) {
         // Validate dữ liệu đầu vào cơ bản (nếu cần)
         if (fullName == null || fullName.isBlank()) {
-            throw new IllegalArgumentException("Customer name cannot be empty");
+            throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
         }
         if (phoneNumber == null || phoneNumber.isBlank()) {
-            throw new IllegalArgumentException("Phone number cannot be empty");
+            throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
+        }
+        if (phoneNumber.length() != 10) {
+            throw new AppException(ErrorCode.INVALID_PHONE);
         }
 
         Customer customer = new Customer();
@@ -82,8 +87,12 @@ public class Customer {
         if (fullName != null && !fullName.isBlank()) {
             this.fullName = fullName;
         }
-        this.gender = gender;
-        this.dateOfBirth = dateOfBirth;
+        if (gender != null && !gender.isBlank()) {
+            this.gender = gender;
+        }
+        if (dateOfBirth != null) {
+            this.dateOfBirth = dateOfBirth;
+        }
     }
 
     /**
@@ -92,6 +101,9 @@ public class Customer {
     public void changePhoneNumber(String newPhoneNumber) {
         if (newPhoneNumber == null || newPhoneNumber.isBlank()) {
             throw new IllegalArgumentException("New phone number cannot be empty");
+        }
+        if (newPhoneNumber.length() != 10) {
+            throw new AppException(ErrorCode.INVALID_PHONE);
         }
         this.phoneNumber = newPhoneNumber;
     }

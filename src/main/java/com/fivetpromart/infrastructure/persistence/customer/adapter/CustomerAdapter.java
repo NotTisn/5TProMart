@@ -32,6 +32,11 @@ public class CustomerAdapter implements ICustomerRepository {
     }
 
     @Override
+    public Optional<Customer> findById(String customerId) {
+        return customerJpaRepository.findById(customerId).map(mapper::toDomain);
+    }
+
+    @Override
     public boolean existsByPhoneNumber(String phoneNumber) {
         return customerJpaRepository.existsByPhoneNumber(phoneNumber);
     }

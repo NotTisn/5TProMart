@@ -1,13 +1,13 @@
-package com.fivetpromart.presentation.dto.request;
+package com.fivetpromart.application.dto.command;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-public class CustomerInitRequest {
+@Data
+@Builder
+public class CustomerCreationCommand {
     private String fullName;
     private String gender;
     private LocalDate dateOfBirth;
