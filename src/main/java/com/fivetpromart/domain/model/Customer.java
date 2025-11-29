@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Customer {
 
-    private String id;
+    private String customerId;
     private String fullName;
     private String gender;
     private LocalDate dateOfBirth;
@@ -33,7 +33,7 @@ public class Customer {
         }
 
         Customer customer = new Customer();
-        customer.id = UUID.randomUUID().toString(); // Tự sinh ID
+        customer.customerId = UUID.randomUUID().toString(); // Tự sinh ID
         customer.fullName = fullName;
         customer.phoneNumber = phoneNumber;
         customer.gender = gender;
@@ -60,7 +60,7 @@ public class Customer {
             long loyaltyPoints
     ) {
         Customer customer = new Customer();
-        customer.id = id; // Giữ ID cũ
+        customer.customerId = id; // Giữ ID cũ
         customer.fullName = fullName;
         customer.gender = gender;
         customer.dateOfBirth = dateOfBirth;

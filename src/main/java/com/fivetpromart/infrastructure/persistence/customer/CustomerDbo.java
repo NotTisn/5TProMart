@@ -18,9 +18,8 @@ import java.time.LocalDate;
 public class CustomerDbo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     //@Column(length = 36)
-    String id;
+    String customerId;
 
     @Column(name = "full_name", nullable = false)
     String fullName;
@@ -41,9 +40,6 @@ public class CustomerDbo {
     // Nên set giá trị mặc định trong DB
     @Column(name = "loyalty_points", nullable = false)
     long loyaltyPoints;
-
-    @Column(name = "created_at", updatable = false)
-    Instant createdAt;
 
     @Column(name = "updated_at")
     Instant updatedAt;

@@ -13,7 +13,7 @@ public interface CustomerPersistenceMapper {
         if (domain == null) return null;
 
         return CustomerDbo.builder()
-                .id(domain.getId())
+                .customerId(domain.getCustomerId())
                 .fullName(domain.getFullName())
                 .gender(domain.getGender())
                 .dateOfBirth(domain.getDateOfBirth())
@@ -29,7 +29,7 @@ public interface CustomerPersistenceMapper {
         if (dbo == null) return null;
 
         return Customer.reconstitute(
-                dbo.getId(),
+                dbo.getCustomerId(),
                 dbo.getFullName(),
                 dbo.getGender(),
                 dbo.getDateOfBirth(),

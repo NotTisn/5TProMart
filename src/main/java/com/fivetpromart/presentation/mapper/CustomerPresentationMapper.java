@@ -6,6 +6,7 @@ import com.fivetpromart.domain.model.Customer;
 import com.fivetpromart.presentation.dto.request.CustomerInitRequest;
 import com.fivetpromart.presentation.dto.response.CustomerResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CustomerPresentationMapper {
