@@ -11,4 +11,5 @@ public interface ICustomerUseCasePort {
     CustomerDto updateCustomer(CustomerUpdateCommand command);
     void deleteCustomer(String customerId);
     List<CustomerDto> getAllCustomers();
+    CustomerDto getCustomerById(String customerId);
 }

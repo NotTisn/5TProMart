@@ -98,4 +98,12 @@ public class CustomerUseCase implements ICustomerUseCasePort {
                 .map(mapper::toDto)
                 .toList();
     }
+
+    @Override
+    public CustomerDto getCustomerById(String customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_EXISTED));
+
+        return mapper.toDto(customer);
+    }
 }

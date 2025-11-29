@@ -10,6 +10,7 @@ import com.fivetpromart.presentation.dto.response.CustomerResponse;
 import com.fivetpromart.presentation.mapper.CustomerPresentationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -86,6 +87,20 @@ public class CustomerController {
         return ApiResponse.<List<CustomerResponse>>builder()
                 .success(true)
                 .data(responses)
+                .build();
+    }
+
+    @GetMapping("/{customerId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<CustomerResponse> getCustomerById(
+            @PathVariable String customerId
+    ) {
+        CustomerDto customerDto = customerUseCase.getCustomerById(customerId);
+        CustomerResponse customerResponse = mapper.toResponse(customerDto);
+        return ApiResponse.<CustomerResponse>builder()
+                .success(true)
+                .message("Successfully retrieved a customer")
+                .data(customerResponse)
                 .build();
     }
 }
