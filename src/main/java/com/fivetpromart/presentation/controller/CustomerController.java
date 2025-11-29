@@ -59,4 +59,15 @@ public class CustomerController {
                 .data(response)
                 .build();
     }
+
+    @DeleteMapping("/{customerId}")
+    public ApiResponse deleteCustomer(
+            @PathVariable String customerId
+    ) {
+        customerUseCase.deleteCustomer(customerId);
+        return ApiResponse.builder()
+                .success(true)
+                .message(null)
+                .build();
+    }
 }

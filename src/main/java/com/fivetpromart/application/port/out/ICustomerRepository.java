@@ -9,6 +9,7 @@ public interface ICustomerRepository {
     Optional<Customer> findByPhoneNumber(String phoneNumber);
     Optional<Customer> findById(String userId);
     boolean existsByPhoneNumber(String phoneNumber);
+    void delete(Customer customer);
 
     //Customer findByPhoneNumer(String );
 }

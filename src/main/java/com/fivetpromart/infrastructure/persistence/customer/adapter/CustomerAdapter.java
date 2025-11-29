@@ -41,4 +41,10 @@ public class CustomerAdapter implements ICustomerRepository {
         return customerJpaRepository.existsByPhoneNumber(phoneNumber);
     }
 
+    @Override
+    public void delete(Customer customer) {
+        CustomerDbo dbo = mapper.toDbo(customer);
+        customerJpaRepository.delete(dbo);
+    }
+
 }

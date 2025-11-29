@@ -79,4 +79,12 @@ public class CustomerUseCase implements ICustomerUseCasePort {
         // 5. MAP: Trả về kết quả
         return mapper.toDto(updatedCustomer);
     }
+
+    @Override
+    public void deleteCustomer(String customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_EXISTED));
+
+        customerRepository.delete(customer);
+    }
 }

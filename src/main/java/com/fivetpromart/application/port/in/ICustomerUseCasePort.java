@@ -7,4 +7,5 @@ import com.fivetpromart.application.dto.command.CustomerUpdateCommand;
 public interface ICustomerUseCasePort {
     CustomerDto addNewCustomer(CustomerCreationCommand command);
     CustomerDto updateCustomer(CustomerUpdateCommand command);
+    void deleteCustomer(String customerId);
 }

@@ -72,7 +72,9 @@ public enum ErrorCode {
     PHONE_EXISTED(409, "Phone number existed", HttpStatus.CONFLICT),
     PHONE_NOT_EXISTED(404, "Phone number not existed", HttpStatus.NOT_FOUND ),
     INVALID_PHONE(400, "Invalid phone number", HttpStatus.BAD_REQUEST),
-    CANNOT_BE_EMPTY(400, "This field cannot be empty", HttpStatus.BAD_REQUEST),;
+    CANNOT_BE_EMPTY(400, "This field cannot be empty", HttpStatus.BAD_REQUEST),
+    CUSTOMER_NOT_EXISTED(404, "Customer not existed", HttpStatus.NOT_FOUND),
+    ;
 
   private final int code;
   private final String message;
