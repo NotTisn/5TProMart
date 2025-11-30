@@ -35,7 +35,7 @@ public class CategoryController {
             @PathVariable String categoryId,
             @RequestBody CategoryRequest request
     ) {
-        CategoryDto dto = categoryUseCase.updateCategory(categoryId, request.getCategoryName());
+        CategoryDto dto = categoryUseCase.updateCategory(request.getCategoryName(), categoryId);
         CategoryResponse categoryResponse = mapper.toResponse(dto);
 
         return ApiResponse.<CategoryResponse>builder()
@@ -61,6 +61,7 @@ public class CategoryController {
                 .build();
     }
 
+    @GetMapping("/{categoryId}")
     public ApiResponse<CategoryResponse> getCategoryById(
             @PathVariable String categoryId
     ) {
@@ -70,6 +71,18 @@ public class CategoryController {
                 .success(true)
                 .message("Category found")
                 .data(categoryResponse)
+                .build();
+    }
+
+    @DeleteMapping("/{categoryId}")
+    public ApiResponse deleteCategoryById(
+            @PathVariable String categoryId
+    ) {
+        categoryUseCase.deleteCategoryById(categoryId);
+
+        return ApiResponse.builder()
+                .success(true)
+                .message("Category deleted successfully")
                 .build();
     }
 }

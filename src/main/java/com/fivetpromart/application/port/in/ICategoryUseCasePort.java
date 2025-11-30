@@ -9,4 +9,5 @@ public interface ICategoryUseCasePort {
     CategoryDto updateCategory(String categoryName, String categoryId);
     List<CategoryDto> findAllCategories();
     CategoryDto findCategoryById(String categoryId);
+    void deleteCategoryById(String categoryId);
 }

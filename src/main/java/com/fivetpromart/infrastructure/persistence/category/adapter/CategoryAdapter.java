@@ -35,4 +35,9 @@ public class CategoryAdapter implements ICategoryRepository {
     public List<Category> findAll() {
         return categoryJpaRepository.findAll().stream().map(mapper::toDomain).toList();
     }
+
+    @Override
+    public void delete(Category category) {
+        categoryJpaRepository.delete(mapper.toDbo(category));
+    }
 }

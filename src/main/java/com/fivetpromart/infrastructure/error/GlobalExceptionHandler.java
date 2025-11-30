@@ -33,6 +33,7 @@ public class GlobalExceptionHandler {
 
     response.setStatusCode(errorCode.getCode());
     response.setMessage(errorCode.getMessage());
+    response.setSuccess(false);
     return ResponseEntity.status(errorCode.getStatusCode()).body(response);
   }
 
