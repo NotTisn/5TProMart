@@ -60,5 +60,13 @@ public class CategoryUseCase implements ICategoryUseCasePort {
         return mapper.ToDto(category);
     }
 
+    @Override
+    public void deleteCategoryById(String categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        categoryRepository.delete(category);
+    }
+
 
 }
