@@ -8,4 +8,5 @@ public interface ICategoryUseCasePort {
     CategoryDto addNewCategory(String categoryName);
     CategoryDto updateCategory(String categoryName, String categoryId);
     List<CategoryDto> findAllCategories();
+    CategoryDto findCategoryById(String categoryId);
 }

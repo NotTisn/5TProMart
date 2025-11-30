@@ -60,4 +60,16 @@ public class CategoryController {
                 .data(responses)
                 .build();
     }
+
+    public ApiResponse<CategoryResponse> getCategoryById(
+            @PathVariable String categoryId
+    ) {
+        CategoryDto dto =  categoryUseCase.findCategoryById(categoryId);
+        CategoryResponse categoryResponse = mapper.toResponse(dto);
+        return ApiResponse.<CategoryResponse>builder()
+                .success(true)
+                .message("Category found")
+                .data(categoryResponse)
+                .build();
+    }
 }

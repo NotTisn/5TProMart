@@ -52,4 +52,13 @@ public class CategoryUseCase implements ICategoryUseCasePort {
                 .map(mapper::ToDto)
                 .toList();
     }
+
+    @Override
+    public CategoryDto findCategoryById(String categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+        return mapper.ToDto(category);
+    }
+
+
 }
