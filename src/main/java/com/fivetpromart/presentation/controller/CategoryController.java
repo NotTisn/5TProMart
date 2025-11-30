@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/product-categories")
 @RequiredArgsConstructor
@@ -40,6 +42,22 @@ public class CategoryController {
                 .success(true)
                 .message("Category updated successfully")
                 .data(categoryResponse)
+                .build();
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<CategoryResponse>> getAllCategories() {
+        List<CategoryDto> dtos = categoryUseCase.findAllCategories();
+
+        List<CategoryResponse> responses = dtos.stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        return ApiResponse.<List<CategoryResponse>>builder()
+                .success(true)
+                .message("Categories found")
+                .data(responses)
                 .build();
     }
 }

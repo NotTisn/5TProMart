@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -39,5 +42,14 @@ public class CategoryUseCase implements ICategoryUseCasePort {
         Category updatedCategory = categoryRepository.save(category);
 
         return mapper.ToDto(updatedCategory);
+    }
+
+    @Override
+    public List<CategoryDto> findAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+
+        return categories.stream()
+                .map(mapper::ToDto)
+                .toList();
     }
 }
