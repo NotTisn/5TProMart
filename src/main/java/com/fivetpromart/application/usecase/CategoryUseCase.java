@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CategoryUseCase implements ICategoryUseCasePort {
 
-    CategoryDataMapper mapper;
-    ICategoryRepository categoryRepository;
+    private final CategoryDataMapper mapper;
+    private final ICategoryRepository categoryRepository;
 
     @Override
     public CategoryDto addNewCategory(String categoryName) {
@@ -28,5 +28,16 @@ public class CategoryUseCase implements ICategoryUseCasePort {
         Category savedCategory = categoryRepository.save(category);
 
         return mapper.ToDto(savedCategory);
+    }
+
+    @Override
+    public CategoryDto updateCategory(String categoryName, String categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        category.updateCategory(categoryName);
+        Category updatedCategory = categoryRepository.save(category);
+
+        return mapper.ToDto(updatedCategory);
     }
 }

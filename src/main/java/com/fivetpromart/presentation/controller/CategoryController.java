@@ -7,18 +7,16 @@ import com.fivetpromart.presentation.dto.response.ApiResponse;
 import com.fivetpromart.presentation.dto.response.CategoryResponse;
 import com.fivetpromart.presentation.mapper.CategoryPresentationMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/product-categories")
 @RequiredArgsConstructor
 public class CategoryController {
 
-    CategoryUseCase categoryUseCase;
-    CategoryPresentationMapper mapper;
+    private final CategoryUseCase categoryUseCase;
+    private final CategoryPresentationMapper mapper;
 
     @PostMapping
     public ApiResponse<CategoryResponse> createCategory(
@@ -27,5 +25,21 @@ public class CategoryController {
         CategoryResponse categoryResponse = mapper.toResponse(
                 categoryUseCase.addNewCategory(request.getCategoryName()));
         return ApiResponse.created(categoryResponse);
+    }
+
+    @PutMapping("/{categoryId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<CategoryResponse> updateCategory(
+            @PathVariable String categoryId,
+            @RequestBody CategoryRequest request
+    ) {
+        CategoryDto dto = categoryUseCase.updateCategory(categoryId, request.getCategoryName());
+        CategoryResponse categoryResponse = mapper.toResponse(dto);
+
+        return ApiResponse.<CategoryResponse>builder()
+                .success(true)
+                .message("Category updated successfully")
+                .data(categoryResponse)
+                .build();
     }
 }

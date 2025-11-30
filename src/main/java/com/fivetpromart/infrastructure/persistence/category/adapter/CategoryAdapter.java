@@ -9,6 +9,8 @@ import com.fivetpromart.infrastructure.persistence.customer.repository.ICustomer
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class CategoryAdapter implements ICategoryRepository {
@@ -21,5 +23,10 @@ public class CategoryAdapter implements ICategoryRepository {
         CategoryDbo dbo = mapper.toDbo(category);
         CategoryDbo savedDbo = categoryJpaRepository.save(dbo);
         return mapper.toDomain(savedDbo);
+    }
+
+    @Override
+    public Optional<Category> findById(String categoryId) {
+        return categoryJpaRepository.findById(categoryId).map(mapper::toDomain);
     }
 }
