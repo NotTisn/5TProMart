@@ -1,7 +1,7 @@
 package com.fivetpromart.presentation.controller;
 
 import com.fivetpromart.application.dto.ProductDto;
-import com.fivetpromart.application.dto.command.ProductCommand;
+import com.fivetpromart.application.dto.command.ProductCreationCommand;
 import com.fivetpromart.application.usecase.ProductUseCase;
 import com.fivetpromart.presentation.dto.request.ProductRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
@@ -25,7 +25,7 @@ public class ProductController {
     public ApiResponse<ProductResponse> createProduct(
             @Valid @RequestBody ProductRequest request
     ) {
-        ProductCommand product = mapper.toCommand(request);
+        ProductCreationCommand product = mapper.toCommand(request);
         ProductDto dto = productUseCase.addNewProduct(product);
 
         return ApiResponse.<ProductResponse>builder()

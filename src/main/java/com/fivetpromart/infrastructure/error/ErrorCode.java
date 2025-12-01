@@ -75,6 +75,7 @@ public enum ErrorCode {
     CANNOT_BE_EMPTY(400, "This field cannot be empty", HttpStatus.BAD_REQUEST),
     CUSTOMER_NOT_EXISTED(404, "Customer not existed", HttpStatus.NOT_FOUND),
     PRODUCT_EXISTED(409, "Product existed", HttpStatus.CONFLICT),
+    PRODUCT_NOT_EXISTED(404, "Product not existed", HttpStatus.NOT_FOUND),
     ;
 
   private final int code;

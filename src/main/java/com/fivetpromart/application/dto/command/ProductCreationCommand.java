@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ProductCommand {
+public class ProductCreationCommand {
     private String productName;
     private String categoryId;
     private String unitOfMeasure;

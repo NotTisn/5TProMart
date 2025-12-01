@@ -15,7 +15,7 @@ public class Category {
     private String categoryName;
 
     public static Category create(String categoryName) {
-        if (categoryName == null || categoryName.isEmpty())
+        if (categoryName == null || !categoryName.isEmpty())
             throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
         Category category = new Category();
         category.categoryId = UUID.randomUUID().toString();

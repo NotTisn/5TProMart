@@ -1,11 +1,10 @@
 package com.fivetpromart.domain.model;
 
-import com.fivetpromart.infrastructure.error.AppException;
-import com.fivetpromart.infrastructure.error.ErrorCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -17,11 +16,16 @@ public class Product {
     private String unitOfMeasure;
     private BigDecimal sellingPrice;
 
-    public static Product createProduct(String productName, String categoryId, String unitOfMeasure, BigDecimal sellingPrice) {
-        if(productName == null || productName.isBlank())
-            throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
-        if(categoryId == null || categoryId.isBlank())
-            throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
+    public static Product create(String productName, String categoryId, String unitOfMeasure, BigDecimal sellingPrice) {
+        if (productName == null || productName.isBlank()) {
+            throw new IllegalArgumentException("Product name cannot be empty");
+        }
+        if (categoryId == null || categoryId.isBlank()) {
+            throw new IllegalArgumentException("Category ID cannot be empty");
+        }
+        if (sellingPrice != null && sellingPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Selling price cannot be negative");
+        }
 
         Product product = new Product();
         product.productId = UUID.randomUUID().toString();
@@ -52,7 +56,7 @@ public class Product {
     public void updateProduct(String productName, String categoryId, String unitOfMeasure, BigDecimal sellingPrice) {
         if (productName != null && !productName.isBlank())
             this.productName = productName;
-        if (categoryId != null && !categoryId.isBlank())
+        if (categoryId != null && !categoryId.isBlank() && !Objects.equals(this.categoryId, categoryId))
             this.categoryId = categoryId;
         if (unitOfMeasure != null && !unitOfMeasure.isBlank())
             this.unitOfMeasure = unitOfMeasure;
