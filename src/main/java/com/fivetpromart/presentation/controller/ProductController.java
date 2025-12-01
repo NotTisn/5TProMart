@@ -7,6 +7,7 @@ import com.fivetpromart.application.dto.query.ProductSearchQuery;
 import com.fivetpromart.application.usecase.ProductUseCase;
 import com.fivetpromart.presentation.dto.request.ProductRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
+import com.fivetpromart.presentation.dto.response.PaginationMeta;
 import com.fivetpromart.presentation.dto.response.ProductResponse;
 import com.fivetpromart.presentation.mapper.ProductPresentationMapper;
 import jakarta.validation.Valid;
@@ -80,35 +81,34 @@ public class ProductController {
 
     @GetMapping
     public ApiResponse<List<ProductResponse>> getAllProducts(
-            // 1. Nhóm Filter: Map thủ công vào DTO
-            @RequestParam(required = false) String id,
-            @RequestParam(required = false) String categoryId,
             @RequestParam(required = false) String productName,
-
-            // 2. Nhóm Pagination & Sort: Spring tự làm
-            // Hỗ trợ URL: ?page=0&size=10&sort=sellingPrice,desc
-            @PageableDefault(size = 10, sort = "productName") Pageable pageable
+            @PageableDefault(size = 10) Pageable pageable
     ) {
-        // Build Filter DTO
-        ProductSearchQuery query = ProductSearchQuery.builder()
-                .productId(id)
-                .categoryId(categoryId)
-                .productName(productName)
-                .build();
-
-        // Truyền cả 2 vào UseCase
+        // 1. Gọi UseCase (Nhận về Page của Spring)
+        ProductSearchQuery query = ProductSearchQuery.builder().productName(productName).build();
         Page<ProductDto> pageResult = productUseCase.getAllProducts(query, pageable);
 
-        // map to response
-        List<ProductResponse> productResponses = pageResult.stream()
+        // 2. Lấy List Data (data)
+        List<ProductResponse> responseList = pageResult.stream()
                 .map(mapper::toProductResponse)
                 .toList();
 
+        // 3. Tạo Pagination Meta (pagination)
+        // Map từ thông số của Spring Page sang Object của bạn
+        PaginationMeta meta = PaginationMeta.builder()
+                .totalItems(pageResult.getTotalElements()) // Tổng số bản ghi
+                .itemsPerPage(pageResult.getSize())        // Kích thước trang
+                .totalPages(pageResult.getTotalPages())    // Tổng số trang
+                .startPage(pageResult.getNumber() + 1)     // QUAN TRỌNG: Spring bắt đầu từ 0, bạn muốn 1 thì phải +1
+                .build();
+
+        // 4. Trả về kết quả gộp
         return ApiResponse.<List<ProductResponse>>builder()
                 .success(true)
-                .statusCode(HttpStatus.OK.value())
-                .message("Successfully retrieve list of products")
-                .data(productResponses)
+                .statusCode(200)
+                .message("Get products successfully")
+                .data(responseList)  // Mảng dữ liệu
+                .pagination(meta)    // Thông tin phân trang
                 .build();
     }
 }

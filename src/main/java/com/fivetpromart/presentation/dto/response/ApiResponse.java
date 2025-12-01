@@ -18,10 +18,13 @@ public class ApiResponse<T> {
     int statusCode;
     String message;
 
-    // Đã đổi tên từ "result" sang "data" như bạn muốn
     T data;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    PaginationMeta pagination;
+
     // --- CÁC HÀM FACTORY TIỆN LỢI (NÂNG CẤP) ---
+
 
     /**
      * Dùng cho các yêu cầu GET, PUT, PATCH thành công
