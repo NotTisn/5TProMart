@@ -111,4 +111,19 @@ public class ProductController {
                 .pagination(meta)    // Thông tin phân trang
                 .build();
     }
+
+    @GetMapping("/{productId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ProductResponse> getProductById(
+            @PathVariable String productId
+    ) {
+        ProductDto product = productUseCase.getProductById(productId);
+
+        return ApiResponse.<ProductResponse>builder()
+                .success(true)
+                .statusCode(200)
+                .message("Get products successfully")
+                .data(mapper.toProductResponse(product))
+                .build();
+    }
 }

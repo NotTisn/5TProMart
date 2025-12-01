@@ -104,8 +104,11 @@ public class ProductUseCase implements IProductUseCasePort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ProductDto getProductById(String productId) {
-        //TODO: implement here
-        return null;
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+
+        return mapper.toDto(product);
     }
 }
