@@ -13,4 +13,6 @@ public interface ICategoryRepository {
     List<Category> findAll();
 
     void delete(Category category);
+
+    boolean existsById(String categoryId);
 }

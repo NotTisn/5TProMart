@@ -1,5 +1,6 @@
 package com.fivetpromart.application.usecase;
 
+import com.fivetpromart.application.port.in.IOtpCryptoUseCasePort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,7 @@ import java.util.HexFormat;
 
 @Component
 @Slf4j
-public class OtpCryptoUseCase {
+public class OtpCryptoUseCase implements IOtpCryptoUseCasePort {
 
     @Value("${app.otp.secret}")
     private String otpSecret;
