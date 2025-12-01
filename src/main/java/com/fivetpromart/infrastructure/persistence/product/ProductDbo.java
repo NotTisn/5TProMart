@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProductDbo implements Persistable<String> {
+public class ProductDbo {
 
     @Id
     @Column(name = "product_id", length = 36)
@@ -33,23 +33,23 @@ public class ProductDbo implements Persistable<String> {
     @Column(name = "selling_price", precision = 15, scale = 2)
     BigDecimal sellingPrice;
 
-    @Transient
-    @Builder.Default
-    boolean isNew = true;
-
-    @Override
-    public String getId() {
-        return productId;
-    }
-
-    @Override
-    public boolean isNew() {
-        return isNew;
-    }
-
-    @PostLoad
-    @PrePersist
-    void markNotNew() {
-        this.isNew = false;
-    }
+//    @Transient
+//    @Builder.Default
+//    boolean isNew = true;
+//
+//    @Override
+//    public String getId() {
+//        return productId;
+//    }
+//
+//    @Override
+//    public boolean isNew() {
+//        return isNew;
+//    }
+//
+//    @PostLoad
+//    @PrePersist
+//    void markNotNew() {
+//        this.isNew = false;
+//    }
 }

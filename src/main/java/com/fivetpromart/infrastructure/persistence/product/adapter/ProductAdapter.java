@@ -37,7 +37,7 @@ public class ProductAdapter implements IProductRepository {
 
     @Override
     public Optional<Product> findById(String productId) {
-        return Optional.empty();
+        return productRepository.findById(productId).map(mapper::toDomain);
     }
 
     @Override

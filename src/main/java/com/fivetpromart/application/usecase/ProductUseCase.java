@@ -77,7 +77,9 @@ public class ProductUseCase implements IProductUseCasePort {
 
     @Override
     public void deleteProduct(String productId) {
-        //TODO: implement here
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+        productRepository.delete(product);
     }
 
     @Override
