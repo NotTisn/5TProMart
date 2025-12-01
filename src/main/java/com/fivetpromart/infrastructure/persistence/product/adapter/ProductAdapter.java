@@ -1,11 +1,16 @@
 package com.fivetpromart.infrastructure.persistence.product.adapter;
 
+import com.fivetpromart.application.dto.query.ProductSearchQuery;
 import com.fivetpromart.application.port.out.IProductRepository;
 import com.fivetpromart.domain.model.Product;
 import com.fivetpromart.infrastructure.persistence.product.ProductDbo;
 import com.fivetpromart.infrastructure.persistence.product.mapper.ProductPersistenceMapper;
 import com.fivetpromart.infrastructure.persistence.product.repository.IProductJpaRepository;
+import com.fivetpromart.infrastructure.persistence.product.spec.ProductSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -63,5 +68,17 @@ public class ProductAdapter implements IProductRepository {
     @Override
     public void delete(Product product) {
 
+    }
+
+    @Override
+    public Page<Product> searchProducts(ProductSearchQuery query, Pageable pageable) {
+        // 1. Tạo Specification từ DTO Filter
+        Specification<ProductDbo> spec = ProductSpecification.getSpec(query);
+
+        // 2. Truyền thẳng Pageable vào JPA
+        // JPA tự động xử lý LIMIT, OFFSET, ORDER BY dựa trên Pageable
+        Page<ProductDbo> dboPage = productRepository.findAll(spec, pageable);
+
+        return dboPage.map(mapper::toDomain);
     }
 }

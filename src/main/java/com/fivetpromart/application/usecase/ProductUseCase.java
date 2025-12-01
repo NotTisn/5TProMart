@@ -3,6 +3,7 @@ package com.fivetpromart.application.usecase;
 import com.fivetpromart.application.dto.ProductDto;
 import com.fivetpromart.application.dto.command.ProductCreationCommand;
 import com.fivetpromart.application.dto.command.ProductUpdateCommand;
+import com.fivetpromart.application.dto.query.ProductSearchQuery;
 import com.fivetpromart.application.mapper.ProductDataMapper;
 import com.fivetpromart.application.port.in.IProductUseCasePort;
 import com.fivetpromart.application.port.out.ICategoryRepository;
@@ -12,6 +13,8 @@ import com.fivetpromart.infrastructure.error.AppException;
 import com.fivetpromart.infrastructure.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,8 +87,20 @@ public class ProductUseCase implements IProductUseCasePort {
 
     @Override
     public List<ProductDto> getAllProducts() {
-        //TODO: implement here
-        return List.of();
+        List<Product> products = productRepository.findAll();
+
+        return products.stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public Page<ProductDto> getAllProducts(ProductSearchQuery query, Pageable pageable) {
+        // Gọi Repo lấy Page Domain
+        Page<Product> productPage = productRepository.searchProducts(query, pageable);
+
+        // Map sang Page DTO
+        return productPage.map(mapper::toDto);
     }
 
     @Override
