@@ -26,6 +26,18 @@ public class GlobalExceptionHandler {
   //        return ResponseEntity.badRequest().body(response);
   //    }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse> handleDomainException(IllegalArgumentException ex) {
+        // Map lỗi Java thuần sang cấu trúc API của bạn
+        ApiResponse response = ApiResponse.builder()
+                .success(false)
+                .statusCode(ErrorCode.INVALID_INPUT.getCode()) // 400
+                .message(ex.getMessage()) // "Product name cannot be empty"
+                .build();
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
   @ExceptionHandler(value = AppException.class)
   ResponseEntity<ApiResponse> handleAppException(AppException ex) {
     ErrorCode errorCode = ex.getErrorCode();

@@ -40,4 +40,9 @@ public class CategoryAdapter implements ICategoryRepository {
     public void delete(Category category) {
         categoryJpaRepository.delete(mapper.toDbo(category));
     }
+
+    @Override
+    public boolean existsById(String categoryId) {
+        return categoryJpaRepository.existsById(categoryId);
+    }
 }
