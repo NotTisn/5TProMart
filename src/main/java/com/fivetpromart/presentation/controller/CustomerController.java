@@ -3,13 +3,19 @@ package com.fivetpromart.presentation.controller;
 import com.fivetpromart.application.dto.CustomerDto;
 import com.fivetpromart.application.dto.command.CustomerCreationCommand;
 import com.fivetpromart.application.dto.command.CustomerUpdateCommand;
+import com.fivetpromart.application.dto.query.CustomerSearchQuery;
 import com.fivetpromart.application.port.in.ICustomerUseCasePort;
 import com.fivetpromart.presentation.dto.request.CustomerRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
 import com.fivetpromart.presentation.dto.response.CustomerResponse;
+import com.fivetpromart.presentation.dto.response.PaginationMeta;
+import com.fivetpromart.presentation.dto.response.ProductResponse;
 import com.fivetpromart.presentation.mapper.CustomerPresentationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,7 +81,7 @@ public class CustomerController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ApiResponse<List<CustomerResponse>> getAllCustomers() {
         List<CustomerDto> customerDtos = customerUseCase.getAllCustomers();
 
@@ -101,6 +107,41 @@ public class CustomerController {
                 .success(true)
                 .message("Successfully retrieved a customer")
                 .data(customerResponse)
+                .build();
+    }
+
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<CustomerResponse>> getAllCustomersByPage(
+        @RequestParam(required = false) String customerName,
+        @RequestParam(required = false) String customerId,
+        @PageableDefault(size = 10) Pageable pageable
+    ) {
+        CustomerSearchQuery query =  CustomerSearchQuery.builder()
+                .customerName(customerName)
+                .customerId(customerId)
+                .build();
+        Page<CustomerDto> pageResult = customerUseCase.getAllCustomers(query, pageable);
+
+        List<CustomerResponse> responses = pageResult.stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        PaginationMeta meta = PaginationMeta.builder()
+                .totalItems(pageResult.getTotalElements()) // Tổng số bản ghi
+                .itemsPerPage(pageResult.getSize())        // Kích thước trang
+                .totalPages(pageResult.getTotalPages())    // Tổng số trang
+                .startPage(pageResult.getNumber() + 1)     // QUAN TRỌNG: Spring bắt đầu từ 0, bạn muốn 1 thì phải +1
+                .build();
+
+        // 4. Trả về kết quả gộp
+        return ApiResponse.<List<CustomerResponse>>builder()
+                .success(true)
+                .statusCode(200)
+                .message("Get products successfully")
+                .data(responses)  // Mảng dữ liệu
+                .pagination(meta)    // Thông tin phân trang
                 .build();
     }
 }

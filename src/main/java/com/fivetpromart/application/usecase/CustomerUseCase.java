@@ -3,6 +3,7 @@ package com.fivetpromart.application.usecase;
 import com.fivetpromart.application.dto.CustomerDto;
 import com.fivetpromart.application.dto.command.CustomerCreationCommand;
 import com.fivetpromart.application.dto.command.CustomerUpdateCommand;
+import com.fivetpromart.application.dto.query.CustomerSearchQuery;
 import com.fivetpromart.application.mapper.CustomerDataMapper;
 import com.fivetpromart.application.port.in.ICustomerUseCasePort;
 import com.fivetpromart.application.port.out.ICustomerRepository;
@@ -11,6 +12,8 @@ import com.fivetpromart.infrastructure.error.AppException;
 import com.fivetpromart.infrastructure.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,5 +108,11 @@ public class CustomerUseCase implements ICustomerUseCasePort {
                 .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_EXISTED));
 
         return mapper.toDto(customer);
+    }
+
+    @Override
+    public Page<CustomerDto> getAllCustomers(CustomerSearchQuery query, Pageable pageable) {
+        Page<Customer> page = customerRepository.searchCustomers(query, pageable);
+        return page.map(mapper::toDto);
     }
 }
