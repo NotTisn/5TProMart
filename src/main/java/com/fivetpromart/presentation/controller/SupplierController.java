@@ -66,12 +66,26 @@ public class SupplierController {
             @PathVariable String supplierId
     ) {
         SupplierDto dto = supplierUseCase.getSupplierById(supplierId);
-        
+
         return ApiResponse.<SupplierResponse>builder()
                 .success(true)
                 .statusCode(HttpStatus.OK.value())
                 .message("Successfully update supplier")
                 .data(mapper.toResponse(dto))
+                .build();
+    }
+
+    @DeleteMapping("/{supplierId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse deleteSupplierById (
+            @PathVariable String supplierId
+    ) {
+        supplierUseCase.deleteSupplierById(supplierId);
+
+        return ApiResponse.builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully deleted supplier")
                 .build();
     }
 }

@@ -60,6 +60,9 @@ public class SupplierUseCase implements ISupplierUseCasePort {
 
     @Override
     public void deleteSupplierById(String supplierId) {
+        if(!supplierRepository.existsById(supplierId))
+            throw new AppException(ErrorCode.SUPPLIER_NOT_EXISTED);
 
+        supplierRepository.deleteById(supplierId);
     }
 }
