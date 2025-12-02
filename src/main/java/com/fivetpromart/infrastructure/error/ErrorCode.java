@@ -76,6 +76,7 @@ public enum ErrorCode {
     CUSTOMER_NOT_EXISTED(404, "Customer not existed", HttpStatus.NOT_FOUND),
     PRODUCT_EXISTED(409, "Product existed", HttpStatus.CONFLICT),
     PRODUCT_NOT_EXISTED(404, "Product not existed", HttpStatus.NOT_FOUND),
+    SUPPLIER_NOT_EXISTED(404 , "Supplier not existed", HttpStatus.NOT_FOUND ),
     ;
 
   private final int code;

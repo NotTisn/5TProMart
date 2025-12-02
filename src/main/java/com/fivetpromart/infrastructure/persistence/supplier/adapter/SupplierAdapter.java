@@ -1,5 +1,6 @@
 package com.fivetpromart.infrastructure.persistence.supplier.adapter;
 
+import com.fivetpromart.application.dto.SupplierDto;
 import com.fivetpromart.application.port.out.ISupplierRepository;
 import com.fivetpromart.domain.model.Supplier;
 import com.fivetpromart.infrastructure.persistence.supplier.SupplierDbo;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -25,8 +27,8 @@ public class SupplierAdapter implements ISupplierRepository {
     }
 
     @Override
-    public Supplier findById(String supplierId) {
-        return null;
+    public Optional<Supplier> findById(String supplierId) {
+        return supplierRepository.findById(supplierId).map(mapper::toDomain);
     }
 
     @Override
