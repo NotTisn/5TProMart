@@ -54,7 +54,8 @@ public class SupplierUseCase implements ISupplierUseCasePort {
 
     @Override
     public SupplierDto getSupplierById(String supplierId) {
-        return null;
+        return supplierRepository.findById(supplierId).map(mapper::toDto)
+                .orElseThrow(() -> new AppException(ErrorCode.SUPPLIER_NOT_EXISTED));
     }
 
     @Override

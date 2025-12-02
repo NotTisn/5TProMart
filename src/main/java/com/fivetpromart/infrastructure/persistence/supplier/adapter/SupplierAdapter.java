@@ -43,6 +43,6 @@ public class SupplierAdapter implements ISupplierRepository {
 
     @Override
     public boolean existsById(String supplierId) {
-        return false;
+        return supplierRepository.existsById(supplierId);
     }
 }

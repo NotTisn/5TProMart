@@ -59,4 +59,19 @@ public class SupplierController {
                 .data(mapper.toResponse(dto))
                 .build();
     }
+
+    @GetMapping("/{supplierId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<SupplierResponse> getSupplierById (
+            @PathVariable String supplierId
+    ) {
+        SupplierDto dto = supplierUseCase.getSupplierById(supplierId);
+        
+        return ApiResponse.<SupplierResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully update supplier")
+                .data(mapper.toResponse(dto))
+                .build();
+    }
 }
