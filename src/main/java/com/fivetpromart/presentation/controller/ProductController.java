@@ -82,10 +82,16 @@ public class ProductController {
     @GetMapping
     public ApiResponse<List<ProductResponse>> getAllProducts(
             @RequestParam(required = false) String productName,
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) String productId,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         // 1. Gọi UseCase (Nhận về Page của Spring)
-        ProductSearchQuery query = ProductSearchQuery.builder().productName(productName).build();
+        ProductSearchQuery query = ProductSearchQuery.builder()
+                .productName(productName)
+                .categoryId(categoryId)
+                .productId(productId)
+                .build();
         Page<ProductDto> pageResult = productUseCase.getAllProducts(query, pageable);
 
         // 2. Lấy List Data (data)
