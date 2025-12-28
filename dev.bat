@@ -12,6 +12,22 @@ set "ROOT=%~dp0"
 set "INFRA=%ROOT%infrastructure"
 
 REM ============================================================================
+REM 0. LOAD .ENV VARIABLES
+REM ============================================================================
+
+echo.
+if exist "%ROOT%\.env" (
+    echo [Config] Loading environment variables from .env...
+    for /f "usebackq tokens=* eol=#" %%a in ("%ROOT%\.env") do (
+        set "line=%%a"
+        if not "!line!"=="" set "%%a"
+    )
+) else (
+    echo [WARN] Khong tim thay file .env tai: %ROOT%\.env
+    echo        Ung dung co the bi loi thieu API Key/Password!
+)
+
+REM ============================================================================
 REM Parse Arguments
 REM ============================================================================
 
@@ -174,57 +190,44 @@ REM ============================================================================
 REM Step 3: Verify Realm + Start App
 REM ============================================================================
 
+REM ============================================================================
+REM Step 3: Verify Realm + Start App
+REM ============================================================================
+
 :step3
 echo [3/3] Application...
 
-REM Verify realm exists
-powershell -Command "try{Invoke-WebRequest -Uri 'http://localhost:8180/realms/fivetpro' -UseBasicParsing -TimeoutSec 5 | Out-Null;exit 0}catch{exit 1}" >nul 2>&1
+REM --- 1. Kiem tra Realm Keycloak (Chi canh bao, khong dung script) ---
+powershell -Command "try{Invoke-WebRequest -Uri 'http://localhost:8180/realms/fivetpro' -UseBasicParsing -TimeoutSec 2 | Out-Null;exit 0}catch{exit 1}" >nul 2>&1
 if errorlevel 1 (
-    echo       [WARN] Realm 'fivetpro' not detected.
-    echo              First run? It may be importing...
-    timeout /t 10 /nobreak >nul
+    echo       [WARN] Realm 'fivetpro' not detected or Keycloak is starting...
 )
 
-REM Skip app if requested
-if /i "%~1"=="--skip-app" (
-    echo       Skipping app (--skip-app flag)
-    goto done
-)
+REM --- 2. BO QUA KIEM TRA 'API_RUNNING'. CU CHAY DI! ---
 
-REM Check if already running
-if "%API_RUNNING%"=="1" (
-    echo       Already running on :8080
-    goto done
-)
-
-REM Compile if needed
-pushd "%ROOT%"
-if not exist "target\classes" (
-    echo       Compiling (first run, please wait)...
-    call mvnw.cmd compile -q -DskipTests
-    if errorlevel 1 (
-        echo  [ERROR] Compilation failed!
-        popd
-        pause
-        exit /b 1
-    )
-)
-
-REM Start Spring Boot
+REM --- 3. Start Spring Boot ---
 echo       Starting Spring Boot...
-start "5TProMart" cmd /c "mvnw.cmd spring-boot:run -q"
-popd
 
-REM Wait for app
-echo       Waiting for startup...
-call :wait_for_port 8080 60
-if errorlevel 1 (
-    echo  [ERROR] Application failed to start in 60s
-    echo  Check the 5TProMart window for errors.
+REM Kiem tra file mvnw.cmd co ton tai khong
+if not exist "mvnw.cmd" (
+    echo [ERROR] Khong tim thay file mvnw.cmd! Ban dang dung sai thu muc?
     pause
     exit /b 1
 )
-echo       Application: Ready
+
+REM --- QUAN TRONG: Lenh nay se luon bat cua so moi ---
+start "5TProMart" cmd /k "mvnw.cmd spring-boot:run"
+popd
+
+REM --- 4. Cho doi App khoi dong ---
+echo       Waiting for startup...
+call :wait_for_port 8080 60
+
+if errorlevel 1 (
+    echo  [WARN] App khoi dong lau hon du kien. Hay kiem tra cua so '5TProMart'.
+) else (
+    echo       Application: Ready
+)
 echo.
 
 REM ============================================================================
@@ -281,7 +284,7 @@ set "wfk_elapsed=0"
 if %wfk_elapsed% geq %wfk_timeout% (
     exit /b 1
 )
-powershell -Command "try{$r=Invoke-WebRequest -Uri 'http://localhost:8180/health/ready' -UseBasicParsing -TimeoutSec 5;if($r.Content -match 'UP'){exit 0}else{exit 1}}catch{exit 1}" >nul 2>&1
+powershell -Command "try{$r=Invoke-WebRequest -Uri 'http://localhost:8180/' -UseBasicParsing -TimeoutSec 5;if($r.StatusCode -eq 200){exit 0}else{exit 1}}catch{exit 1}" >nul 2>&1
 if not errorlevel 1 (
     exit /b 0
 )

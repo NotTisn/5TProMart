@@ -22,6 +22,7 @@ public class SignUpRequestDbo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, updatable = false)
     String id;
 
     @Column(unique = true, nullable = false)

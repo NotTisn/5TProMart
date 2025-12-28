@@ -22,7 +22,6 @@ public interface SignUpPersistenceMapper {
 
         return SignUpRequestDbo.builder()
                 // Map các trường cơ bản
-                .id(domain.getId())
                 .email(domain.getEmail())
                 .username(domain.getUsername())
                 .password(domain.getPassword())

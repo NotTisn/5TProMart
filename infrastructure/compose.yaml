@@ -20,9 +20,9 @@ services:
     image: postgres:16-alpine
     container_name: fivetpromart-postgres
     environment:
-      POSTGRES_DB: fivetpromart_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: votrungtin2005
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -31,7 +31,7 @@ services:
     networks:
       - fivetpromart-net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d fivetpromart_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -46,8 +46,8 @@ services:
     container_name: fivetpromart-keycloak
     command: start-dev --import-realm
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_DB: dev-file
       KC_HTTP_PORT: 8180
       KC_HEALTH_ENABLED: "true"
@@ -78,9 +78,9 @@ services:
       # Use Docker profile for container-aware URLs
       SPRING_PROFILES_ACTIVE: docker
       # Database connection (using container hostname)
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fivetpromart_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: votrungtin2005
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       # Keycloak (using container hostname)
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8180/realms/fivetpro
       IDP_URL: http://keycloak:8180

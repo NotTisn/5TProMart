@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,7 +36,6 @@ public class PendingRegistrationUseCase implements IRegistrationPendingPort {
     private int otpExpirationSeconds;
 
     @Override
-    @Transactional
     public void initiateSignUp(RegistrationPendingCommand request) {
         log.info("Initiating sign up for email: {}", request.getEmail());
 
@@ -52,36 +53,40 @@ public class PendingRegistrationUseCase implements IRegistrationPendingPort {
         String rawOtp = otpCryptoService.generateOtpCode();
         String hashedOtp = otpCryptoService.hmacOtp(rawOtp);
 
-        // 2. CHIẾN THUẬT UPSERT (Thay thế đoạn Delete -> Save cũ)
-        // Tìm xem có request nào đang chờ không?
-        PendingRegistration pendingRegistration = signUpRequestRepository.findByEmail(request.getEmail())
-                .map(existingReg -> {
-                    // CASE A: Đã có -> Cập nhật lại (Renew)
-                    log.info("Renewing existing registration for email: {}", request.getEmail());
-                    existingReg.renewRegistration(
-                            request.getUsername(),
-                            request.getPassword(),
-                            profileSnapshot,
-                            hashedOtp,
-                            otpExpirationSeconds
-                    );
-                    return existingReg;
-                })
-                .orElseGet(() -> {
-                    // CASE B: Chưa có -> Tạo mới (Create)
-                    log.info("Creating new registration for email: {}", request.getEmail());
-                    PendingRegistration newReg = PendingRegistration.create(
-                            request.getEmail(),
-                            request.getUsername(),
-                            request.getPassword(),
-                            profileSnapshot
-                    );
-                    newReg.generateOtp(hashedOtp, otpExpirationSeconds);
-                    return newReg;
-                });
+        // 2. CHIẾN THUẬT UPSERT
+        Optional<PendingRegistration> existingOpt = signUpRequestRepository.findByEmail(request.getEmail());
 
-        // 3. Chỉ cần gọi Save 1 lần duy nhất
-        // JPA tự biết: Nếu có ID cũ -> Update. Nếu ID mới -> Insert.
+        PendingRegistration pendingRegistration;
+
+        if (existingOpt.isPresent()) {
+            // CASE A: Đã có -> Cập nhật (renew)
+            pendingRegistration = existingOpt.get();
+            log.info("Renewing existing registration for email: {}", request.getEmail());
+
+            pendingRegistration.renewRegistration(
+                    request.getUsername(),
+                    request.getPassword(),
+                    profileSnapshot,
+                    hashedOtp,
+                    otpExpirationSeconds
+            );
+
+        } else {
+            // CASE B: Chưa có -> Tạo mới
+            log.info("Creating new registration for email: {}", request.getEmail());
+
+            pendingRegistration = PendingRegistration.create(
+                    request.getEmail(),
+                    request.getUsername(),
+                    request.getPassword(),
+                    profileSnapshot
+            );
+
+            // ✅ QUAN TRỌNG: Phải generate OTP cho entity mới
+            pendingRegistration.generateOtp(hashedOtp, otpExpirationSeconds);
+        }
+
+        // 3. Lưu (JPA tự biết INSERT hay UPDATE)
         signUpRequestRepository.save(pendingRegistration);
 
         // 4. Gửi Email
