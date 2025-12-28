@@ -1,5 +1,6 @@
 package com.fivetpromart.domain.model;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,8 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor
-public class Product {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)public class Product {
     private String productId;
     private String productName;
     private String categoryId;

@@ -61,6 +61,6 @@ app:
 notification:
   email:
     brevo-url: https://api.brevo.com
-    brevo-apikey: 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
+    brevo-apikey: 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
     sender-email: tinvo2005@gmail.com
     sender-name: FiveTProMart Corp.
