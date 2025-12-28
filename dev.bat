@@ -6,13 +6,6 @@ REM ============================================================================
 REM Clone. Run. Code.
 REM
 REM Usage: dev [--skip-app] [--stop] [--status] [--clean]
-REM
-REM   (no args)     Start everything
-REM   --skip-app    Only start infrastructure (PostgreSQL + Keycloak)
-REM   --stop        Stop all services
-REM   --docker      (with --stop) Also stop Docker containers
-REM   --status      Show service status
-REM   --clean       Nuclear reset (delete all data)
 REM ============================================================================
 
 set "ROOT=%~dp0"
@@ -52,81 +45,191 @@ echo  ============================================
 echo.
 
 REM --- Check Docker ---
+echo [0/3] Checking Docker...
 docker info >nul 2>&1
 if errorlevel 1 (
+    echo.
     echo  [ERROR] Docker is not running!
-    echo          Start Docker Desktop first.
+    echo.
+    echo  Please start Docker Desktop and try again.
     echo.
     pause
     exit /b 1
 )
+echo       Docker: OK
+echo.
 
-REM --- Start Infrastructure ---
-echo [1/3] Infrastructure (PostgreSQL + Keycloak)...
+REM --- Check for port conflicts FIRST ---
+echo [1/3] Checking ports...
 
+set "PORT_CONFLICT=0"
+set "PG_RUNNING=0"
+set "KC_RUNNING=0"
+set "API_RUNNING=0"
+
+REM Check PostgreSQL port
 powershell -Command "try{(New-Object Net.Sockets.TcpClient).Connect('localhost',5432);exit 0}catch{exit 1}" >nul 2>&1
+if not errorlevel 1 (
+    REM Port is open - check if it's our container
+    docker ps --format "{{.Names}}" 2>nul | findstr /i "fivetpromart-postgres" >nul 2>&1
+    if errorlevel 1 (
+        echo       [WARN] Port 5432 is in use by something else!
+        set "PORT_CONFLICT=1"
+    ) else (
+        echo       PostgreSQL: Already running ^(ours^)
+        set "PG_RUNNING=1"
+    )
+)
+
+REM Check Keycloak port
+powershell -Command "try{(New-Object Net.Sockets.TcpClient).Connect('localhost',8180);exit 0}catch{exit 1}" >nul 2>&1
+if not errorlevel 1 (
+    docker ps --format "{{.Names}}" 2>nul | findstr /i "fivetpromart-keycloak" >nul 2>&1
+    if errorlevel 1 (
+        echo       [WARN] Port 8180 is in use by something else!
+        set "PORT_CONFLICT=1"
+    ) else (
+        echo       Keycloak: Already running ^(ours^)
+        set "KC_RUNNING=1"
+    )
+)
+
+REM Check API port
+powershell -Command "try{(New-Object Net.Sockets.TcpClient).Connect('localhost',8080);exit 0}catch{exit 1}" >nul 2>&1
+if not errorlevel 1 (
+    echo       API: Already running on :8080
+    set "API_RUNNING=1"
+)
+
+if "%PORT_CONFLICT%"=="1" (
+    echo.
+    echo  [ERROR] Port conflict detected!
+    echo.
+    echo  Another application is using required ports.
+    echo  Please stop it first, or run: dev --stop --docker
+    echo.
+    echo  To see what's using ports:
+    echo    netstat -ano ^| findstr ":5432 :8180 :8080"
+    echo.
+    pause
+    exit /b 1
+)
+echo       Ports: OK
+echo.
+
+REM ============================================================================
+REM Step 2: Infrastructure
+REM ============================================================================
+
+echo [2/3] Infrastructure (PostgreSQL + Keycloak)...
+
+if "%PG_RUNNING%"=="1" (
+    if "%KC_RUNNING%"=="1" (
+        echo       Already running.
+        goto step3
+    )
+)
+
+REM Need to start Docker services
+echo       Starting Docker services...
+pushd "%INFRA%"
+docker compose -f compose-infra-only.yaml up -d
 if errorlevel 1 (
-    echo       Starting Docker services...
-    pushd "%INFRA%"
-    docker compose -f compose-infra-only.yaml up -d
+    echo.
+    echo  [ERROR] Failed to start Docker services!
+    echo  Check: docker compose -f compose-infra-only.yaml logs
+    echo.
     popd
-    
-    echo       Waiting for PostgreSQL...
-:wait_pg
-    timeout /t 2 /nobreak >nul
-    powershell -Command "try{(New-Object Net.Sockets.TcpClient).Connect('localhost',5432);exit 0}catch{exit 1}" >nul 2>&1
-    if errorlevel 1 goto wait_pg
-    
-    echo       Waiting for Keycloak (30-60s on first run)...
-:wait_kc
-    timeout /t 5 /nobreak >nul
-    powershell -Command "try{$r=Invoke-WebRequest -Uri 'http://localhost:8180/health/ready' -UseBasicParsing -TimeoutSec 5;if($r.Content -match 'UP'){exit 0}else{exit 1}}catch{exit 1}" >nul 2>&1
-    if errorlevel 1 goto wait_kc
-) else (
-    echo       Already running.
+    pause
+    exit /b 1
 )
-echo       Done.
-echo.
+popd
 
-REM --- Verify Realm ---
-echo [2/3] Keycloak realm...
-powershell -Command "try{Invoke-WebRequest -Uri 'http://localhost:8180/realms/fivetpro' -UseBasicParsing -TimeoutSec 5;exit 0}catch{exit 1}" >nul 2>&1
+REM Wait for PostgreSQL
+echo       Waiting for PostgreSQL...
+call :wait_for_port 5432 30
 if errorlevel 1 (
-    echo       [WARN] Realm 'fivetpro' not found. May need manual import.
-) else (
-    echo       OK.
+    echo  [ERROR] PostgreSQL failed to start in 30s
+    echo  Check: docker logs fivetpromart-postgres
+    pause
+    exit /b 1
 )
+echo       PostgreSQL: Ready
+
+REM Wait for Keycloak (takes longer)
+echo       Waiting for Keycloak (may take 60s on first run)...
+call :wait_for_keycloak 120
+if errorlevel 1 (
+    echo  [ERROR] Keycloak failed to start in 120s
+    echo  Check: docker logs fivetpromart-keycloak
+    pause
+    exit /b 1
+)
+echo       Keycloak: Ready
+
+echo       Infrastructure: OK
 echo.
 
-REM --- Start App ---
+REM ============================================================================
+REM Step 3: Verify Realm + Start App
+REM ============================================================================
+
+:step3
+echo [3/3] Application...
+
+REM Verify realm exists
+powershell -Command "try{Invoke-WebRequest -Uri 'http://localhost:8180/realms/fivetpro' -UseBasicParsing -TimeoutSec 5 | Out-Null;exit 0}catch{exit 1}" >nul 2>&1
+if errorlevel 1 (
+    echo       [WARN] Realm 'fivetpro' not detected.
+    echo              First run? It may be importing...
+    timeout /t 10 /nobreak >nul
+)
+
+REM Skip app if requested
 if /i "%~1"=="--skip-app" (
-    echo [3/3] Skipping app (--skip-app)
+    echo       Skipping app (--skip-app flag)
     goto done
 )
 
-echo [3/3] Spring Boot (hot reload)...
-
-powershell -Command "try{(New-Object Net.Sockets.TcpClient).Connect('localhost',8080);exit 0}catch{exit 1}" >nul 2>&1
-if not errorlevel 1 (
+REM Check if already running
+if "%API_RUNNING%"=="1" (
     echo       Already running on :8080
     goto done
 )
 
+REM Compile if needed
 pushd "%ROOT%"
 if not exist "target\classes" (
-    echo       Compiling (first run)...
+    echo       Compiling (first run, please wait)...
     call mvnw.cmd compile -q -DskipTests
+    if errorlevel 1 (
+        echo  [ERROR] Compilation failed!
+        popd
+        pause
+        exit /b 1
+    )
 )
+
+REM Start Spring Boot
+echo       Starting Spring Boot...
 start "5TProMart" cmd /c "mvnw.cmd spring-boot:run -q"
 popd
 
+REM Wait for app
 echo       Waiting for startup...
-:wait_app
-timeout /t 3 /nobreak >nul
-powershell -Command "try{(New-Object Net.Sockets.TcpClient).Connect('localhost',8080);exit 0}catch{exit 1}" >nul 2>&1
-if errorlevel 1 goto wait_app
-echo       Ready.
+call :wait_for_port 8080 60
+if errorlevel 1 (
+    echo  [ERROR] Application failed to start in 60s
+    echo  Check the 5TProMart window for errors.
+    pause
+    exit /b 1
+)
+echo       Application: Ready
 echo.
+
+REM ============================================================================
+REM Done!
+REM ============================================================================
 
 :done
 echo  ============================================
@@ -138,10 +241,50 @@ echo   Keycloak:   http://localhost:8180/admin (admin/admin)
 echo   PostgreSQL: localhost:5432 (postgres/votrungtin2005)
 echo.
 echo   Commands:
-echo     dev --stop        Stop services
+echo     dev --stop           Stop Java services
 echo     dev --stop --docker  Stop everything
-echo     dev --status      Check status
-echo     dev --clean       Reset all data
+echo     dev --status         Check status
+echo     dev --clean          Reset all data
 echo.
+goto :eof
 
-endlocal
+REM ============================================================================
+REM FUNCTIONS
+REM ============================================================================
+
+:wait_for_port
+REM Usage: call :wait_for_port <port> <timeout_seconds>
+REM Returns: errorlevel 0 = success, 1 = timeout
+set "wfp_port=%~1"
+set "wfp_timeout=%~2"
+set "wfp_elapsed=0"
+
+:wait_port_loop
+if %wfp_elapsed% geq %wfp_timeout% (
+    exit /b 1
+)
+powershell -Command "try{(New-Object Net.Sockets.TcpClient).Connect('localhost',%wfp_port%);exit 0}catch{exit 1}" >nul 2>&1
+if not errorlevel 1 (
+    exit /b 0
+)
+timeout /t 2 /nobreak >nul
+set /a wfp_elapsed+=2
+goto wait_port_loop
+
+:wait_for_keycloak
+REM Usage: call :wait_for_keycloak <timeout_seconds>
+REM Waits for Keycloak health endpoint to return UP
+set "wfk_timeout=%~1"
+set "wfk_elapsed=0"
+
+:wait_kc_loop
+if %wfk_elapsed% geq %wfk_timeout% (
+    exit /b 1
+)
+powershell -Command "try{$r=Invoke-WebRequest -Uri 'http://localhost:8180/health/ready' -UseBasicParsing -TimeoutSec 5;if($r.Content -match 'UP'){exit 0}else{exit 1}}catch{exit 1}" >nul 2>&1
+if not errorlevel 1 (
+    exit /b 0
+)
+timeout /t 5 /nobreak >nul
+set /a wfk_elapsed+=5
+goto wait_kc_loop
