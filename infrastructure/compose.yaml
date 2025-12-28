@@ -1,0 +1,106 @@
+# =============================================================================
+# 5TPROMART - FULL STACK (For CI/CD, Demos, Production-like Testing)
+# =============================================================================
+# Start with: docker compose up -d --build
+# =============================================================================
+# This file builds the Spring Boot app into a Docker container.
+# Use for:
+# - CI/CD pipelines
+# - Production-like testing
+# - Demos without IDE
+#
+# For daily development with hot reload, use: compose-infra-only.yaml
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: fivetpromart-postgres
+    environment:
+      POSTGRES_DB: fivetpromart_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: votrungtin2005
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./seed/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - fivetpromart-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fivetpromart_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Keycloak Identity Provider
+  # ---------------------------------------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: fivetpromart-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: dev-file
+      KC_HTTP_PORT: 8180
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8180:8180"
+    volumes:
+      - ./data/keycloak:/opt/keycloak/data/h2
+      - ./keycloak-config:/opt/keycloak/data/import
+    networks:
+      - fivetpromart-net
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8180 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && cat <&3 | grep -q 'UP'"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # 5TProMart API (Spring Boot Application)
+  # ---------------------------------------------------------------------------
+  fivetpromart-api:
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile
+    container_name: fivetpromart-api
+    environment:
+      # Use Docker profile for container-aware URLs
+      SPRING_PROFILES_ACTIVE: docker
+      # Database connection (using container hostname)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fivetpromart_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: votrungtin2005
+      # Keycloak (using container hostname)
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8180/realms/fivetpro
+      IDP_URL: http://keycloak:8180
+    ports:
+      - "8080:8080"
+    networks:
+      - fivetpromart-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    restart: unless-stopped
+
+# =============================================================================
+# Network
+# =============================================================================
+networks:
+  fivetpromart-net:
+    driver: bridge
