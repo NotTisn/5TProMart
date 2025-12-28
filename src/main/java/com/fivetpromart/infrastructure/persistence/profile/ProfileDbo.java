@@ -16,7 +16,6 @@ import lombok.experimental.FieldDefaults;
 public class ProfileDbo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     @Column(name = "user_id", unique = true, nullable = false)
