@@ -82,7 +82,7 @@ public class PendingRegistrationUseCase implements IRegistrationPendingPort {
                     profileSnapshot
             );
 
-            // ✅ QUAN TRỌNG: Phải generate OTP cho entity mới
+            // QUAN TRỌNG: Phải generate OTP cho entity mới
             pendingRegistration.generateOtp(hashedOtp, otpExpirationSeconds);
         }
 
