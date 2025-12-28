@@ -6,6 +6,7 @@ import com.fivetpromart.presentation.dto.request.CategoryRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
 import com.fivetpromart.presentation.dto.response.CategoryResponse;
 import com.fivetpromart.presentation.mapper.CategoryPresentationMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class CategoryController {
 
     @PostMapping
     public ApiResponse<CategoryResponse> createCategory(
-            @RequestBody CategoryRequest request
+            @Valid @RequestBody CategoryRequest request
     ) {
         CategoryResponse categoryResponse = mapper.toResponse(
                 categoryUseCase.addNewCategory(request.getCategoryName()));

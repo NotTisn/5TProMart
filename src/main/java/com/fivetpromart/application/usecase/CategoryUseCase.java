@@ -24,7 +24,7 @@ public class CategoryUseCase implements ICategoryUseCasePort {
 
     @Override
     public CategoryDto addNewCategory(String categoryName) {
-        if(categoryName==null || categoryName.isBlank())
+        if(categoryName == null || categoryName.isBlank())
             throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
 
         Category category = Category.create(categoryName);
