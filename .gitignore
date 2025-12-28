@@ -37,3 +37,6 @@ infrastructure/data/
 ### Temporary output files ###
 _output.txt
 *.log
+
+### env
+.env
