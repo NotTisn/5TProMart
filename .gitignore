@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+### Docker Infrastructure Data (Never commit!) ###
+infrastructure/data/
+
+### Temporary output files ###
+_output.txt
+*.log

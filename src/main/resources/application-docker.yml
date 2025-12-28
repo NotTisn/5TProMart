@@ -1,0 +1,33 @@
+# =============================================================================
+# 5TPROMART - Docker Profile Configuration
+# =============================================================================
+# This profile is activated when running inside Docker containers.
+# It uses container hostnames instead of localhost.
+# =============================================================================
+# Activate with: SPRING_PROFILES_ACTIVE=docker
+# =============================================================================
+
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  # --- DATABASE (Use Docker hostname) ---
+  datasource:
+    url: jdbc:postgresql://postgres:5432/fivetpromart_db
+    username: postgres
+    password: votrungtin2005
+
+  # --- SECURITY (Use Docker hostname) ---
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8180/realms/fivetpro
+
+# --- IDP (Keycloak - Use Docker hostname) ---
+idp:
+  url: http://keycloak:8180
+  realm: fivetpro
+  client-id: fivetpro
+  client-secret: Vg11QgfmK4I4Di1Kf8i52ZeYcCifeKZK
