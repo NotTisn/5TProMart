@@ -20,34 +20,19 @@
 ```json
 {
   "success": true,
-  "message": "Login successful.",
+  "message": "Login successfully",
   "data": {
-    "token": "string",
+    "token": "string", // JWT Token
     "expiresIn": 3600,
     "user": {
-      "username": "string",
-      "employeeId": "string",
-      "fullName": "string", // Ref employeeId from Emlopyee table
-      "role": {
-        "id": "number",
-        "name": "string" // "Admin" || "Sales Staff" || "Warehouse Staff"
-      }
+      "profileId": "string", // profiles.id
+      "userId": "string", // profiles.user_id (ID tài khoản gốc)
+      "username": "string", // profiles.username
+      "fullName": "string", // profiles.full_name
+      "email": "string", // profiles.email
+      "avatarUrl": "string", // profiles.avatar_url
+      "accountType": "string" // profiles.account_type (role user)
     }
-  }
-}
-```
-
----
-
-**Response 400**
-
-```json
-{
-  "success": false,
-  "message": "Validation failed.",
-  "errors": {
-    "username": "Username is required.",
-    "password": "Password is required."
   }
 }
 ```
@@ -79,15 +64,19 @@ Authorization: Bearer {token}
 ```json
 {
   "success": true,
-  "message": "Get user succesfully.",
+  "message": "Get profile successfully.",
   "data": {
+    "profileId": "string",
+    "userId": "string",
     "username": "string",
-    "employeeId": "string",
     "fullName": "string",
-    "role": {
-      "id": "number",
-      "name": "string"
-    }
+    "email": "string",
+    "phoneNumber": "string",
+    "dateOfBirth": "DD-MM-YYYY",
+    "location": "string",
+    "bio": "string",
+    "accountType": "string",
+    "avatarUrl": "string"
   }
 }
 ```
@@ -116,10 +105,13 @@ Required:
 
 ```json
 {
-  "username": "string",
-  "password": "string",
-  "employeeId": "string",
-  "roleId": "number"
+  "username": "string", // Required, Unique
+  "password": "string", // Required
+  "fullName": "string", // Required
+  "email": "string", // Required, Unique
+  "phoneNumber": "string",
+  "accountType": "string", // "Admin" || "SalesStaff" || "WarehouseStaff"
+  "dateOfBirth": "DD-MM-YYYY"
 }
 ```
 
@@ -128,11 +120,12 @@ Required:
 ```json
 {
   "success": true,
-  "message": "Account created.",
+  "message": "Account created successfully.",
   "data": {
+    "profileId": "string",
     "username": "string",
-    "employeeId": "string",
-    "roleId": "number"
+    "fullName": "string",
+    "accountType": "string"
   }
 }
 ```
@@ -141,12 +134,14 @@ Required:
 
 ```json
 {
+{
   "success": false,
   "message": "Validation failed.",
   "errors": {
     "username": "Username already exists.",
-    "employeeId": "This employee already has an account."
+    "email": "Email already used by another account."
   }
+}
 }
 ```
 

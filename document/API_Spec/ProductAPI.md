@@ -10,8 +10,8 @@
 
 ```json
 {
-  "id": "string", //product id = id
-  "categoryId": "string",  //category id = category id
+  "search": "string",     // productId or productName contains search string
+  "categoryId": "string",  //category id = category id, filter category
   "product name": "string",   //contains
   "sortBy": "productName" "unitOfMeasure" "sellingPrice" , // Sort by...
   "order": "asc" "desc"
@@ -29,6 +29,7 @@
       "productId": "string",
       "productName": "string",
       "categoryId": "number",
+      "categoryName": "string", //ref categoryId from category table, display on UI
       "unitOfMeasure": "string",
       "sellingPrice": "number"
     }
@@ -105,7 +106,7 @@
   "message": "Validation failed.",
   "errors": {
     "productName": "Product name is required",
-    "categoryId": "Category id is required",
+    "categoryId": "Category not found",
     "unitOfMeasure": [
       {
         "code": "REQUIRED",
@@ -125,7 +126,8 @@
         "code": "INVALID_VALUE",
         "message": "Selling price must be greater than 1000."
       }
-    ],
+    ]
+  }
 }
 ```
 
@@ -163,7 +165,7 @@
 ```
 
 **Response 400**
-Same 3.3
+Same 400 3.3
 
 ```json
 {

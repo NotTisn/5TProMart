@@ -2,16 +2,13 @@
 
 ## 2.1 Get all product categories
 
-**Endpoint:** `GET /api/customers/`
+**Endpoint:** `GET /api/product-categories/`
 
 **Query Parameters**
 
 ```json
 {
-  "id": "string", //category id = id
-  "categoryName": "string", //contains
-  "sortBy": "categoryName", // Sort by...
-  "order": "desc" //Sort danh sach san pham tu a->z de tim
+  "search": "string" //categoryId or categoryName contains search string
 }
 ```
 
@@ -20,25 +17,19 @@
 ```json
 {
   "success": true,
-  "message": "string",
+  "message": "Get categories successfully.",
   "data": [
     {
-      "categoryId": "number",
+      "categoryId": "string",
       "categoryName": "string"
     }
-  ],
-  "pagination": {
-    "totalItems": "number",
-    "itemsPerPage": "number",
-    "totalPages": "number",
-    "startPage": 1
-  }
+  ]
 }
 ```
 
 ## 2.2 Get all product categories
 
-**Endpoint:** `GET /api/customers/{id}`
+**Endpoint:** `GET /api/product-categories/{id}`
 **Response 200**
 
 ```json
@@ -46,7 +37,7 @@
   "success": true,
   "message": "string",
   "data": {
-    "categoryId": "number", //id = category id
+    "categoryId": "string", //id = category id
     "categoryName": "string"
   }
 }
@@ -71,7 +62,7 @@
   "success": true,
   "message": "string",
   "data": {
-    "categoryId": "number",
+    "categoryId": "string",
     "categoryName": "string"
   }
 }
@@ -110,7 +101,7 @@
   "success": true,
   "message": "string",
   "data": {
-    "categoryId": "number",
+    "categoryId": "string",
     "categoryName": "string"
   }
 }
