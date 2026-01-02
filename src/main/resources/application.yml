@@ -47,7 +47,7 @@ idp:
   url: http://localhost:8180
   realm: fivetpro
   client-id: fivetpro
-  client-secret: Vg11QgfmK4I4Di1Kf8i52ZeYcCifeKZK
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
 # --- CẤU HÌNH APP (OTP) ---
 app:
@@ -61,6 +61,6 @@ app:
 notification:
   email:
     brevo-url: https://api.brevo.com
-    brevo-apikey: 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
+    brevo-apikey: ${BREVO_API_KEY}
     sender-email: tinvo2005@gmail.com
     sender-name: FiveTProMart Corp.
