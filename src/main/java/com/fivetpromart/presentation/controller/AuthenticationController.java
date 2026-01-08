@@ -10,6 +10,7 @@ import com.fivetpromart.presentation.dto.response.ApiResponse;
 import com.fivetpromart.presentation.dto.response.AuthenticationResponse;
 import com.fivetpromart.presentation.dto.response.RefreshTokenResponse;
 import com.fivetpromart.presentation.mapper.AuthenticationPresentationMapper;
+import com.nimbusds.jose.JOSEException;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.text.ParseException;
 import java.util.Map;
 
 @RestController
@@ -51,12 +53,22 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponse logout(
-            @Valid @RequestBody LogoutRequest request) {
-        String appDto = mapper.toLogoutDto(request);
-        authenticationUseCase.logout(appDto);
-        return ApiResponse.success("Successfully logged out");
+    ApiResponse<String> logout(
+            // 1. Đọc refresh token từ cookie thay vì RequestBody
+            @CookieValue(name = "refresh_token", required = false) String refreshToken,
+            // 2. Thêm HttpServletResponse để xoá cookie
+            HttpServletResponse response)
+            throws ParseException, JOSEException {
+
+        // 3. Gọi service (nếu có token) để revoke token ở Keycloak
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            authenticationUseCase.logout(refreshToken);
+        }
+
+        // 4. LUÔN LUÔN xoá HttpOnly cookie ở phía trình duyệt
+        HttpOnlyCookieHelper.deleteHttpOnlyCookie(response, "refresh_token");
+
+        return ApiResponse.<String>builder().data("Logged out successfully").build();
     }
 
     @PostMapping("/refresh-token")
@@ -68,6 +80,8 @@ public class AuthenticationController {
             HttpOnlyCookieHelper.deleteHttpOnlyCookie(response, "refresh_token");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token missing.");
         }
+
+
 
         try {
             AuthenticationTokens authResponse = authenticationUseCase.refresh(refreshToken);
