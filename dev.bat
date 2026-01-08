@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 REM ============================================================================
-REM 5TPROMART - DEV MODE
+REM 5TPROMART - DEV MODE (FULL FIXED VERSION)
 REM ============================================================================
 REM Clone. Run. Code.
 REM
@@ -9,7 +9,9 @@ REM Usage: dev [--skip-app] [--stop] [--status] [--clean]
 REM ============================================================================
 
 set "ROOT=%~dp0"
-set "INFRA=%ROOT%infrastructure"
+REM Xoa dau backslash o cuoi neu co de tranh loi duong dan
+if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
+set "INFRA=%ROOT%\infrastructure"
 
 REM ============================================================================
 REM 0. LOAD .ENV VARIABLES
@@ -18,13 +20,25 @@ REM ============================================================================
 echo.
 if exist "%ROOT%\.env" (
     echo [Config] Loading environment variables from .env...
+    REM Doc file .env, bo qua dong comment (#)
     for /f "usebackq tokens=* eol=#" %%a in ("%ROOT%\.env") do (
         set "line=%%a"
-        if not "!line!"=="" set "%%a"
+        REM Kiem tra neu dong co chua dau = thi moi xu ly
+        echo "!line!" | findstr "=" >nul
+        if not errorlevel 1 (
+            for /f "tokens=1* delims==" %%b in ("!line!") do (
+                set "key=%%b"
+                set "val=%%c"
+                REM Xoa khoang trang du thua (neu co)
+                set "!key!=!val!"
+            )
+        )
     )
 ) else (
     echo [WARN] Khong tim thay file .env tai: %ROOT%\.env
     echo        Ung dung co the bi loi thieu API Key/Password!
+    pause
+    exit /b 1
 )
 
 REM ============================================================================
@@ -149,7 +163,10 @@ if "%PG_RUNNING%"=="1" (
 REM Need to start Docker services
 echo       Starting Docker services...
 pushd "%INFRA%"
-docker compose -f compose-infra-only.yaml up -d
+
+REM --- FIX: Chi dinh file .env nam o ROOT de Docker doc duoc password ---
+docker compose --env-file "%ROOT%\.env" -f compose-infra-only.yaml up -d
+
 if errorlevel 1 (
     echo.
     echo  [ERROR] Failed to start Docker services!
@@ -183,12 +200,12 @@ if errorlevel 1 (
 )
 echo       Keycloak: Ready
 
+REM --- Tu dong tao Admin User (Fix loi thieu admin) ---
+echo       Configuring Keycloak Admin...
+docker exec -e TEMP_PASS=admin fivetpromart-keycloak /opt/keycloak/bin/kc.sh bootstrap-admin user --username admin --password:env TEMP_PASS >nul 2>&1
+
 echo       Infrastructure: OK
 echo.
-
-REM ============================================================================
-REM Step 3: Verify Realm + Start App
-REM ============================================================================
 
 REM ============================================================================
 REM Step 3: Verify Realm + Start App
@@ -197,13 +214,24 @@ REM ============================================================================
 :step3
 echo [3/3] Application...
 
+REM --- DEBUG: Kiem tra bien Secret da load duoc chua ---
+if "!KEYCLOAK_CLIENT_SECRET!"=="" (
+    echo.
+    echo  [CRITICAL ERROR] Khong doc duoc KEYCLOAK_CLIENT_SECRET tu file .env
+    echo  Ung dung se KHONG login duoc vao Keycloak.
+    echo  Vui long kiem tra file .env
+    echo.
+    pause
+    exit /b 1
+) else (
+    echo       [DEBUG] Secret loaded successfully (Checking first 4 chars: !KEYCLOAK_CLIENT_SECRET:~0,4!...)
+)
+
 REM --- 1. Kiem tra Realm Keycloak (Chi canh bao, khong dung script) ---
 powershell -Command "try{Invoke-WebRequest -Uri 'http://localhost:8180/realms/fivetpro' -UseBasicParsing -TimeoutSec 2 | Out-Null;exit 0}catch{exit 1}" >nul 2>&1
 if errorlevel 1 (
     echo       [WARN] Realm 'fivetpro' not detected or Keycloak is starting...
 )
-
-REM --- 2. BO QUA KIEM TRA 'API_RUNNING'. CU CHAY DI! ---
 
 REM --- 3. Start Spring Boot ---
 echo       Starting Spring Boot...
@@ -215,9 +243,13 @@ if not exist "mvnw.cmd" (
     exit /b 1
 )
 
+REM --- FIX QUAN TRONG: Truyen bien vao JVM Arguments ---
+REM Su dung delayed expansion !VAR! de lay gia tri chinh xac tu vong lap o tren
+REM JVM Arguments (-D) an toan hon viec set bien moi truong trong CMD start
+set "JAVA_CMD=mvnw.cmd spring-boot:run -Dspring-boot.run.jvmArguments="-DKEYCLOAK_CLIENT_SECRET=!KEYCLOAK_CLIENT_SECRET!""
+
 REM --- QUAN TRONG: Lenh nay se luon bat cua so moi ---
-start "5TProMart" cmd /k "mvnw.cmd spring-boot:run"
-popd
+start "5TProMart" cmd /k "!JAVA_CMD!"
 
 REM --- 4. Cho doi App khoi dong ---
 echo       Waiting for startup...

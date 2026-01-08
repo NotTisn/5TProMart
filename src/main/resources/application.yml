@@ -41,6 +41,8 @@ logging:
     root: INFO
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
+    com.fivetpromart.infrastructure.identity.keycloak.client: DEBUG
+    feign: DEBUG
 
 # --- CẤU HÌNH IDP (Keycloak) (dùng cho Feign Client/Adapter) ---
 idp:
@@ -61,6 +63,6 @@ app:
 notification:
   email:
     brevo-url: https://api.brevo.com
-    brevo-apikey: ${BREVO_API_KEY}
+    brevo-apikey: ${BREVO_API_KEY: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}
     sender-email: tinvo2005@gmail.com
     sender-name: FiveTProMart Corp.
