@@ -47,21 +47,21 @@ public class KeycloakIdentityAdapter implements IdentityProviderPort {
     public AuthenticationTokens login(LoginCommand command) {
         try {
             // 1. Build Request (Thêm username/password từ command)
-            var req = TokenExchangeParamDto.builder()
-                    .grant_type("password")
-                    .client_id(clientId)
-                    .client_secret(clientSecret)
-                    .scope("openid")
-                    .username(command.getEmail())
-                    .password(command.getPassword())
-                    .build();
+            Map<String, String> formParams = new HashMap<>();
+            formParams.put("grant_type", "password");
+            formParams.put("client_id", clientId);
+            formParams.put("client_secret", clientSecret);
+            formParams.put("username", command.getEmail());
+            formParams.put("password", command.getPassword());
+            formParams.put("scope", "openid");
 
             // 2. Gọi Keycloak
-            var response = client.exchangeToken(req);
+            var response = client.exchangeToken(formParams);
 
             // 3. Map sang Domain Model
             return mapper.toDomain(response);
 
+            // 3. Map sang Domain Model
         } catch (FeignException e) {
             // Xử lý lỗi đăng nhập thất bại
             if (e.status() == 401) {
@@ -82,14 +82,13 @@ public class KeycloakIdentityAdapter implements IdentityProviderPort {
 
     @Override
     public AuthenticationTokens refreshToken(String refreshToken) {
-        var req = TokenExchangeParamDto.builder()
-                .grant_type("refresh_token")
-                .client_id(clientId)
-                .client_secret(clientSecret)
-                .refresh_token(refreshToken)
-                .build();
+        Map<String, String> formParams = new HashMap<>();
+        formParams.put("grant_type", "refresh_token");
+        formParams.put("client_id", clientId);
+        formParams.put("client_secret", clientSecret);
+        formParams.put("refresh_token", refreshToken);
 
-        return mapper.toDomain(client.exchangeToken(req));
+        return mapper.toDomain(client.exchangeToken(formParams));
     }
 
     @Override
@@ -175,30 +174,32 @@ public class KeycloakIdentityAdapter implements IdentityProviderPort {
     @Override
     public void deleteUser(String userId) {
         try {
-            // 1. Get admin token
-            log.debug("Step 1: Requesting Admin Client Credentials Token...");
-            var token = client.exchangeToken(
-                    TokenExchangeParamDto.builder()
-                            .grant_type("client_credentials")
-                            .client_id(clientId)
-                            .client_secret(clientSecret)
-                            .scope("openid")
-                            .build()
-            );
+            // 1. Get admin token (Dùng Map giống createUser)
+            log.debug("Step 1: Requesting Admin Client Credentials Token for deletion...");
+
+            Map<String, String> formParams = new HashMap<>();
+            formParams.put("grant_type", "client_credentials");
+            formParams.put("client_id", clientId);
+            formParams.put("client_secret", clientSecret);
+            formParams.put("scope", "openid"); // Thêm scope cho chắc chắn
+
+            // Gọi hàm getAdminToken (hoặc exchangeToken đều được nếu cùng signature Map)
+            var tokenResponse = client.getAdminToken(formParams);
+
+            // 2. Gọi lệnh xóa
             client.deleteUser(
-                    "Bearer " + token.getAccessToken(),
+                    "Bearer " + tokenResponse.getAccessToken(),
                     userId
             );
+            log.info("Deleted user successfully: {}", userId);
 
         } catch (FeignException e) {
-            // Log chi tiết lỗi từ Keycloak trả về
-            log.error("KEYCLOAK ERROR during createUser. Status: {}", e.status());
+            // Log chi tiết lỗi
+            log.error("KEYCLOAK ERROR during deleteUser. Status: {}", e.status());
             log.error("Response Body: {}", e.contentUTF8());
-
-            String errorMessage = parseKeycloakError(e);
-            throw new RuntimeException("Failed to delete user in Keycloak: " + errorMessage, e);
+            throw new RuntimeException("Failed to delete user in Keycloak: " + e.getMessage(), e);
         } catch (Exception e) {
-            log.error("Unexpected error in createUser: {}", e.getMessage(), e);
+            log.error("Unexpected error in deleteUser: {}", e.getMessage(), e);
             throw new RuntimeException("Unexpected error deleting user", e);
         }
     }

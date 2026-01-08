@@ -25,7 +25,7 @@ public interface IdentityClient {
             value = "/realms/fivetpro/protocol/openid-connect/token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
     )
-    TokenExchangeResponseDto exchangeToken(@SpringQueryMap TokenExchangeParamDto param);
+    TokenExchangeResponseDto exchangeToken(@RequestBody Map<String, ?> params);
 
     // Admin token exchange using @RequestParam for proper form encoding
     @PostMapping(
