@@ -3,8 +3,6 @@ package com.fivetpromart.infrastructure.persistence.supplier.adapter;
 import com.fivetpromart.application.dto.SupplierDto;
 import com.fivetpromart.application.port.out.ISupplierRepository;
 import com.fivetpromart.domain.model.Supplier;
-import com.fivetpromart.infrastructure.error.AppException;
-import com.fivetpromart.infrastructure.error.ErrorCode;
 import com.fivetpromart.infrastructure.persistence.supplier.SupplierDbo;
 import com.fivetpromart.infrastructure.persistence.supplier.mapper.SupplierPersistenceMapper;
 import com.fivetpromart.infrastructure.persistence.supplier.repository.ISupplierJpaRepository;

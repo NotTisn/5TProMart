@@ -1,11 +1,7 @@
 package com.fivetpromart.infrastructure.persistence.signup_pending;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
@@ -13,7 +9,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "pending_signups")
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

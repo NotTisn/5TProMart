@@ -4,6 +4,8 @@ import com.fivetpromart.domain.model.PendingRegistration;
 import com.fivetpromart.domain.model.PendingRegistration.RegistrationProfileData;
 import com.fivetpromart.infrastructure.persistence.signup_pending.SignUpRequestDbo;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface SignUpPersistenceMapper {
@@ -82,5 +84,52 @@ public interface SignUpPersistenceMapper {
                 dbo.getExpiresAt(),
                 dbo.getAttempts()
         );
+    }
+
+    // =================================================================
+    // 3. UPDATE DBO FROM DOMAIN (Dùng cho Upsert)
+    // Thay vì dùng @Mapping, ta viết code Java thuần để kiểm soát logic
+    // =================================================================
+    default void updateDboFromDomain(SignUpRequestDbo dbo, PendingRegistration domain) {
+        if (dbo == null || domain == null) {
+            return;
+        }
+
+        // A. Cập nhật các trường cơ bản
+        // Lưu ý: KHÔNG cập nhật ID và CreatedAt
+        dbo.setEmail(domain.getEmail());
+        dbo.setUsername(domain.getUsername());
+        dbo.setPassword(domain.getPassword());
+        dbo.setOtpHash(domain.getOtpHash());
+        dbo.setExpiresAt(domain.getOtpExpiresAt());
+        dbo.setAttempts(domain.getOtpAttempts());
+
+        // B. Cập nhật (Flatten) lại các trường Profile
+        RegistrationProfileData profile = domain.getProfileSnapshot();
+
+        if (profile != null) {
+            dbo.setFirstName(profile.getFirstName());
+            dbo.setLastName(profile.getLastName());
+            dbo.setFullName(profile.getFullName());
+            dbo.setDisplayName(profile.getDisplayName());
+            dbo.setPhoneNumber(profile.getPhoneNumber());
+            dbo.setAvatarUrl(profile.getAvatarUrl());
+            dbo.setBio(profile.getBio());
+            dbo.setAccountType(profile.getAccountType());
+            dbo.setLocation(profile.getLocation());
+            dbo.setDob(profile.getDob());
+        } else {
+            // Nếu Domain không có profile, ta set null các cột tương ứng
+            dbo.setFirstName(null);
+            dbo.setLastName(null);
+            dbo.setFullName(null);
+            dbo.setDisplayName(null);
+            dbo.setPhoneNumber(null);
+            dbo.setAvatarUrl(null);
+            dbo.setBio(null);
+            dbo.setAccountType(null);
+            dbo.setLocation(null);
+            dbo.setDob(null);
+        }
     }
 }

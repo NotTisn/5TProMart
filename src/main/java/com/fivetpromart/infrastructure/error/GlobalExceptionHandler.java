@@ -1,8 +1,10 @@
 package com.fivetpromart.infrastructure.error;
 
+import com.fivetpromart.domain.exception.*;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,22 +19,287 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
   private static final String MIN_ATTRIBUTE = "min";
 
-  //    @ExceptionHandler(value = RuntimeException.class)
-  //    ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException ex, WebRequest request){
-  //        ApiResponse response = new ApiResponse();
-  //
-  //        response.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-  //        response.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
-  //        return ResponseEntity.badRequest().body(response);
-  //    }
+  // ============================================================================
+  // DOMAIN EXCEPTION HANDLERS
+  // ============================================================================
+
+  @ExceptionHandler(EmptyFieldException.class)
+  public ResponseEntity<ApiResponse> handleEmptyField(EmptyFieldException ex) {
+    log.warn("Empty field: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(InvalidCustomerDataException.class)
+  public ResponseEntity<ApiResponse> handleInvalidCustomerData(InvalidCustomerDataException ex) {
+    log.warn("Invalid customer data: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(CustomerNotFoundException.class)
+  public ResponseEntity<ApiResponse> handleCustomerNotFound(CustomerNotFoundException ex) {
+    log.warn("Customer not found: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(InvalidPhoneNumberException.class)
+  public ResponseEntity<ApiResponse> handleInvalidPhoneNumber(InvalidPhoneNumberException ex) {
+    log.warn("Invalid phone number: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(InsufficientLoyaltyPointsException.class)
+  public ResponseEntity<ApiResponse> handleInsufficientLoyaltyPoints(InsufficientLoyaltyPointsException ex) {
+    log.warn("Insufficient loyalty points: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(InvalidProductDataException.class)
+  public ResponseEntity<ApiResponse> handleInvalidProductData(InvalidProductDataException ex) {
+    log.warn("Invalid product data: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(ProductNotFoundException.class)
+  public ResponseEntity<ApiResponse> handleProductNotFound(ProductNotFoundException ex) {
+    log.warn("Product not found: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(InvalidPriceException.class)
+  public ResponseEntity<ApiResponse> handleInvalidPrice(InvalidPriceException ex) {
+    log.warn("Invalid price: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(InvalidCategoryDataException.class)
+  public ResponseEntity<ApiResponse> handleInvalidCategoryData(InvalidCategoryDataException ex) {
+    log.warn("Invalid category data: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(CategoryNotFoundException.class)
+  public ResponseEntity<ApiResponse> handleCategoryNotFound(CategoryNotFoundException ex) {
+    log.warn("Category not found: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(InvalidSupplierDataException.class)
+  public ResponseEntity<ApiResponse> handleInvalidSupplierData(InvalidSupplierDataException ex) {
+    log.warn("Invalid supplier data: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(SupplierNotFoundException.class)
+  public ResponseEntity<ApiResponse> handleSupplierNotFound(SupplierNotFoundException ex) {
+    log.warn("Supplier not found: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(InvalidStockDataException.class)
+  public ResponseEntity<ApiResponse> handleInvalidStockData(InvalidStockDataException ex) {
+    log.warn("Invalid stock data: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(InvalidDateRangeException.class)
+  public ResponseEntity<ApiResponse> handleInvalidDateRange(InvalidDateRangeException ex) {
+    log.warn("Invalid date range: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(NegativeValueException.class)
+  public ResponseEntity<ApiResponse> handleNegativeValue(NegativeValueException ex) {
+    log.warn("Negative value: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ApiResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+    log.warn("Resource not found: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(OtpExpiredException.class)
+  public ResponseEntity<ApiResponse> handleOtpExpired(OtpExpiredException ex) {
+    log.warn("OTP expired: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(InvalidOtpException.class)
+  public ResponseEntity<ApiResponse> handleInvalidOtp(InvalidOtpException ex) {
+    log.warn("Invalid OTP: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(InvalidOperationException.class)
+  public ResponseEntity<ApiResponse> handleInvalidOperation(InvalidOperationException ex) {
+    log.error("Invalid operation: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  // Catch-all for any DomainException
+  @ExceptionHandler(DomainException.class)
+  public ResponseEntity<ApiResponse> handleDomainException(DomainException ex) {
+    log.error("Domain exception: {}", ex.getMessage(), ex);
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  // ============================================================================
+  // LEGACY HANDLERS (Keep for backward compatibility)
+  // ============================================================================
+
+  // ============================================================================
+  // LEGACY HANDLERS (Keep for backward compatibility)
+  // ============================================================================
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse> handleDomainException(IllegalArgumentException ex) {
-        // Map lỗi Java thuần sang cấu trúc API của bạn
+    public ResponseEntity<ApiResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Illegal argument: {}", ex.getMessage());
+        
         ApiResponse response = ApiResponse.builder()
                 .success(false)
-                .statusCode(ErrorCode.INVALID_INPUT.getCode()) // 400
-                .message(ex.getMessage()) // "Product name cannot be empty"
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
                 .build();
 
         return ResponseEntity.badRequest().body(response);

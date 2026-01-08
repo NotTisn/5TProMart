@@ -1,5 +1,7 @@
 package com.fivetpromart.domain.model;
 
+import com.fivetpromart.domain.exception.EmptyFieldException;
+import com.fivetpromart.domain.exception.NegativeValueException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,15 +25,15 @@ public class Supplier {
     // =================================================================
     public static Supplier create(String supplierName, String supplierType, String phoneNumber, String address, String suppliedProductType) {
         if (supplierName == null || supplierName.isBlank())
-            throw new IllegalArgumentException("Supplier name cannot be empty");
+            throw new EmptyFieldException("Supplier name");
         if (phoneNumber == null || phoneNumber.isBlank())
-            throw new IllegalArgumentException("Phone number cannot be empty");
+            throw new EmptyFieldException("Phone number");
         if (address == null || address.isBlank())
-            throw new IllegalArgumentException("Address cannot be empty");
+            throw new EmptyFieldException("Address");
         if(suppliedProductType == null || suppliedProductType.isBlank())
-            throw new IllegalArgumentException("Supplier type cannot be empty");
+            throw new EmptyFieldException("Supplied product type");
         if(supplierType == null || supplierType.isBlank())
-            throw new IllegalArgumentException("Supplier type cannot be empty");
+            throw new EmptyFieldException("Supplier type");
 
         Supplier supplier = new Supplier();
         supplier.supplierId = UUID.randomUUID().toString();
@@ -90,7 +92,7 @@ public class Supplier {
      */
     public void recordPurchase(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Purchase amount must be positive");
+            throw new NegativeValueException("Purchase amount");
         }
         this.currentDebt = this.currentDebt.add(amount);
     }
@@ -100,7 +102,7 @@ public class Supplier {
      */
     public void payDebt(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Payment amount must be positive");
+            throw new NegativeValueException("Payment amount");
         }
         // Có thể cho phép nợ âm (trả dư) hoặc không, tùy logic
         this.currentDebt = this.currentDebt.subtract(amount);

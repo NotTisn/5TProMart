@@ -1,7 +1,6 @@
 package com.fivetpromart.domain.model;
 
-import com.fivetpromart.infrastructure.error.AppException;
-import com.fivetpromart.infrastructure.error.ErrorCode;
+import com.fivetpromart.domain.exception.EmptyFieldException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +15,7 @@ public class Category {
 
     public static Category create(String categoryName) {
         if (categoryName == null || categoryName.isEmpty())
-            throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
+            throw new EmptyFieldException("Category name");
         Category category = new Category();
         category.categoryId = UUID.randomUUID().toString();
         category.categoryName = categoryName;

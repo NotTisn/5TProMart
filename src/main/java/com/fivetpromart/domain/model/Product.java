@@ -1,5 +1,7 @@
 package com.fivetpromart.domain.model;
 
+import com.fivetpromart.domain.exception.EmptyFieldException;
+import com.fivetpromart.domain.exception.InvalidPriceException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,13 +20,13 @@ import java.util.UUID;
 
     public static Product create(String productName, String categoryId, String unitOfMeasure, BigDecimal sellingPrice) {
         if (productName == null || productName.isBlank()) {
-            throw new IllegalArgumentException("Product name cannot be empty");
+            throw new EmptyFieldException("Product name");
         }
         if (categoryId == null || categoryId.isBlank()) {
-            throw new IllegalArgumentException("Category ID cannot be empty");
+            throw new EmptyFieldException("Category ID");
         }
         if (sellingPrice != null && sellingPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Selling price cannot be negative");
+            throw new InvalidPriceException("Selling price cannot be negative");
         }
 
         Product product = new Product();

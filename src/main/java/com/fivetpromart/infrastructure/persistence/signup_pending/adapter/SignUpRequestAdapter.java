@@ -28,9 +28,29 @@ public class SignUpRequestAdapter implements ISignUpRequestRepository {
     }
 
     @Override
-    public PendingRegistration save(PendingRegistration pendingRegistration) {
-        SignUpRequestDbo dbo = mapper.toDbo(pendingRegistration);
-        SignUpRequestDbo savedDbo = jpaRepository.save(dbo);
+    public PendingRegistration save(PendingRegistration domainEntity) {
+        // 1. Tìm xem bản ghi đã tồn tại dưới DB chưa (dựa theo Business Key là Email)
+        Optional<SignUpRequestDbo> existingDboOpt = jpaRepository.findByEmail(domainEntity.getEmail().toLowerCase());
+
+        SignUpRequestDbo dboToSave;
+
+        if (existingDboOpt.isPresent()) {
+            // === CASE UPDATE ===
+            // Lấy DBO cũ ra (để giữ nguyên ID khóa chính)
+            dboToSave = existingDboOpt.get();
+
+            // Map dữ liệu mới từ Domain đè vào DBO cũ
+            // Bạn cần thêm method updateDboFromDomain trong Mapper (xem bước 2)
+            mapper.updateDboFromDomain(dboToSave, domainEntity);
+        } else {
+            // === CASE INSERT ===
+            // Chưa có -> Map mới hoàn toàn
+            dboToSave = mapper.toDbo(domainEntity);
+            }
+
+        // 2. Lúc này Hibernate biết dboToSave có ID (nếu update) -> Sẽ chạy UPDATE
+        SignUpRequestDbo savedDbo = jpaRepository.save(dboToSave);
+
         return mapper.toDomain(savedDbo);
     }
 

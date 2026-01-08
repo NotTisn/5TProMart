@@ -6,9 +6,8 @@ import com.fivetpromart.application.dto.command.SupplierUpdateCommand;
 import com.fivetpromart.application.mapper.SupplierDataMapper;
 import com.fivetpromart.application.port.in.ISupplierUseCasePort;
 import com.fivetpromart.application.port.out.ISupplierRepository;
+import com.fivetpromart.domain.exception.SupplierNotFoundException;
 import com.fivetpromart.domain.model.Supplier;
-import com.fivetpromart.infrastructure.error.AppException;
-import com.fivetpromart.infrastructure.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +38,7 @@ public class SupplierUseCase implements ISupplierUseCasePort {
     @Override
     public SupplierDto updateSupplier(SupplierUpdateCommand command) {
         Supplier supplier = supplierRepository.findById(command.getSupplierId())
-                        .orElseThrow(() -> new AppException(ErrorCode.SUPPLIER_NOT_EXISTED));
+                        .orElseThrow(() -> new SupplierNotFoundException(command.getSupplierId()));
 
         supplier.updateInfo(
                 command.getSupplierName(),
@@ -55,13 +54,13 @@ public class SupplierUseCase implements ISupplierUseCasePort {
     @Override
     public SupplierDto getSupplierById(String supplierId) {
         return supplierRepository.findById(supplierId).map(mapper::toDto)
-                .orElseThrow(() -> new AppException(ErrorCode.SUPPLIER_NOT_EXISTED));
+                .orElseThrow(() -> new SupplierNotFoundException(supplierId));
     }
 
     @Override
     public void deleteSupplierById(String supplierId) {
         if(!supplierRepository.existsById(supplierId))
-            throw new AppException(ErrorCode.SUPPLIER_NOT_EXISTED);
+            throw new SupplierNotFoundException(supplierId);
 
         supplierRepository.deleteById(supplierId);
     }

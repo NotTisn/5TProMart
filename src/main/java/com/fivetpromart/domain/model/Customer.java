@@ -1,7 +1,9 @@
 package com.fivetpromart.domain.model;
 
-import com.fivetpromart.infrastructure.error.AppException;
-import com.fivetpromart.infrastructure.error.ErrorCode;
+import com.fivetpromart.domain.exception.EmptyFieldException;
+import com.fivetpromart.domain.exception.InsufficientLoyaltyPointsException;
+import com.fivetpromart.domain.exception.InvalidPhoneNumberException;
+import com.fivetpromart.domain.exception.NegativeValueException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,13 +30,13 @@ public class Customer {
     public static Customer create(String fullName, String phoneNumber, String gender, LocalDate dob) {
         // Validate dữ liệu đầu vào cơ bản (nếu cần)
         if (fullName == null || fullName.isBlank()) {
-            throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
+            throw new EmptyFieldException("Customer name");
         }
         if (phoneNumber == null || phoneNumber.isBlank()) {
-            throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
+            throw new EmptyFieldException("Phone number");
         }
         if (phoneNumber.length() != 10) {
-            throw new AppException(ErrorCode.INVALID_PHONE);
+            throw new InvalidPhoneNumberException();
         }
 
         Customer customer = new Customer();
@@ -100,10 +102,10 @@ public class Customer {
      */
     public void changePhoneNumber(String newPhoneNumber) {
         if (newPhoneNumber == null || newPhoneNumber.isBlank()) {
-            throw new IllegalArgumentException("New phone number cannot be empty");
+            throw new EmptyFieldException("Phone number");
         }
         if (newPhoneNumber.length() != 10) {
-            throw new AppException(ErrorCode.INVALID_PHONE);
+            throw new InvalidPhoneNumberException();
         }
         this.phoneNumber = newPhoneNumber;
     }
@@ -113,7 +115,7 @@ public class Customer {
      */
     public void earnPoints(long amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("Points amount must be positive");
+            throw new NegativeValueException("Loyalty points amount");
         }
         this.loyaltyPoints += amount;
     }
@@ -123,10 +125,10 @@ public class Customer {
      */
     public void redeemPoints(long amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("Points amount must be positive");
+            throw new NegativeValueException("Loyalty points amount");
         }
         if (this.loyaltyPoints < amount) {
-            throw new IllegalStateException("Not enough loyalty points to redeem");
+            throw new InsufficientLoyaltyPointsException(this.loyaltyPoints, amount);
         }
         this.loyaltyPoints -= amount;
     }

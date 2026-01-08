@@ -1,5 +1,7 @@
 package com.fivetpromart.domain.model;
 
+import com.fivetpromart.domain.exception.EmptyFieldException;
+import com.fivetpromart.domain.exception.InvalidDateRangeException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,17 +23,17 @@ public class StockInventory {
 
     public static StockInventory create(String productId, LocalDate manufactureDate, LocalDate expirationDate, Long stockQuantity, BigDecimal importPrice, String status) {
         if(productId == null || productId.isBlank())
-            throw new IllegalArgumentException("productId is null or empty");
+            throw new EmptyFieldException("Product ID");
         if(manufactureDate == null)
-            throw new IllegalArgumentException("manufactureDate is null or empty");
+            throw new EmptyFieldException("Manufacture date");
         if(expirationDate == null)
-            throw new IllegalArgumentException("expirationDate is null or empty");
+            throw new EmptyFieldException("Expiration date");
         if(stockQuantity == null)
-            throw new IllegalArgumentException("stockQuantity is null or empty");
+            throw new EmptyFieldException("Stock quantity");
         if(importPrice == null)
-            throw new IllegalArgumentException("importPrice is null or empty");
+            throw new EmptyFieldException("Import price");
         if(expirationDate.isBefore(manufactureDate))
-            throw new IllegalArgumentException("Invalid expirationDate");
+            throw new InvalidDateRangeException();
 
         StockInventory stockInventory = new StockInventory();
         if(status == null)
