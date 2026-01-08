@@ -1,12 +1,13 @@
 package com.fivetpromart.application.usecase;
 
-import com.fivetpromart.application.dto.RegistrationPendingDto;
 import com.fivetpromart.application.dto.command.RegistrationPendingCommand;
 import com.fivetpromart.application.port.in.IRegistrationPendingPort;
 import com.fivetpromart.application.port.out.IEmailProviderPort;
 import com.fivetpromart.application.port.out.IProfileRepository;
 import com.fivetpromart.application.port.out.ISignUpRequestRepository;
 import com.fivetpromart.application.port.out.IdentityProviderPort;
+import com.fivetpromart.domain.exception.DomainException;
+import com.fivetpromart.domain.exception.InvalidOperationException;
 import com.fivetpromart.domain.model.PendingRegistration;
 import com.fivetpromart.domain.model.PendingRegistration.RegistrationProfileData; // Import Value Object
 import com.fivetpromart.domain.model.Profile;
@@ -94,6 +95,7 @@ public class PendingRegistrationUseCase implements IRegistrationPendingPort {
     }
 
     @Override
+    @Transactional
     public void verifyAndCompleteSignUp(String email, String otp) {
         log.info("Verifying OTP for email: {}", email);
 
@@ -115,7 +117,6 @@ public class PendingRegistrationUseCase implements IRegistrationPendingPort {
         if (!otpCryptoService.constantTimeEquals(inputHash, pendingReg.getOtpHash())) {
             // Logic sai OTP: Entity tự tăng count
             pendingReg.onFailedAttempt();
-            signUpRequestRepository.save(pendingReg);
             throw new IllegalStateException("Invalid OTP code");
         }
 
@@ -152,7 +153,11 @@ public class PendingRegistrationUseCase implements IRegistrationPendingPort {
                     // TODO: Đẩy vào Dead Letter Queue để xử lý sau
                 }
             }
-            throw new RuntimeException("Failed to complete sign up. Please try again.", e);
+            // Re-throw the original exception if it's already a domain exception
+            if (e instanceof DomainException) {
+                throw (DomainException) e;
+            }
+            throw new InvalidOperationException("Failed to complete sign up: " + e.getMessage());
         }
     }
 

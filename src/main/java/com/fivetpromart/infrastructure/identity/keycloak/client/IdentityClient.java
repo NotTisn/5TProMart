@@ -1,25 +1,38 @@
 package com.fivetpromart.infrastructure.identity.keycloak.client;
 
 
+import com.fivetpromart.infrastructure.config.FeignFormConfig;
 import com.fivetpromart.infrastructure.identity.keycloak.dto.ResetPasswordParamDto;
 import com.fivetpromart.infrastructure.identity.keycloak.dto.TokenExchangeParamDto;
 import com.fivetpromart.infrastructure.identity.keycloak.dto.TokenExchangeResponseDto;
 import com.fivetpromart.infrastructure.identity.keycloak.dto.UserCreationParamDto;
 import feign.QueryMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 
-@FeignClient(name = "identity-client", url = "${idp.url}")
+
+@FeignClient(name = "identity-client", url = "${idp.url}", configuration = FeignFormConfig.class)
 @Component
 public interface IdentityClient {
     @PostMapping(
             value = "/realms/fivetpro/protocol/openid-connect/token",
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    TokenExchangeResponseDto exchangeToken(@QueryMap TokenExchangeParamDto param);
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+    )
+    TokenExchangeResponseDto exchangeToken(@SpringQueryMap TokenExchangeParamDto param);
+
+    // Admin token exchange using @RequestParam for proper form encoding
+    @PostMapping(
+            value = "/realms/fivetpro/protocol/openid-connect/token",
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+    )
+    TokenExchangeResponseDto getAdminToken(@RequestBody Map<String, ?> formParams);
 
     @PostMapping(value = "/admin/realms/fivetpro/users", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<?> createUser(
