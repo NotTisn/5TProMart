@@ -10,12 +10,16 @@ import com.fivetpromart.presentation.dto.response.ApiResponse;
 import com.fivetpromart.presentation.dto.response.AuthenticationResponse;
 import com.fivetpromart.presentation.dto.response.RefreshTokenResponse;
 import com.fivetpromart.presentation.mapper.AuthenticationPresentationMapper;
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -55,14 +59,35 @@ public class AuthenticationController {
         return ApiResponse.success("Successfully logged out");
     }
 
-    @PostMapping("/refresh")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<RefreshTokenResponse> refreshToken(
-            @Valid @RequestBody LogoutRequest request) {
-        String appDto = mapper.toLogoutDto(request);
-        AuthenticationTokens tokens = authenticationUseCase.refresh(appDto);
-        RefreshTokenResponse response = new RefreshTokenResponse(tokens.getAccessToken());
-        //return ApiResponse.success("Successfully logged out");
-        return null;
+    @PostMapping("/refresh-token")
+    public ApiResponse<Map<String, String>> refreshToken(
+            HttpServletResponse response,
+            @CookieValue(name = "refresh_token", required = false) String refreshToken) {
+
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            HttpOnlyCookieHelper.deleteHttpOnlyCookie(response, "refresh_token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token missing.");
+        }
+
+        try {
+            AuthenticationTokens authResponse = authenticationUseCase.refresh(refreshToken);
+
+            HttpOnlyCookieHelper.addHttpOnlyCookie(
+                    response,
+                    "refresh_token",
+                    authResponse.getRefreshToken(), // Lấy RT mới từ response
+                    30 * 24 * 60 * 60 // 30 ngày
+            );
+
+            return ApiResponse.<Map<String, String>>builder()
+                    .data(Map.of("accessToken", authResponse.getAccessToken()))
+                    .build();
+
+        } catch (FeignException.BadRequest | FeignException.Unauthorized e) {
+            HttpOnlyCookieHelper.deleteHttpOnlyCookie(response, "refresh_token");
+
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "Session expired. Please log in again.");
+        }
     }
 }

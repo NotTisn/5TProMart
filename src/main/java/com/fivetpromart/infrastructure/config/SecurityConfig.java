@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // (Đây là các endpoint ĐÚNG cho project của bạn)
                         .requestMatchers("/api/v1/auth/login").permitAll()
+                        .requestMatchers("/api/v1/auth/refresh-token").permitAll()
                         .requestMatchers("/api/v1/signup/**").permitAll()
 
                         // (Tùy chọn) Mở Swagger (nếu bạn dùng)
