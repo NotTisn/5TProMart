@@ -7,7 +7,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/fivetpromart_db
     username: postgres
-    password: votrungtin2005
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   # --- CẤU HÌNH JPA/HIBERNATE ---
@@ -54,7 +54,7 @@ idp:
 # --- CẤU HÌNH APP (OTP) ---
 app:
   otp:
-    secret: ${APP_OTP_SECRET:change-me}
+    secret: ${APP_OTP_SECRET}
     ttl-seconds: 600
     max-attempts: 5
   signup:
@@ -63,6 +63,6 @@ app:
 notification:
   email:
     brevo-url: https://api.brevo.com
-    brevo-apikey: ${BREVO_API_KEY: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}
+    brevo-apikey: ${BREVO_API_KEY}
     sender-email: tinvo2005@gmail.com
     sender-name: FiveTProMart Corp.
