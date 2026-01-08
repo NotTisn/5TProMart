@@ -41,7 +41,7 @@ public class SecurityConfig {
                 // 4. Cấu hình ủy quyền (Authorization)
                 .authorizeHttpRequests(authorize -> authorize
                         // (Đây là các endpoint ĐÚNG cho project của bạn)
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/login").permitAll()
                         .requestMatchers("/api/v1/signup/**").permitAll()
 
                         // (Tùy chọn) Mở Swagger (nếu bạn dùng)
