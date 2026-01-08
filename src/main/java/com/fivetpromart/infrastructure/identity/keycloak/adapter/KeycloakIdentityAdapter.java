@@ -22,7 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -100,16 +102,19 @@ public class KeycloakIdentityAdapter implements IdentityProviderPort {
         log.info("START createUser: username={}, email={}", username, email);
 
         try {
-            // 1. Get admin token
+            // 1. Get admin token using Client Credentials
             log.debug("Step 1: Requesting Admin Client Credentials Token...");
-            var token = client.exchangeToken(
-                    TokenExchangeParamDto.builder()
-                            .grant_type("client_credentials")
-                            .client_id(clientId)
-                            .client_secret(clientSecret)
-                            .scope("openid")
-                            .build()
-            );
+
+            // --- SỬA ĐỔI TẠI ĐÂY ---
+            Map<String, String> formParams = new HashMap<>();
+            formParams.put("grant_type", "client_credentials");
+            formParams.put("client_id", clientId);
+            formParams.put("client_secret", clientSecret);
+            formParams.put("scope", "openid");
+
+            var token = client.getAdminToken(formParams);
+            // -----------------------
+
             log.debug("Step 1 Success: Admin token obtained.");
 
             // 2. Build Request Object
