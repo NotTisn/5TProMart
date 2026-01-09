@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/customer")
+@RequestMapping("/api/customers")
 @RequiredArgsConstructor
 public class CustomerController {
 
@@ -30,6 +30,7 @@ public class CustomerController {
     private final CustomerPresentationMapper mapper;
 
     @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<CustomerResponse> addNewCustomer(
             @Valid @RequestBody CustomerRequest request
     ) {
@@ -43,7 +44,7 @@ public class CustomerController {
                 .build();
     }
 
-    @PatchMapping("/{customerId}") // 1. Quan trọng: Khai báo biến đường dẫn
+    @PutMapping("/{customerId}") // 1. Quan trọng: Khai báo biến đường dẫn
     public ApiResponse<CustomerResponse> updateCustomer(
             @PathVariable String customerId, // 2. Hứng biến từ URL
             @Valid @RequestBody CustomerRequest request // 3. Hứng dữ liệu từ Body
@@ -77,7 +78,7 @@ public class CustomerController {
         customerUseCase.deleteCustomer(customerId);
         return ApiResponse.builder()
                 .success(true)
-                .message(null)
+                .message("Customer deleted successfully")
                 .build();
     }
 
