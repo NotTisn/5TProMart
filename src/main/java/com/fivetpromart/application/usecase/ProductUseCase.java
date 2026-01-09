@@ -8,9 +8,10 @@ import com.fivetpromart.application.mapper.ProductDataMapper;
 import com.fivetpromart.application.port.in.IProductUseCasePort;
 import com.fivetpromart.application.port.out.ICategoryRepository;
 import com.fivetpromart.application.port.out.IProductRepository;
+import com.fivetpromart.domain.exception.CategoryNotFoundException;
+import com.fivetpromart.domain.exception.ProductAlreadyExistsException;
+import com.fivetpromart.domain.exception.ProductNotFoundException;
 import com.fivetpromart.domain.model.Product;
-import com.fivetpromart.infrastructure.error.AppException;
-import com.fivetpromart.infrastructure.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,11 +35,11 @@ public class ProductUseCase implements IProductUseCasePort {
     public ProductDto addNewProduct(ProductCreationCommand command) {
 
         if (productRepository.existsByProductName(command.getProductName())) {
-            throw new AppException(ErrorCode.PRODUCT_EXISTED);
+            throw new ProductAlreadyExistsException(command.getProductName());
         }
 
         if (!categoryRepository.existsById(command.getCategoryId())) {
-            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+            throw new CategoryNotFoundException(command.getCategoryId());
         }
 
         Product product = Product.create(
@@ -55,7 +56,7 @@ public class ProductUseCase implements IProductUseCasePort {
     @Transactional
     public ProductDto updateProduct(ProductUpdateCommand command) {
         Product product = productRepository.findById(command.getProductId())
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+                .orElseThrow(() -> new ProductNotFoundException(command.getProductId()));
 
         String newCategoryId = command.getCategoryId();
         String oldCategoryId = product.getCategoryId();
@@ -64,7 +65,7 @@ public class ProductUseCase implements IProductUseCasePort {
                 && !newCategoryId.isBlank()
                 && !newCategoryId.equals(oldCategoryId)) {
             if (!categoryRepository.existsById(newCategoryId)) {
-                throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+                throw new CategoryNotFoundException(newCategoryId);
             }
         }
 
@@ -81,7 +82,7 @@ public class ProductUseCase implements IProductUseCasePort {
     @Override
     public void deleteProduct(String productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+                .orElseThrow(() -> new ProductNotFoundException(productId));
         productRepository.delete(product);
     }
 
@@ -107,7 +108,7 @@ public class ProductUseCase implements IProductUseCasePort {
     @Transactional(readOnly = true)
     public ProductDto getProductById(String productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+                .orElseThrow(() -> new ProductNotFoundException(productId));
 
         return mapper.toDto(product);
     }

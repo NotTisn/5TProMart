@@ -7,9 +7,9 @@ import com.fivetpromart.application.dto.query.CustomerSearchQuery;
 import com.fivetpromart.application.mapper.CustomerDataMapper;
 import com.fivetpromart.application.port.in.ICustomerUseCasePort;
 import com.fivetpromart.application.port.out.ICustomerRepository;
+import com.fivetpromart.domain.exception.CustomerNotFoundException;
+import com.fivetpromart.domain.exception.PhoneNumberAlreadyExistsException;
 import com.fivetpromart.domain.model.Customer;
-import com.fivetpromart.infrastructure.error.AppException;
-import com.fivetpromart.infrastructure.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,7 +32,7 @@ public class CustomerUseCase implements ICustomerUseCasePort {
     public CustomerDto addNewCustomer(CustomerCreationCommand command) {
 
         if (customerRepository.existsByPhoneNumber(command.getPhoneNumber())) {
-            throw new AppException(ErrorCode.PHONE_EXISTED);
+            throw new PhoneNumberAlreadyExistsException(command.getPhoneNumber());
         }
 
         Customer newCustomer = Customer.create(
@@ -53,13 +53,13 @@ public class CustomerUseCase implements ICustomerUseCasePort {
         // 1. LOAD: Tìm khách hàng cần sửa (Bắt buộc phải tìm bằng ID)
         // Giả sử CustomerCreationCommand có trường customerId
         Customer customer = customerRepository.findById(command.getCustomerId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new CustomerNotFoundException(command.getCustomerId()));
 
         // 2. VALIDATE: Kiểm tra trùng số điện thoại
         // Logic: Nếu User đổi sang SĐT mới, và SĐT đó đã có người KHÁC dùng -> Lỗi
         if (!customer.getPhoneNumber().equals(command.getPhoneNumber())
                 && customerRepository.existsByPhoneNumber(command.getPhoneNumber())) {
-            throw new AppException(ErrorCode.PHONE_EXISTED);
+            throw new PhoneNumberAlreadyExistsException(command.getPhoneNumber());
         }
 
         // 3. MUTATE: Gọi Business Method của Domain (Rich Model)
@@ -88,7 +88,7 @@ public class CustomerUseCase implements ICustomerUseCasePort {
     @Override
     public void deleteCustomer(String customerId) {
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_EXISTED));
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
 
         customerRepository.delete(customer);
     }
@@ -105,7 +105,7 @@ public class CustomerUseCase implements ICustomerUseCasePort {
     @Override
     public CustomerDto getCustomerById(String customerId) {
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_EXISTED));
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
 
         return mapper.toDto(customer);
     }

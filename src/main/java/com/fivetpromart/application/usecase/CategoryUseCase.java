@@ -4,9 +4,9 @@ import com.fivetpromart.application.dto.CategoryDto;
 import com.fivetpromart.application.mapper.CategoryDataMapper;
 import com.fivetpromart.application.port.in.ICategoryUseCasePort;
 import com.fivetpromart.application.port.out.ICategoryRepository;
+import com.fivetpromart.domain.exception.CategoryNotFoundException;
+import com.fivetpromart.domain.exception.EmptyFieldException;
 import com.fivetpromart.domain.model.Category;
-import com.fivetpromart.infrastructure.error.AppException;
-import com.fivetpromart.infrastructure.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class CategoryUseCase implements ICategoryUseCasePort {
     @Override
     public CategoryDto addNewCategory(String categoryName) {
         if(categoryName == null || categoryName.isBlank())
-            throw new AppException(ErrorCode.CANNOT_BE_EMPTY);
+            throw new EmptyFieldException("Category name");
 
         Category category = Category.create(categoryName);
         Category savedCategory = categoryRepository.save(category);
@@ -36,7 +36,7 @@ public class CategoryUseCase implements ICategoryUseCasePort {
     @Override
     public CategoryDto updateCategory(String categoryName, String categoryId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
 
         category.updateCategory(categoryName);
         Category updatedCategory = categoryRepository.save(category);
@@ -56,14 +56,14 @@ public class CategoryUseCase implements ICategoryUseCasePort {
     @Override
     public CategoryDto findCategoryById(String categoryId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
         return mapper.ToDto(category);
     }
 
     @Override
     public void deleteCategoryById(String categoryId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
 
         categoryRepository.delete(category);
     }
