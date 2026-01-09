@@ -25,14 +25,20 @@ public class SupplierDbo {
     @Column(name = "supplier_name", nullable = false)
     String supplierName;
 
-    @Column(name = "supplier_type")
-    String supplierType;
+    @Column(name = "address", columnDefinition = "TEXT")
+    String address;
 
     @Column(name = "phone_number", length = 20)
     String phoneNumber;
 
-    @Column(name = "address", columnDefinition = "TEXT")
-    String address;
+    @Column(name = "represent_name")
+    String representName;
+
+    @Column(name = "represent_phone_number", length = 20)
+    String representPhoneNumber;
+
+    @Column(name = "supplier_type")
+    String supplierType;
 
     @Column(name = "supplied_product_type")
     String suppliedProductType;

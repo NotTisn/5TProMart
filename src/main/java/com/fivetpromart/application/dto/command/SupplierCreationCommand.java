@@ -9,8 +9,10 @@ import java.math.BigDecimal;
 @Builder(toBuilder = true)
 public class SupplierCreationCommand {
     private String supplierName;
-    private String supplierType;
-    private String phoneNumber;
     private String address;
+    private String phoneNumber;
+    private String representName;
+    private String representPhoneNumber;
+    private String supplierType;
     private String suppliedProductType;
 }

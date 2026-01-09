@@ -25,9 +25,11 @@ public class SupplierUseCase implements ISupplierUseCasePort {
 
         Supplier supplier = Supplier.create(
                 command.getSupplierName(),
-                command.getSupplierType(),
-                command.getPhoneNumber(),
                 command.getAddress(),
+                command.getPhoneNumber(),
+                command.getRepresentName(),
+                command.getRepresentPhoneNumber(),
+                command.getSupplierType(),
                 command.getSuppliedProductType()
         );
 
@@ -42,9 +44,11 @@ public class SupplierUseCase implements ISupplierUseCasePort {
 
         supplier.updateInfo(
                 command.getSupplierName(),
-                command.getSupplierType(),
-                command.getPhoneNumber(),
                 command.getAddress(),
+                command.getPhoneNumber(),
+                command.getRepresentName(),
+                command.getRepresentPhoneNumber(),
+                command.getSupplierType(),
                 command.getSuppliedProductType()
         );
 

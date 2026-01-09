@@ -14,16 +14,26 @@ import java.util.UUID;
 public class Supplier {
     private String supplierId;
     private String supplierName;
-    private String supplierType;
-    private String phoneNumber;
     private String address;
+    private String phoneNumber;
+    private String representName;
+    private String representPhoneNumber;
+    private String supplierType;
     private String suppliedProductType;
     private BigDecimal currentDebt;
 
     // =================================================================
     // 1. FACTORY: TẠO MỚI
     // =================================================================
-    public static Supplier create(String supplierName, String supplierType, String phoneNumber, String address, String suppliedProductType) {
+    public static Supplier create(
+            String supplierName, 
+            String address,
+            String phoneNumber, 
+            String representName,
+            String representPhoneNumber,
+            String supplierType, 
+            String suppliedProductType
+    ) {
         if (supplierName == null || supplierName.isBlank())
             throw new EmptyFieldException("Supplier name");
         if (phoneNumber == null || phoneNumber.isBlank())
@@ -38,9 +48,11 @@ public class Supplier {
         Supplier supplier = new Supplier();
         supplier.supplierId = UUID.randomUUID().toString();
         supplier.supplierName = supplierName;
-        supplier.supplierType = supplierType;
-        supplier.phoneNumber = phoneNumber;
         supplier.address = address;
+        supplier.phoneNumber = phoneNumber;
+        supplier.representName = representName;
+        supplier.representPhoneNumber = representPhoneNumber;
+        supplier.supplierType = supplierType;
         supplier.suppliedProductType = suppliedProductType;
 
         supplier.currentDebt = BigDecimal.ZERO;
@@ -54,18 +66,22 @@ public class Supplier {
     public static Supplier reconstitute(
             String supplierId,
             String supplierName,
-            String supplierType,
-            String phoneNumber,
             String address,
+            String phoneNumber,
+            String representName,
+            String representPhoneNumber,
+            String supplierType,
             String suppliedProductType,
             BigDecimal currentDebt
     ) {
         Supplier supplier = new Supplier();
         supplier.supplierId = supplierId;
         supplier.supplierName = supplierName;
-        supplier.supplierType = supplierType;
-        supplier.phoneNumber = phoneNumber;
         supplier.address = address;
+        supplier.phoneNumber = phoneNumber;
+        supplier.representName = representName;
+        supplier.representPhoneNumber = representPhoneNumber;
+        supplier.supplierType = supplierType;
         supplier.suppliedProductType = suppliedProductType;
         supplier.currentDebt = currentDebt;
         return supplier;
@@ -75,11 +91,21 @@ public class Supplier {
     // 3. BUSINESS: CẬP NHẬT THÔNG TIN (Info)
     // Đổi thành void để đúng chuẩn State Mutation
     // =================================================================
-    public void updateInfo(String supplierName, String supplierType, String phoneNumber, String address, String suppliedProductType) {
+    public void updateInfo(
+            String supplierName, 
+            String address,
+            String phoneNumber, 
+            String representName,
+            String representPhoneNumber,
+            String supplierType, 
+            String suppliedProductType
+    ) {
         if (supplierName != null && !supplierName.isBlank()) this.supplierName = supplierName;
-        if (supplierType != null && !supplierType.isBlank()) this.supplierType = supplierType;
-        if (phoneNumber != null && !phoneNumber.isBlank()) this.phoneNumber = phoneNumber;
         if (address != null && !address.isBlank()) this.address = address;
+        if (phoneNumber != null && !phoneNumber.isBlank()) this.phoneNumber = phoneNumber;
+        if (representName != null) this.representName = representName;  // Allow empty for optional field
+        if (representPhoneNumber != null) this.representPhoneNumber = representPhoneNumber;  // Allow empty for optional field
+        if (supplierType != null && !supplierType.isBlank()) this.supplierType = supplierType;
         if (suppliedProductType != null && !suppliedProductType.isBlank()) this.suppliedProductType = suppliedProductType;
     }
 

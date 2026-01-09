@@ -13,9 +13,11 @@ public interface SupplierPersistenceMapper {
         return SupplierDbo.builder()
                 .supplierId(domain.getSupplierId())
                 .supplierName(domain.getSupplierName())
-                .supplierType(domain.getSupplierType())
                 .address(domain.getAddress())
                 .phoneNumber(domain.getPhoneNumber())
+                .representName(domain.getRepresentName())
+                .representPhoneNumber(domain.getRepresentPhoneNumber())
+                .supplierType(domain.getSupplierType())
                 .suppliedProductType(domain.getSuppliedProductType())
                 .currentDebt(domain.getCurrentDebt())
                 .build();
@@ -27,9 +29,11 @@ public interface SupplierPersistenceMapper {
         return Supplier.reconstitute(
                 dbo.getSupplierId(),
                 dbo.getSupplierName(),
-                dbo.getSupplierType(),
-                dbo.getPhoneNumber(),
                 dbo.getAddress(),
+                dbo.getPhoneNumber(),
+                dbo.getRepresentName(),
+                dbo.getRepresentPhoneNumber(),
+                dbo.getSupplierType(),
                 dbo.getSuppliedProductType(),
                 dbo.getCurrentDebt()
         );

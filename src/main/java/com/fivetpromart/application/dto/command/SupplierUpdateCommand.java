@@ -10,9 +10,11 @@ import java.math.BigDecimal;
 public class SupplierUpdateCommand {
     private String supplierId;
     private String supplierName;
-    private String supplierType;
-    private String phoneNumber;
     private String address;
+    private String phoneNumber;
+    private String representName;
+    private String representPhoneNumber;
+    private String supplierType;
     private String suppliedProductType;
     private BigDecimal currentDebt;
 }
