@@ -17,7 +17,9 @@ Added the missing optional fields `representName` and `representPhoneNumber` to 
 ### 1. **Domain Layer** (1 file)
 
 #### ✅ `Supplier.java` (Domain Model)
+
 **Changes:**
+
 - Added `representName` field
 - Added `representPhoneNumber` field
 - Updated `create()` factory method to accept these parameters
@@ -25,6 +27,7 @@ Added the missing optional fields `representName` and `representPhoneNumber` to 
 - Updated `updateInfo()` method to handle these optional fields
 
 **Code Changes:**
+
 ```java
 // Added fields
 private String representName;
@@ -32,12 +35,12 @@ private String representPhoneNumber;
 
 // Updated create() signature
 public static Supplier create(
-    String supplierName, 
+    String supplierName,
     String address,
-    String phoneNumber, 
+    String phoneNumber,
     String representName,        // ✅ NEW
     String representPhoneNumber, // ✅ NEW
-    String supplierType, 
+    String supplierType,
     String suppliedProductType
 )
 
@@ -64,11 +67,14 @@ if (representPhoneNumber != null) this.representPhoneNumber = representPhoneNumb
 ### 2. **Infrastructure Layer** (2 files)
 
 #### ✅ `SupplierDbo.java` (Database Entity)
+
 **Changes:**
+
 - Added `represent_name` column
 - Added `represent_phone_number` column
 
 **Code Changes:**
+
 ```java
 @Column(name = "represent_name")
 String representName;
@@ -78,11 +84,14 @@ String representPhoneNumber;
 ```
 
 #### ✅ `SupplierPersistenceMapper.java` (Persistence Mapper)
+
 **Changes:**
+
 - Updated `toDbo()` to map new fields
 - Updated `toDomain()` to pass new fields to `reconstitute()`
 
 **Code Changes:**
+
 ```java
 // In toDbo()
 .representName(domain.getRepresentName())
@@ -98,44 +107,56 @@ dbo.getRepresentPhoneNumber(),
 ### 3. **Application Layer** (4 files)
 
 #### ✅ `SupplierDto.java` (Application DTO)
+
 **Changes:**
+
 - Added `representName` field
 - Added `representPhoneNumber` field
 
 **Code Changes:**
+
 ```java
 private String representName;
 private String representPhoneNumber;
 ```
 
 #### ✅ `SupplierCreationCommand.java` (Create Command)
+
 **Changes:**
+
 - Added `representName` field
 - Added `representPhoneNumber` field
 
 **Code Changes:**
+
 ```java
 private String representName;
 private String representPhoneNumber;
 ```
 
 #### ✅ `SupplierUpdateCommand.java` (Update Command)
+
 **Changes:**
+
 - Added `representName` field
 - Added `representPhoneNumber` field
 
 **Code Changes:**
+
 ```java
 private String representName;
 private String representPhoneNumber;
 ```
 
 #### ✅ `SupplierUseCase.java` (Business Logic)
+
 **Changes:**
+
 - Updated `createSupplier()` to pass new fields to domain `create()`
 - Updated `updateSupplier()` to pass new fields to domain `updateInfo()`
 
 **Code Changes:**
+
 ```java
 // In createSupplier()
 Supplier supplier = Supplier.create(
@@ -165,11 +186,14 @@ supplier.updateInfo(
 ### 4. **Presentation Layer** (2 files)
 
 #### ✅ `SupplierRequest.java` (Request DTO)
+
 **Changes:**
+
 - Added `representName` field (optional)
 - Added `representPhoneNumber` field (optional)
 
 **Code Changes:**
+
 ```java
 private String representName;
 private String representPhoneNumber;
@@ -178,11 +202,14 @@ private String representPhoneNumber;
 **Note:** These fields are optional according to the API spec, so no validation annotations are added.
 
 #### ✅ `SupplierResponse.java` (Response DTO)
+
 **Changes:**
+
 - Added `representName` field
 - Added `representPhoneNumber` field
 
 **Code Changes:**
+
 ```java
 private String representName;
 private String representPhoneNumber;
@@ -193,12 +220,15 @@ private String representPhoneNumber;
 ### 5. **No Changes Needed** (Auto-mapped)
 
 #### ✅ `SupplierDataMapper.java` (Application Mapper)
+
 **Status:** No changes needed - MapStruct automatically maps matching field names
 
 #### ✅ `SupplierPresentationMapper.java` (Presentation Mapper)
+
 **Status:** No changes needed - MapStruct automatically maps matching field names
 
 #### ✅ `SupplierController.java` (REST Controller)
+
 **Status:** No changes needed - Uses mappers which now handle new fields
 
 ---
@@ -206,6 +236,7 @@ private String representPhoneNumber;
 ## 🎯 API Compliance
 
 ### Before Fix:
+
 ```json
 {
   "supplierId": "string",
@@ -219,14 +250,15 @@ private String representPhoneNumber;
 ```
 
 ### After Fix:
+
 ```json
 {
   "supplierId": "string",
   "supplierName": "string",
   "address": "string",
   "phoneNumber": "string",
-  "representName": "string",           // ✅ NEW (optional)
-  "representPhoneNumber": "string",    // ✅ NEW (optional)
+  "representName": "string", // ✅ NEW (optional)
+  "representPhoneNumber": "string", // ✅ NEW (optional)
   "supplierType": "string",
   "suppliedProductType": "string",
   "currentDebt": 0
@@ -238,11 +270,13 @@ private String representPhoneNumber;
 ## ✅ Verification
 
 ### Compilation Status: ✅ PASS
+
 - All 10 files compile without errors
 - No breaking changes to existing code
 - Backward compatible (new fields are optional)
 
 ### Field Order (matches spec):
+
 1. ✅ supplierId
 2. ✅ supplierName
 3. ✅ address
@@ -260,17 +294,20 @@ private String representPhoneNumber;
 ### ✅ Clean Architecture Maintained
 
 **Dependency Direction:** ✅ CORRECT
+
 ```
 Presentation → Application → Domain ← Infrastructure
 ```
 
 **Layer Independence:**
+
 - ✅ Domain layer has no framework dependencies
 - ✅ Application layer depends only on domain
 - ✅ Presentation and Infrastructure depend on Application/Domain
 - ✅ No circular dependencies
 
 **Changes Follow CA Principles:**
+
 - ✅ Domain model drives the changes (started with `Supplier.java`)
 - ✅ Infrastructure adapts to domain (SupplierDbo follows domain)
 - ✅ Application coordinates (commands/DTOs bridge layers)
@@ -281,6 +318,7 @@ Presentation → Application → Domain ← Infrastructure
 ## 🎊 Impact Summary
 
 ### ✅ Benefits:
+
 1. **API Spec Compliance** - Now 100% matches SupplierAPI.md field requirements
 2. **Optional Fields Supported** - Frontend can send/receive representative info
 3. **No Breaking Changes** - Existing API consumers still work (fields are optional)
@@ -288,9 +326,11 @@ Presentation → Application → Domain ← Infrastructure
 5. **Type Safety** - Strong typing throughout all layers
 
 ### ⚠️ Required Actions:
+
 1. **Database Migration** - Need to add columns to `suppliers` table:
+
    ```sql
-   ALTER TABLE suppliers 
+   ALTER TABLE suppliers
    ADD COLUMN represent_name VARCHAR(255),
    ADD COLUMN represent_phone_number VARCHAR(20);
    ```
@@ -315,12 +355,13 @@ Presentation → Application → Domain ← Infrastructure
 
 ### SupplierAPI Implementation Status:
 
-| Feature | Before | After |
-|---------|--------|-------|
-| Missing Response Fields | ❌ 0% | ✅ 100% |
+| Feature                 | Before | After   |
+| ----------------------- | ------ | ------- |
+| Missing Response Fields | ❌ 0%  | ✅ 100% |
 | API Compliance (Fields) | ⚠️ 85% | ✅ 100% |
 
 ### Remaining Tasks:
+
 - ⚠️ Add query/search endpoint (GET /api/suppliers/)
 - ⚠️ Add validation annotations to SupplierRequest
 - ⚠️ Add delete business validation (debt/history checks)
@@ -333,6 +374,7 @@ Presentation → Application → Domain ← Infrastructure
 ## 🚀 Testing Recommendations
 
 ### 1. Unit Tests:
+
 ```java
 @Test
 void createSupplier_withRepresentativeInfo_shouldSaveAllFields() {
@@ -351,6 +393,7 @@ void createSupplier_withoutRepresentativeInfo_shouldUseNull() {
 ```
 
 ### 2. Integration Tests:
+
 ```java
 @Test
 void postSupplier_withAllFields_returns201() {

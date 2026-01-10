@@ -6,9 +6,6 @@
 
 ```json
 "Authorization": "Bearer {token}",
-"role": {
-    "name": "Admin"
-}
 ```
 
 ## **Endpoint base:** `/api/suppliers`

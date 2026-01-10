@@ -4,14 +4,14 @@
 
 ## 1.1 Login
 
-**Endpoint:** `POST /api/auth/login`
+**Endpoint:** `POST /api/v1/auth/login`
 
 **Request body**
 
 ```json
 {
-  "username": "string",
-  "password": "string"
+  "username": "your_username",
+  "password": "your_password"
 }
 ```
 
@@ -22,20 +22,20 @@
   "success": true,
   "message": "Login successfully",
   "data": {
-    "token": "string", // JWT Token
+    "accessToken": "ey...", // JWT token
     "expiresIn": 3600,
     "user": {
-      "profileId": "string", // profiles.id
-      "userId": "string", // profiles.user_id (ID tài khoản gốc)
-      "username": "string", // profiles.username
-      "fullName": "string", // profiles.full_name
-      "email": "string", // profiles.email
-      "avatarUrl": "string", // profiles.avatar_url
-      "accountType": "string" // profiles.account_type (role user)
+      "profileId": "string",
+      "userId": "string",
+      "username": "string",
+      "fullName": "string",
+      "role": "string"
     }
   }
 }
 ```
+
+**Note** Server set cookie
 
 ---
 
@@ -53,7 +53,7 @@
 
 ## 1.2 Get current user
 
-**Endpoint:** `GET /api/auth/me`
+**Endpoint:** `GET /api/v1/auth/me`
 
 **Header**
 
@@ -85,7 +85,7 @@ Authorization: Bearer {token}
 
 ## 1.3 Create staff account
 
-**Endpoint:** `POST /api/accounts`
+**Endpoint:** `POST /api/v1/accounts`
 
 **Header**
 
@@ -149,7 +149,7 @@ Required:
 
 ## 1.4 Change password
 
-**Endpoint:** `PUT /api/auth/change-password`
+**Endpoint:** `PUT /api/v1/auth/change-password`
 
 **Header**
 
@@ -189,7 +189,7 @@ Authorization: Bearer {token}
 
 ## 1.5 Logout
 
-**Endpoint:** `PUT /api/auth/change-password`
+**Endpoint:** `POST /api/v1/auth/logout`
 
 **Header**
 
@@ -202,5 +202,27 @@ Authorization: Bearer {token}
   "success": true,
   "message": "Logged out successfully.",
   "data": null
+}
+```
+
+## **Note** Server delete cookie refresh_token
+
+## 1.5 Refresh Token
+
+**Endpoint:** `POST /api/v1/auth/refresh-token`
+
+**Header**
+
+Cookie: refresh_token={cookie_string}
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Refresh token successfully",
+  "data": {
+    "accessToken": "string" // New Token
+  }
 }
 ```
