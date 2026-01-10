@@ -102,7 +102,7 @@
     "totalAmount": 10000,
     "amountGiven": 20000,
     "changeReturned": 10000,
-    "pointsEarned": 100 //1% hoá đơn?
+    "pointsEarned": 100
   }
 }
 ```
@@ -189,6 +189,7 @@
     "orderDate": "dd-MM-yyyy hh-mm-ss", //now
     "totalAmount": 300000,
     "changeReturned": 60000, // amount given - total amount
+    "pointsEarned": 100, //1% total amount, customer.loyaltyPoint += pointsEarned
     "items": [
       {
         "productName": "product_name_1",
@@ -206,3 +207,15 @@
   }
 }
 ```
+
+> **NOTE LUỒNG:**
+>
+> 1. Mỗi lần quét mã vạch sẽ gọi API **1.3 Check Product**
+> 2. Sau khi quét hết sản phẩm và nhận tiền gọi API **1.4 Create Order**
+
+> **NOTE FOR FRONTEND:**
+>
+> 1. Xử lý frontend khi quét:
+> 2. **UI hoá đơn:** Nếu quét 2 lô khác nhau của cùng 1 sản phẩm (Cùng `productId` và `unitPrice`), gộp lại thành 1 dòng trên màn hình POS với tổng số lượng, tách riêng các sản phẩm cùng loại sản phẩm nhưng khác giá (khuyến mãi...)
+> 3. **Lưu trữ:** Bên dưới hiển thị đó, Frontend phải lưu giữ danh sách các `lotId` thành phần
+> 4. **Mục đích:** Để khi gọi API **1.4 Create Order**, Frontend có thể tách ra gửi chính xác từng `lotId` cho Backend xử lý trừ lô
