@@ -4,7 +4,6 @@ import com.fivetpromart.application.dto.query.StaffSearchQuery;
 import com.fivetpromart.domain.model.Staff;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import java.util.Optional;
 
 public interface IStaffRepository {
@@ -17,4 +16,5 @@ public interface IStaffRepository {
     boolean existsByEmail(String email);
     void deleteById(String staffId);
     Page<Staff> searchStaff(StaffSearchQuery query, Pageable pageable);
+    Optional<Staff> findByUserId(String keycloakUserId);
 }

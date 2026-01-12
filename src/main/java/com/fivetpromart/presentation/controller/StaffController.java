@@ -32,47 +32,55 @@ public class StaffController {
     // TODO: Add security annotation - only Admin can access
     // TODO: @PreAuthorize("hasRole('Admin')")
     
-    @GetMapping
-    public ApiResponse<List<StaffResponse>> getAllStaff(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String accountType,
-            @PageableDefault(size = 10, sort = "fullName") Pageable pageable
-    ) {
-        // TODO: Map query parameters to StaffSearchQuery
-        StaffSearchQuery query = StaffSearchQuery.builder()
-                .search(search)
-                .accountType(accountType)
-                .build();
-
-        // TODO: Call use case
-        Page<StaffAccountDto> page = staffUseCase.getAllStaff(query, pageable);
-
-        // TODO: Map to response
-        List<StaffResponse> responses = page.getContent().stream()
-                .map(mapper::toResponse)
-                .toList();
-
-        return ApiResponse.<List<StaffResponse>>builder()
-                .success(true)
-                .message("Get staff list successfully.")
-                .data(responses)
-                .pagination(PaginationMeta.fromPage(page))
-                .build();
-    }
-
-    @GetMapping("/{staffId}")
-    public ApiResponse<StaffResponse> getStaffById(
-            @PathVariable String staffId
-    ) {
-        // TODO: Call use case
-        StaffAccountDto dto = staffUseCase.getStaffById(staffId);
-
-        return ApiResponse.<StaffResponse>builder()
-                .success(true)
-                .message("Get staff detail successfully.")
-                .data(mapper.toResponse(dto))
-                .build();
-    }
+//    @GetMapping
+//    public ApiResponse<List<StaffResponse>> getAllStaff(
+//            @RequestParam(required = false) String search,
+//            @RequestParam(required = false) String accountType,
+//            @PageableDefault(size = 10, sort = "fullName") Pageable pageable
+//    ) {
+//        // TODO: Map query parameters to StaffSearchQuery
+//        StaffSearchQuery query = StaffSearchQuery.builder()
+//                .search(search)
+//                .accountType(accountType)
+//                .build();
+//
+//        // TODO: Call use case
+//        Page<StaffAccountDto> pageResult = staffUseCase.getAllStaff(query, pageable);
+//
+//        // TODO: Map to response
+//        List<StaffResponse> responses = pageResult.getContent().stream()
+//                .map(mapper::toResponse)
+//                .toList();
+//
+//        PaginationMeta meta = PaginationMeta.builder()
+//                .totalItems(pageResult.getTotalElements()) // Tổng số bản ghi
+//                .itemsPerPage(pageResult.getSize())        // Kích thước trang
+//                .totalPages(pageResult.getTotalPages())    // Tổng số trang
+//                .startPage(pageResult.getNumber() + 1)     // QUAN TRỌNG: Spring bắt đầu từ 0, bạn muốn 1 thì phải +1
+//                .build();
+//
+//        return ApiResponse.<List<StaffResponse>>builder()
+//                .success(true)
+//                .statusCode(200)
+//                .message("Get staff list successfully.")
+//                .data(responses)
+//                .pagination(meta)
+//                .build();
+//    }
+//
+//    @GetMapping("/{staffId}")
+//    public ApiResponse<StaffResponse> getStaffById(
+//            @PathVariable String staffId
+//    ) {
+//        // TODO: Call use case
+//        StaffAccountDto dto = staffUseCase.getStaffById(staffId);
+//
+//        return ApiResponse.<StaffResponse>builder()
+//                .success(true)
+//                .message("Get staff detail successfully.")
+//                .data(mapper.toResponse(dto))
+//                .build();
+//    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -93,34 +101,34 @@ public class StaffController {
                 .build();
     }
 
-    @PutMapping("/{staffId}")
-    public ApiResponse<StaffResponse> updateStaff(
-            @PathVariable String staffId,
-            @Valid @RequestBody StaffUpdateRequest request
-    ) {
-        // TODO: Map request to command
-        StaffUpdateCommand command = mapper.toUpdateCommand(request);
-
-        // TODO: Call use case
-        StaffAccountDto dto = staffUseCase.updateStaffAccount(staffId, command);
-
-        return ApiResponse.<StaffResponse>builder()
-                .success(true)
-                .message("Staff updated successfully.")
-                .data(mapper.toResponse(dto))
-                .build();
-    }
-
-    @DeleteMapping("/{staffId}")
-    public ApiResponse<Void> deleteStaff(
-            @PathVariable String staffId
-    ) {
-        // TODO: Call use case
-        staffUseCase.deleteStaffById(staffId);
-
-        return ApiResponse.<Void>builder()
-                .success(true)
-                .message("Staff deleted successfully.")
-                .build();
-    }
+//    @PutMapping("/{staffId}")
+//    public ApiResponse<StaffResponse> updateStaff(
+//            @PathVariable String staffId,
+//            @Valid @RequestBody StaffUpdateRequest request
+//    ) {
+//        // TODO: Map request to command
+//        StaffUpdateCommand command = mapper.toUpdateCommand(request);
+//
+//        // TODO: Call use case
+//        StaffAccountDto dto = staffUseCase.updateStaffAccount(staffId, command);
+//
+//        return ApiResponse.<StaffResponse>builder()
+//                .success(true)
+//                .message("Staff updated successfully.")
+//                .data(mapper.toResponse(dto))
+//                .build();
+//    }
+//
+//    @DeleteMapping("/{staffId}")
+//    public ApiResponse<Void> deleteStaff(
+//            @PathVariable String staffId
+//    ) {
+//        // TODO: Call use case
+//        staffUseCase.deleteStaffById(staffId);
+//
+//        return ApiResponse.<Void>builder()
+//                .success(true)
+//                .message("Staff deleted successfully.")
+//                .build();
+//    }
 }

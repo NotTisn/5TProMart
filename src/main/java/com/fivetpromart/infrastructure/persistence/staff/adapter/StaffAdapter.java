@@ -70,4 +70,9 @@ public class StaffAdapter implements IStaffRepository {
         Page<StaffDbo> dboPage = staffJpaRepository.findAll(spec, pageable);
         return dboPage.map(mapper::toDomain);
     }
+
+    @Override
+    public Optional<Staff> findByUserId(String keycloakUserId) {
+        return staffJpaRepository.findByUserId(keycloakUserId).map(mapper::toDomain);
+    }
 }
