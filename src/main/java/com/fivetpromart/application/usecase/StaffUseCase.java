@@ -125,15 +125,14 @@ public class StaffUseCase implements IStaffUseCasePort {
 
     @Override
     public StaffAccountDto getStaffById(String staffId) {
-//        log.info("Getting staff by ID: {}", staffId);
-//
-//        // 1. Find staff in repository by staffId (profileId)
-//        Staff staff = staffRepository.findById(staffId)
-//                .orElseThrow(() -> new EntityNotFoundException("Staff not found with ID: " + staffId));
-//
-//        // 2. Map to StaffAccountDto and return
-//        return mapper.toDto(staff);
-        return null;
+        log.info("Getting staff by ID: {}", staffId);
+
+        // 1. Find staff in repository by staffId (profileId)
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new EntityNotFoundException("Staff not found with ID: " + staffId));
+
+        // 2. Map to StaffAccountDto and return
+        return mapper.toDto(staff);
     }
 
     @Override

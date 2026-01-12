@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,22 +69,24 @@ public class StaffController {
 //                .build();
 //    }
 //
-//    @GetMapping("/{staffId}")
-//    public ApiResponse<StaffResponse> getStaffById(
-//            @PathVariable String staffId
-//    ) {
-//        // TODO: Call use case
-//        StaffAccountDto dto = staffUseCase.getStaffById(staffId);
-//
-//        return ApiResponse.<StaffResponse>builder()
-//                .success(true)
-//                .message("Get staff detail successfully.")
-//                .data(mapper.toResponse(dto))
-//                .build();
-//    }
+    @GetMapping("/{staffId}")
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<StaffResponse> getStaffById(
+            @PathVariable String staffId
+    ) {
+        // TODO: Call use case
+        StaffAccountDto dto = staffUseCase.getStaffById(staffId);
+
+        return ApiResponse.<StaffResponse>builder()
+                .success(true)
+                .message("Get staff detail successfully.")
+                .data(mapper.toResponse(dto))
+                .build();
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<StaffResponse> createStaff(
             @Valid @RequestBody StaffRequest request
     ) {
