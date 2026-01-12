@@ -1,4 +1,4 @@
-package com.fivetpromart.application.dto;
+package com.fivetpromart.application.dto.command;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,16 +7,13 @@ import java.time.LocalDate;
 
 @Data
 @Builder(toBuilder = true)
-public class StaffAccountDto {
-    private String profileId;
-    private String userId;
-    private String username;
+public class StaffUpdateCommand {
+    private String staffId;
     private String fullName;
     private String email;
     private String phoneNumber;
-    private LocalDate dateOfBirth;
     private String accountType;
-    private String avatarUrl;
+    private LocalDate dateOfBirth;
     private String location;
     private String bio;
 }

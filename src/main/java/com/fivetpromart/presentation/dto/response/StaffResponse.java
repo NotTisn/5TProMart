@@ -1,13 +1,13 @@
-package com.fivetpromart.application.dto;
+package com.fivetpromart.presentation.dto.response;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Data
-@Builder(toBuilder = true)
-public class StaffAccountDto {
+@Getter
+@Setter
+public class StaffResponse {
     private String profileId;
     private String userId;
     private String username;
