@@ -88,39 +88,37 @@ public class StaffUseCase implements IStaffUseCasePort {
 
     @Override
     public StaffAccountDto updateStaffAccount(String staffId, StaffUpdateCommand command) {
-//        log.info("Updating staff account: {}", staffId);
-//
-//        // 1. Find existing staff by staffId (profileId)
-//        Staff staff = staffRepository.findById(staffId)
-//                .orElseThrow(() -> new EntityNotFoundException("Staff not found with ID: " + staffId));
-//
-//        // 2. Validate email uniqueness if changed
-//        if (command.getEmail() != null && !command.getEmail().equals(staff.getEmail())) {
-//            if (staffRepository.existsByEmail(command.getEmail())) {
-//                throw new StaffAlreadyExistsException("Email already exists: " + command.getEmail());
-//            }
-//        }
-//
-//        // 4. Update staff domain model with new values
-//        staff.updateInfo(
-//                command.getFullName() != null ? command.getFullName() : staff.getFullName(),
-//                command.getEmail() != null ? command.getEmail() : staff.getEmail(),
-//                command.getPhoneNumber() != null ? command.getPhoneNumber() : staff.getPhoneNumber(),
-//                command.getAccountType() != null ? command.getAccountType() : staff.getAccountType(),
-//                command.getDateOfBirth() != null ? command.getDateOfBirth() : staff.getDateOfBirth(),
-//                command.getLocation() != null ? command.getLocation() : staff.getLocation(),
-//                command.getBio() != null ? command.getBio() : staff.getBio()
-//        );
-//
-//        // 5. Save updated staff to repository
-//        Staff updatedStaff = staffRepository.save(staff);
-//
-//        log.info("Staff account updated successfully: {}", staffId);
-//
-//        // 6. Map to StaffAccountDto and return
-//        return mapper.toDto(updatedStaff);
+        log.info("Updating staff account: {}", staffId);
 
-        return null;
+        // 1. Find existing staff by staffId (profileId)
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new EntityNotFoundException("Staff not found with ID: " + staffId));
+
+        // 2. Validate email uniqueness if changed
+        if (command.getEmail() != null && !command.getEmail().equals(staff.getEmail())) {
+            if (staffRepository.existsByEmail(command.getEmail())) {
+                throw new StaffAlreadyExistsException("Email already exists: " + command.getEmail());
+            }
+        }
+
+        // 4. Update staff domain model with new values
+        staff.updateInfo(
+                command.getFullName() != null ? command.getFullName() : staff.getFullName(),
+                command.getEmail() != null ? command.getEmail() : staff.getEmail(),
+                command.getPhoneNumber() != null ? command.getPhoneNumber() : staff.getPhoneNumber(),
+                command.getAccountType() != null ? command.getAccountType() : staff.getAccountType(),
+                command.getDateOfBirth() != null ? command.getDateOfBirth() : staff.getDateOfBirth(),
+                command.getLocation() != null ? command.getLocation() : staff.getLocation(),
+                command.getBio() != null ? command.getBio() : staff.getBio()
+        );
+
+        // 5. Save updated staff to repository
+        Staff updatedStaff = staffRepository.save(staff);
+
+        log.info("Staff account updated successfully: {}", staffId);
+
+        // 6. Map to StaffAccountDto and return
+        return mapper.toDto(updatedStaff);
     }
 
     @Override

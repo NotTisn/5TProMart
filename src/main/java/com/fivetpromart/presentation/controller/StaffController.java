@@ -105,23 +105,25 @@ public class StaffController {
                 .build();
     }
 
-//    @PutMapping("/{staffId}")
-//    public ApiResponse<StaffResponse> updateStaff(
-//            @PathVariable String staffId,
-//            @Valid @RequestBody StaffUpdateRequest request
-//    ) {
-//        // TODO: Map request to command
-//        StaffUpdateCommand command = mapper.toUpdateCommand(request);
-//
-//        // TODO: Call use case
-//        StaffAccountDto dto = staffUseCase.updateStaffAccount(staffId, command);
-//
-//        return ApiResponse.<StaffResponse>builder()
-//                .success(true)
-//                .message("Staff updated successfully.")
-//                .data(mapper.toResponse(dto))
-//                .build();
-//    }
+    @PutMapping("/{staffId}")
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<StaffResponse> updateStaff(
+            @PathVariable String staffId,
+            @Valid @RequestBody StaffUpdateRequest request
+    ) {
+        // TODO: Map request to command
+        StaffUpdateCommand command = mapper.toUpdateCommand(request);
+
+        // TODO: Call use case
+        StaffAccountDto dto = staffUseCase.updateStaffAccount(staffId, command);
+
+        return ApiResponse.<StaffResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Staff updated successfully.")
+                .data(mapper.toResponse(dto))
+                .build();
+    }
 
     @DeleteMapping("/{staffId}")
     @PreAuthorize("hasRole('Admin')")
