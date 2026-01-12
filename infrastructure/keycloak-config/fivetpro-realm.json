@@ -33,7 +33,7 @@
       "protocol": "openid-connect",
       "publicClient": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "Vg11QgfmK4I4Di1Kf8i52ZeYcCifeKZK",
+      "secret": "WtaR8BLWkwL6OTWKRZjoGu12yk888onl",
       "serviceAccountsEnabled": true,
       "authorizationServicesEnabled": false,
       "standardFlowEnabled": true,
