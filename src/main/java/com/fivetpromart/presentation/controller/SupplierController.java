@@ -1,19 +1,25 @@
 package com.fivetpromart.presentation.controller;
 
+import com.fivetpromart.application.dto.CustomerDto;
 import com.fivetpromart.application.dto.SupplierDto;
 import com.fivetpromart.application.dto.command.SupplierCreationCommand;
 import com.fivetpromart.application.dto.command.SupplierUpdateCommand;
+import com.fivetpromart.application.dto.query.CustomerSearchQuery;
+import com.fivetpromart.application.dto.query.SupplierSearchQuery;
 import com.fivetpromart.application.usecase.SupplierUseCase;
 import com.fivetpromart.infrastructure.persistence.supplier.mapper.SupplierPersistenceMapper;
 import com.fivetpromart.presentation.dto.request.SupplierRequest;
-import com.fivetpromart.presentation.dto.response.ApiResponse;
-import com.fivetpromart.presentation.dto.response.ProductResponse;
-import com.fivetpromart.presentation.dto.response.SupplierResponse;
+import com.fivetpromart.presentation.dto.response.*;
 import com.fivetpromart.presentation.mapper.SupplierPresentationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/suppliers")
@@ -86,6 +92,42 @@ public class SupplierController {
                 .success(true)
                 .statusCode(HttpStatus.OK.value())
                 .message("Successfully deleted supplier")
+                .build();
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<SupplierResponse>> getAllSuppliersByPage(
+            @RequestParam(required = false) String supplierName,
+            @RequestParam(required = false) String supplierId,
+            @RequestParam(required = false) String supplierType,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        SupplierSearchQuery query =  SupplierSearchQuery.builder()
+                .supplierName(supplierName)
+                .supplierId(supplierId)
+                .supplierType(supplierType)
+                .build();
+        Page<SupplierDto> pageResult = supplierUseCase.getAllSuppliers(query, pageable);
+
+        List<SupplierResponse> responses = pageResult.stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        PaginationMeta meta = PaginationMeta.builder()
+                .totalItems(pageResult.getTotalElements()) // Tổng số bản ghi
+                .itemsPerPage(pageResult.getSize())        // Kích thước trang
+                .totalPages(pageResult.getTotalPages())    // Tổng số trang
+                .startPage(pageResult.getNumber() + 1)     // QUAN TRỌNG: Spring bắt đầu từ 0, bạn muốn 1 thì phải +1
+                .build();
+
+        // 4. Trả về kết quả gộp
+        return ApiResponse.<List<SupplierResponse>>builder()
+                .success(true)
+                .statusCode(200)
+                .message("Get suppliers successfully")
+                .data(responses)  // Mảng dữ liệu
+                .pagination(meta)    // Thông tin phân trang
                 .build();
     }
 }

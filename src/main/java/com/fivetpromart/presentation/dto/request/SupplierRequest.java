@@ -1,45 +1,37 @@
 package com.fivetpromart.presentation.dto.request;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.math.BigDecimal;
 
 @Getter
 @Setter
 public class SupplierRequest {
 
-    @NotBlank(message = "Supplier name is required")
-    @Size(max = 255, message = "Supplier name must be less than 255 characters")
+    @NotBlank(message = "Supplier name is required.")
     private String supplierName;
 
-    @NotBlank(message = "Address is required")
+    @NotBlank(message = "Address is required.")
     private String address;
 
-    @NotBlank(message = "Phone number is required")
-    // Simple regex for 10-15 digits, optional + prefix
-    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number format")
+    @NotBlank(message = "Phone number is required.")
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must have 10 digits.")
     private String phoneNumber;
 
-    @NotBlank(message = "Representative name is required")
+    // Optional fields - no @NotBlank validation
     private String representName;
 
-    @NotBlank(message = "Representative phone number is required")
-    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid representative phone number format")
+    // Optional but validate format if provided
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must have 10 digits.")
     private String representPhoneNumber;
 
-    @NotBlank(message = "Supplier type is required")
+    @NotBlank(message = "Supplier type is required.")
+    @Pattern(regexp = "^(Doanh nghiệp|Tư nhân)$", message = "Supplier type must be 'Doanh nghiệp' or 'Tư nhân'.")
     private String supplierType;
 
-    @NotBlank(message = "Supplied product type is required")
+    @NotBlank(message = "Supplied product type is required.")
     private String suppliedProductType;
 
-    @NotNull(message = "Current debt is required")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Current debt cannot be negative")
-    private BigDecimal currentDebt;
+    // Note: currentDebt is NOT in request body - it's system-managed and defaults to 0
 }

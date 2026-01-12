@@ -3,8 +3,6 @@ package com.fivetpromart.application.dto.command;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
 @Builder(toBuilder = true)
 public class SupplierUpdateCommand {
@@ -16,5 +14,5 @@ public class SupplierUpdateCommand {
     private String representPhoneNumber;
     private String supplierType;
     private String suppliedProductType;
-    private BigDecimal currentDebt;
+    // Note: currentDebt is NOT updated via this command - it's managed separately through business operations
 }

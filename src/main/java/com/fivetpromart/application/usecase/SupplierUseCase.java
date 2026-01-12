@@ -3,13 +3,17 @@ package com.fivetpromart.application.usecase;
 import com.fivetpromart.application.dto.SupplierDto;
 import com.fivetpromart.application.dto.command.SupplierCreationCommand;
 import com.fivetpromart.application.dto.command.SupplierUpdateCommand;
+import com.fivetpromart.application.dto.query.SupplierSearchQuery;
 import com.fivetpromart.application.mapper.SupplierDataMapper;
 import com.fivetpromart.application.port.in.ISupplierUseCasePort;
 import com.fivetpromart.application.port.out.ISupplierRepository;
 import com.fivetpromart.domain.exception.SupplierNotFoundException;
+import com.fivetpromart.domain.model.Product;
 import com.fivetpromart.domain.model.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -67,5 +71,14 @@ public class SupplierUseCase implements ISupplierUseCasePort {
             throw new SupplierNotFoundException(supplierId);
 
         supplierRepository.deleteById(supplierId);
+    }
+
+    @Override
+    public Page<SupplierDto> getAllSuppliers(SupplierSearchQuery query, Pageable pageable) {
+        // Gọi Repo lấy Page Domain
+        Page<Supplier> supplierPage = supplierRepository.searchSuppliers(query, pageable);
+
+        // Map sang Page DTO
+        return supplierPage.map(mapper::toDto);
     }
 }
