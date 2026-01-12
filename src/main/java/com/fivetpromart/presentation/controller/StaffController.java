@@ -122,17 +122,19 @@ public class StaffController {
 //                .data(mapper.toResponse(dto))
 //                .build();
 //    }
-//
-//    @DeleteMapping("/{staffId}")
-//    public ApiResponse<Void> deleteStaff(
-//            @PathVariable String staffId
-//    ) {
-//        // TODO: Call use case
-//        staffUseCase.deleteStaffById(staffId);
-//
-//        return ApiResponse.<Void>builder()
-//                .success(true)
-//                .message("Staff deleted successfully.")
-//                .build();
-//    }
+
+    @DeleteMapping("/{staffId}")
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<Void> deleteStaff(
+            @PathVariable String staffId
+    ) {
+        // TODO: Call use case
+        staffUseCase.deleteStaffById(staffId);
+
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .statusCode(204)
+                .message("Staff deleted successfully.")
+                .build();
+    }
 }

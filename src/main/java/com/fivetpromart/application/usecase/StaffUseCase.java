@@ -137,30 +137,30 @@ public class StaffUseCase implements IStaffUseCasePort {
 
     @Override
     public void deleteStaffById(String staffId) {
-//        log.info("Deleting staff account: {}", staffId);
-//
-//        // 1. Check if staff exists
-//        Staff staff = staffRepository.findById(staffId)
-//                .orElseThrow(() -> new EntityNotFoundException("Staff not found with ID: " + staffId));
-//
-//        // 2. Validate business rules
-//        // TODO: Check if staff has pending/draft orders (import or selling orders)
-//        // TODO: If yes, throw StaffHasActiveOrdersException (HTTP 409)
-//        // TODO: Message: "This staff is currently handling import/selling orders."
-//
-//        // 3. Delete user from Keycloak
-//        try {
-//            identityProviderPort.deleteUser(staff.getUserId());
-//            log.info("Deleted user from Keycloak: {}", staff.getUserId());
-//        } catch (Exception e) {
-//            log.error("Failed to delete user from Keycloak", e);
-//            throw new RuntimeException("Failed to delete user from Keycloak", e);
-//        }
-//
-//        // 4. Delete staff profile from repository
-//        staffRepository.deleteById(staffId);
-//
-//        log.info("Staff account deleted successfully: {}", staffId);
+        log.info("Deleting staff account: {}", staffId);
+
+        // 1. Check if staff exists
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new EntityNotFoundException("Staff not found with ID: " + staffId));
+
+        // 2. Validate business rules
+        // TODO: Check if staff has pending/draft orders (import or selling orders)
+        // TODO: If yes, throw StaffHasActiveOrdersException (HTTP 409)
+        // TODO: Message: "This staff is currently handling import/selling orders."
+
+        // 3. Delete user from Keycloak
+        try {
+            identityProviderPort.deleteUser(staff.getUserId());
+            log.info("Deleted user from Keycloak: {}", staff.getUserId());
+        } catch (Exception e) {
+            log.error("Failed to delete user from Keycloak", e);
+            throw new RuntimeException("Failed to delete user from Keycloak", e);
+        }
+
+        // 4. Delete staff profile from repository
+        staffRepository.deleteById(staffId);
+
+        log.info("Staff account deleted successfully: {}", staffId);
     }
 
     @Override
