@@ -165,15 +165,13 @@ public class StaffUseCase implements IStaffUseCasePort {
 
     @Override
     public Page<StaffAccountDto> getAllStaff(StaffSearchQuery query, Pageable pageable) {
-//        log.info("Getting all staff with search query: {}", query);
-//
-//        // 1. Call repository.searchStaff with query and pagination
-//        Page<Staff> staffPage = staffRepository.searchStaff(query, pageable);
-//
-//        // 2. Map Page<Staff> to Page<StaffAccountDto>
-//        return staffPage.map(mapper::toDto);
+        log.info("Getting all staff with search query: {}", query);
 
-        return null;
+        // 1. Call repository.searchStaff with query and pagination
+        Page<Staff> staffPage = staffRepository.searchStaff(query, pageable);
+
+        // 2. Map Page<Staff> to Page<StaffAccountDto>
+        return staffPage.map(mapper::toDto);
     }
 
     // --- Private Helpers ---

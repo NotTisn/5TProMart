@@ -33,42 +33,43 @@ public class StaffController {
     // TODO: Add security annotation - only Admin can access
     // TODO: @PreAuthorize("hasRole('Admin')")
     
-//    @GetMapping
-//    public ApiResponse<List<StaffResponse>> getAllStaff(
-//            @RequestParam(required = false) String search,
-//            @RequestParam(required = false) String accountType,
-//            @PageableDefault(size = 10, sort = "fullName") Pageable pageable
-//    ) {
-//        // TODO: Map query parameters to StaffSearchQuery
-//        StaffSearchQuery query = StaffSearchQuery.builder()
-//                .search(search)
-//                .accountType(accountType)
-//                .build();
-//
-//        // TODO: Call use case
-//        Page<StaffAccountDto> pageResult = staffUseCase.getAllStaff(query, pageable);
-//
-//        // TODO: Map to response
-//        List<StaffResponse> responses = pageResult.getContent().stream()
-//                .map(mapper::toResponse)
-//                .toList();
-//
-//        PaginationMeta meta = PaginationMeta.builder()
-//                .totalItems(pageResult.getTotalElements()) // Tổng số bản ghi
-//                .itemsPerPage(pageResult.getSize())        // Kích thước trang
-//                .totalPages(pageResult.getTotalPages())    // Tổng số trang
-//                .startPage(pageResult.getNumber() + 1)     // QUAN TRỌNG: Spring bắt đầu từ 0, bạn muốn 1 thì phải +1
-//                .build();
-//
-//        return ApiResponse.<List<StaffResponse>>builder()
-//                .success(true)
-//                .statusCode(200)
-//                .message("Get staff list successfully.")
-//                .data(responses)
-//                .pagination(meta)
-//                .build();
-//    }
-//
+    @GetMapping
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<List<StaffResponse>> getAllStaff(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String accountType,
+            @PageableDefault(size = 10, sort = "fullName") Pageable pageable
+    ) {
+        // TODO: Map query parameters to StaffSearchQuery
+        StaffSearchQuery query = StaffSearchQuery.builder()
+                .search(search)
+                .accountType(accountType)
+                .build();
+
+        // TODO: Call use case
+        Page<StaffAccountDto> pageResult = staffUseCase.getAllStaff(query, pageable);
+
+        // TODO: Map to response
+        List<StaffResponse> responses = pageResult.getContent().stream()
+                .map(mapper::toResponse)
+                .toList();
+
+        PaginationMeta meta = PaginationMeta.builder()
+                .totalItems(pageResult.getTotalElements()) // Tổng số bản ghi
+                .itemsPerPage(pageResult.getSize())        // Kích thước trang
+                .totalPages(pageResult.getTotalPages())    // Tổng số trang
+                .startPage(pageResult.getNumber() + 1)     // QUAN TRỌNG: Spring bắt đầu từ 0, bạn muốn 1 thì phải +1
+                .build();
+
+        return ApiResponse.<List<StaffResponse>>builder()
+                .success(true)
+                .statusCode(200)
+                .message("Get staff list successfully.")
+                .data(responses)
+                .pagination(meta)
+                .build();
+    }
+
     @GetMapping("/{staffId}")
     @PreAuthorize("hasRole('Admin')")
     public ApiResponse<StaffResponse> getStaffById(
