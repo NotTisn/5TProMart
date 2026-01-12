@@ -29,8 +29,8 @@
       "lotId": "string",
       "productId": "string",
       "productName": "string", //ref table Product -> productId
-      "manufactureDate": "DD/MM/YYYY",
-      "expirationDate": "DD/MM/YYYY",
+      "manufactureDate": "dd-MM-yyyy",
+      "expirationDate": "dd-MM-yyyy",
       "stockQuantity": "number",
       "importPrice": "number",
       "status": "string"
@@ -54,8 +54,8 @@
   "data": {
     "lotId": "string",
     "productId": "string",
-    "manufactureDate": "DD/MM/YYYY",
-    "expirationDate": "DD/MM/YYYY",
+    "manufactureDate": "dd-MM-yyyy",
+    "expirationDate": "dd-MM-yyyy",
     "stockQuantity": "number",
     "importPrice": "number",
     "status": "string"
@@ -74,8 +74,8 @@
 ```json
 {
   "productId": "string",
-  "manufactureDate": "DD/MM/YYYY",
-  "expirationDate": "DD/MM/YYYY",
+  "manufactureDate": "dd-MM-yyyy",
+  "expirationDate": "dd-MM-yyyy",
   "stockQuantity": "number",
   "importPrice": "number"
 }
@@ -90,8 +90,8 @@
   "data": {
     "lotId": "string",
     "productId": "string",
-    "manufactureDate": "DD/MM/YYYY",
-    "expirationDate": "DD/MM/YYYY",
+    "manufactureDate": "dd-MM-yyyy",
+    "expirationDate": "dd-MM-yyyy",
     "stockQuantity": "number",
     "importPrice": "number",
     "status": ""

@@ -1,6 +1,7 @@
 # Authentication API - Frontend Integration Guide
 
 ## Overview
+
 This document describes the authentication flow for the 5TProMart application. The API uses **HttpOnly cookies** for secure refresh token storage and **JWT access tokens** for API authorization.
 
 ---
@@ -8,15 +9,17 @@ This document describes the authentication flow for the 5TProMart application. T
 ## 🔐 Security Architecture
 
 ### Token Management Strategy
+
 - **Access Token**: Short-lived JWT token sent in response body, stored in memory/localStorage (use with caution)
 - **Refresh Token**: Long-lived token stored in **HttpOnly cookie** (not accessible via JavaScript)
 - **Cookie Name**: `refresh_token`
-- **Cookie Properties**: 
+- **Cookie Properties**:
   - HttpOnly: ✅ (prevents XSS attacks)
   - Secure: ✅ (HTTPS only in production)
   - SameSite: Lax/Strict (prevents CSRF attacks)
 
 ### Why HttpOnly Cookies?
+
 - **XSS Protection**: JavaScript cannot access the refresh token
 - **Automatic Handling**: Browser automatically sends cookie with requests
 - **CSRF Protection**: Combined with SameSite attribute
@@ -26,6 +29,7 @@ This document describes the authentication flow for the 5TProMart application. T
 ## 📋 API Endpoints
 
 ### Base URL
+
 ```
 http://localhost:8080/api/v1/auth
 ```
@@ -35,30 +39,35 @@ http://localhost:8080/api/v1/auth
 ## 1. Login (Sign In)
 
 ### Endpoint
+
 ```http
 POST /api/v1/auth/login
 ```
 
 ### Request Headers
+
 ```http
 Content-Type: application/json
 ```
 
 ### Request Body
+
 ```json
 {
-  "email": "user@example.com",
+  "username": "your_username",
   "password": "your_password"
 }
 ```
 
 #### Field Validation
-| Field    | Type   | Required | Validation                    |
-|----------|--------|----------|-------------------------------|
-| email    | string | ✅       | Must not be blank             |
-| password | string | ✅       | Must not be blank             |
+
+| Field    | Type   | Required | Validation        |
+| -------- | ------ | -------- | ----------------- |
+| username | string | ✅       | Must not be blank |
+| password | string | ✅       | Must not be blank |
 
 ### Success Response (200 OK)
+
 ```json
 {
   "success": true,
@@ -78,14 +87,17 @@ Content-Type: application/json
 **Note**: `refreshToken` is `null` in response body because it's stored in HttpOnly cookie.
 
 #### Response Cookies
+
 ```http
 Set-Cookie: refresh_token={token_value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=604800
 ```
+
 - **Max-Age**: 604800 seconds (7 days)
 
 ### Error Responses
 
 #### 400 Bad Request (Validation Error)
+
 ```json
 {
   "success": false,
@@ -95,72 +107,75 @@ Set-Cookie: refresh_token={token_value}; Path=/; HttpOnly; Secure; SameSite=Lax;
 ```
 
 #### 401 Unauthorized (Invalid Credentials)
+
 ```json
 {
   "success": false,
   "statusCode": 401,
-  "message": "Invalid email or password"
+  "message": "Invalid username or password"
 }
 ```
 
 ### Frontend Implementation Example
 
 #### JavaScript (Fetch API)
+
 ```javascript
 async function login(email, password) {
   try {
-    const response = await fetch('http://localhost:8080/api/v1/auth/login', {
-      method: 'POST',
+    const response = await fetch("http://localhost:8080/api/v1/auth/login", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include', // ⚠️ IMPORTANT: Include cookies
-      body: JSON.stringify({ email, password })
+      credentials: "include", // ⚠️ IMPORTANT: Include cookies
+      body: JSON.stringify({ email, password }),
     });
 
     const data = await response.json();
 
     if (data.success) {
       // Store access token (use memory or localStorage with caution)
-      localStorage.setItem('accessToken', data.data.accessToken);
-      
+      localStorage.setItem("accessToken", data.data.accessToken);
+
       // Refresh token is automatically stored in HttpOnly cookie
-      console.log('Login successful!');
+      console.log("Login successful!");
       return data.data;
     } else {
       throw new Error(data.message);
     }
   } catch (error) {
-    console.error('Login failed:', error);
+    console.error("Login failed:", error);
     throw error;
   }
 }
 ```
 
 #### Axios
+
 ```javascript
-import axios from 'axios';
+import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
+  baseURL: "http://localhost:8080/api/v1",
   withCredentials: true, // ⚠️ IMPORTANT: Include cookies
 });
 
 async function login(email, password) {
   try {
-    const response = await apiClient.post('/auth/login', {
+    const response = await apiClient.post("/auth/login", {
       email,
-      password
+      password,
     });
 
     const { data } = response.data;
-    
+
     // Store access token
-    localStorage.setItem('accessToken', data.accessToken);
-    
+    localStorage.setItem("accessToken", data.accessToken);
+
     return data;
   } catch (error) {
-    console.error('Login failed:', error.response?.data?.message);
+    console.error("Login failed:", error.response?.data?.message);
     throw error;
   }
 }
@@ -171,11 +186,13 @@ async function login(email, password) {
 ## 2. Logout (Sign Out)
 
 ### Endpoint
+
 ```http
 POST /api/v1/auth/logout
 ```
 
 ### Request Headers
+
 ```http
 Cookie: refresh_token={token_value}
 ```
@@ -183,6 +200,7 @@ Cookie: refresh_token={token_value}
 **Note**: No request body needed. Refresh token is read from HttpOnly cookie.
 
 ### Success Response (200 OK)
+
 ```json
 {
   "success": true,
@@ -193,12 +211,15 @@ Cookie: refresh_token={token_value}
 ```
 
 #### Response Cookies
+
 ```http
 Set-Cookie: refresh_token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0
 ```
+
 - **Max-Age=0**: Immediately deletes the cookie
 
 ### Backend Behavior
+
 1. Reads `refresh_token` from cookie
 2. Revokes token in Keycloak (if present)
 3. **Always** deletes the HttpOnly cookie (even if token is missing)
@@ -206,50 +227,52 @@ Set-Cookie: refresh_token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0
 ### Frontend Implementation Example
 
 #### JavaScript (Fetch API)
+
 ```javascript
 async function logout() {
   try {
-    const response = await fetch('http://localhost:8080/api/v1/auth/logout', {
-      method: 'POST',
-      credentials: 'include', // ⚠️ IMPORTANT: Send cookies
+    const response = await fetch("http://localhost:8080/api/v1/auth/logout", {
+      method: "POST",
+      credentials: "include", // ⚠️ IMPORTANT: Send cookies
     });
 
     const data = await response.json();
 
     if (data.success) {
       // Clear access token from storage
-      localStorage.removeItem('accessToken');
-      
+      localStorage.removeItem("accessToken");
+
       // Cookie is automatically deleted by server
-      console.log('Logout successful!');
-      
+      console.log("Logout successful!");
+
       // Redirect to login page
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
   } catch (error) {
-    console.error('Logout failed:', error);
+    console.error("Logout failed:", error);
     // Still clear local storage and redirect
-    localStorage.removeItem('accessToken');
-    window.location.href = '/login';
+    localStorage.removeItem("accessToken");
+    window.location.href = "/login";
   }
 }
 ```
 
 #### Axios
+
 ```javascript
 async function logout() {
   try {
-    await apiClient.post('/auth/logout');
-    
+    await apiClient.post("/auth/logout");
+
     // Clear access token
-    localStorage.removeItem('accessToken');
-    
+    localStorage.removeItem("accessToken");
+
     // Redirect
-    window.location.href = '/login';
+    window.location.href = "/login";
   } catch (error) {
-    console.error('Logout failed:', error);
-    localStorage.removeItem('accessToken');
-    window.location.href = '/login';
+    console.error("Logout failed:", error);
+    localStorage.removeItem("accessToken");
+    window.location.href = "/login";
   }
 }
 ```
@@ -259,11 +282,13 @@ async function logout() {
 ## 3. Refresh Token (Get New Access Token)
 
 ### Endpoint
+
 ```http
 POST /api/v1/auth/refresh-token
 ```
 
 ### Request Headers
+
 ```http
 Cookie: refresh_token={token_value}
 ```
@@ -271,6 +296,7 @@ Cookie: refresh_token={token_value}
 **Note**: No request body needed. Refresh token is read from HttpOnly cookie.
 
 ### Success Response (200 OK)
+
 ```json
 {
   "success": true,
@@ -283,15 +309,18 @@ Cookie: refresh_token={token_value}
 ```
 
 #### Response Cookies
+
 ```http
 Set-Cookie: refresh_token={new_token_value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000
 ```
+
 - **Max-Age**: 2592000 seconds (30 days)
 - **Note**: Backend issues a **new refresh token** for security (token rotation)
 
 ### Error Responses
 
 #### 401 Unauthorized (Missing Refresh Token)
+
 ```json
 {
   "success": false,
@@ -301,6 +330,7 @@ Set-Cookie: refresh_token={new_token_value}; Path=/; HttpOnly; Secure; SameSite=
 ```
 
 #### 401 Unauthorized (Expired/Invalid Token)
+
 ```json
 {
   "success": false,
@@ -314,19 +344,23 @@ Set-Cookie: refresh_token={new_token_value}; Path=/; HttpOnly; Secure; SameSite=
 ### Frontend Implementation Example
 
 #### JavaScript (Fetch API)
+
 ```javascript
 async function refreshAccessToken() {
   try {
-    const response = await fetch('http://localhost:8080/api/v1/auth/refresh-token', {
-      method: 'POST',
-      credentials: 'include', // ⚠️ IMPORTANT: Send cookies
-    });
+    const response = await fetch(
+      "http://localhost:8080/api/v1/auth/refresh-token",
+      {
+        method: "POST",
+        credentials: "include", // ⚠️ IMPORTANT: Send cookies
+      }
+    );
 
     if (response.status === 401) {
       // Session expired, redirect to login
-      console.log('Session expired. Redirecting to login...');
-      localStorage.removeItem('accessToken');
-      window.location.href = '/login';
+      console.log("Session expired. Redirecting to login...");
+      localStorage.removeItem("accessToken");
+      window.location.href = "/login";
       return null;
     }
 
@@ -334,32 +368,33 @@ async function refreshAccessToken() {
 
     if (data.success) {
       // Update access token
-      localStorage.setItem('accessToken', data.data.accessToken);
-      console.log('Access token refreshed!');
+      localStorage.setItem("accessToken", data.data.accessToken);
+      console.log("Access token refreshed!");
       return data.data.accessToken;
     }
   } catch (error) {
-    console.error('Token refresh failed:', error);
-    localStorage.removeItem('accessToken');
-    window.location.href = '/login';
+    console.error("Token refresh failed:", error);
+    localStorage.removeItem("accessToken");
+    window.location.href = "/login";
     return null;
   }
 }
 ```
 
 #### Axios with Interceptor (Automatic Token Refresh)
+
 ```javascript
-import axios from 'axios';
+import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
+  baseURL: "http://localhost:8080/api/v1",
   withCredentials: true,
 });
 
 // Request interceptor: Add access token to all requests
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -407,14 +442,16 @@ apiClient.interceptors.response.use(
 
       try {
         // Attempt to refresh token
-        const response = await apiClient.post('/auth/refresh-token');
+        const response = await apiClient.post("/auth/refresh-token");
         const { accessToken } = response.data.data;
 
         // Store new token
-        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem("accessToken", accessToken);
 
         // Update default header
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        apiClient.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${accessToken}`;
 
         // Process queued requests
         processQueue(null, accessToken);
@@ -425,8 +462,8 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed, logout user
         processQueue(refreshError, null);
-        localStorage.removeItem('accessToken');
-        window.location.href = '/login';
+        localStorage.removeItem("accessToken");
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -445,6 +482,7 @@ export default apiClient;
 ## 🔄 Complete Authentication Flow
 
 ### 1. Initial Login
+
 ```
 User enters credentials
     ↓
@@ -462,6 +500,7 @@ Client stores:
 ```
 
 ### 2. Making Authenticated Requests
+
 ```
 Client makes API request
     ↓
@@ -475,6 +514,7 @@ Retry original request with new token
 ```
 
 ### 3. Token Refresh Flow
+
 ```
 Access token expires (short-lived)
     ↓
@@ -491,6 +531,7 @@ Client updates Access Token in storage
 ```
 
 ### 4. Logout Flow
+
 ```
 User clicks logout
     ↓
@@ -511,27 +552,33 @@ Redirect to login page
 ## ⚠️ Important Frontend Considerations
 
 ### 1. **Always Use `credentials: 'include'` or `withCredentials: true`**
+
 ```javascript
 // Fetch API
-fetch(url, { credentials: 'include' });
+fetch(url, { credentials: "include" });
 
 // Axios
 axios.create({ withCredentials: true });
 ```
+
 **Why?** Without this, browsers won't send/receive cookies in cross-origin requests.
 
 ### 2. **CORS Configuration**
+
 Your backend must allow credentials in CORS:
+
 ```java
 // Backend CORS config (already configured)
 @CrossOrigin(
-  origins = "http://localhost:3000", 
+  origins = "http://localhost:3000",
   allowCredentials = "true"
 )
 ```
 
 ### 3. **Access Token Storage**
+
 **Options:**
+
 - **Memory (Recommended)**: Store in React state/Vuex/Redux. Lost on refresh but most secure.
 - **localStorage (Caution)**: Vulnerable to XSS attacks. Sanitize all user inputs.
 - **sessionStorage**: Cleared when tab closes. Better than localStorage.
@@ -539,21 +586,23 @@ Your backend must allow credentials in CORS:
 **Never store refresh token in localStorage!** (It's already in HttpOnly cookie)
 
 ### 4. **Token Expiration Handling**
+
 Implement automatic token refresh before expiration:
+
 ```javascript
 // Decode JWT to check expiration
 function isTokenExpiringSoon(token) {
-  const payload = JSON.parse(atob(token.split('.')[1]));
+  const payload = JSON.parse(atob(token.split(".")[1]));
   const expiresAt = payload.exp * 1000; // Convert to milliseconds
   const now = Date.now();
   const fiveMinutes = 5 * 60 * 1000;
-  
+
   return expiresAt - now < fiveMinutes;
 }
 
 // Check periodically
 setInterval(() => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   if (token && isTokenExpiringSoon(token)) {
     refreshAccessToken();
   }
@@ -561,12 +610,14 @@ setInterval(() => {
 ```
 
 ### 5. **Logout on Multiple Tabs**
+
 Use `storage` event to synchronize logout across tabs:
+
 ```javascript
-window.addEventListener('storage', (event) => {
-  if (event.key === 'accessToken' && event.newValue === null) {
+window.addEventListener("storage", (event) => {
+  if (event.key === "accessToken" && event.newValue === null) {
     // User logged out in another tab
-    window.location.href = '/login';
+    window.location.href = "/login";
   }
 });
 ```
@@ -576,6 +627,7 @@ window.addEventListener('storage', (event) => {
 ## 🧪 Testing with cURL
 
 ### Login
+
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
@@ -585,6 +637,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ```
 
 ### Refresh Token
+
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/refresh-token \
   -b cookies.txt \
@@ -593,6 +646,7 @@ curl -X POST http://localhost:8080/api/v1/auth/refresh-token \
 ```
 
 ### Logout
+
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/logout \
   -b cookies.txt \
@@ -615,6 +669,7 @@ curl -X POST http://localhost:8080/api/v1/auth/logout \
 8. **Implement proper error handling** for auth failures
 
 ### Token Lifetime Reference
+
 - **Access Token**: ~15 minutes (configured in Keycloak)
 - **Refresh Token (Login)**: 7 days
 - **Refresh Token (Refresh)**: 30 days (rotated for security)
@@ -624,16 +679,21 @@ curl -X POST http://localhost:8080/api/v1/auth/logout \
 ## 📝 Common Issues & Solutions
 
 ### Issue 1: Cookies Not Being Sent
+
 **Solution**: Ensure `credentials: 'include'` or `withCredentials: true` is set.
 
 ### Issue 2: CORS Errors
+
 **Solution**: Backend must explicitly allow credentials:
+
 ```java
 allowCredentials = "true"
 ```
 
 ### Issue 3: Token Refresh Loop
+
 **Solution**: Add `_retry` flag to prevent infinite retries:
+
 ```javascript
 if (!originalRequest._retry) {
   originalRequest._retry = true;
@@ -642,6 +702,7 @@ if (!originalRequest._retry) {
 ```
 
 ### Issue 4: Cookie Not Deleted on Logout
+
 **Solution**: Server always deletes cookie. Check browser DevTools → Application → Cookies.
 
 ---
@@ -649,6 +710,7 @@ if (!originalRequest._retry) {
 ## 📞 Support
 
 For backend issues or questions:
+
 - Check `FIX_401_ERROR.md` for authentication debugging
 - Review `CLEAN_ARCHITECTURE_REVIEW.md` for architecture details
 - Contact backend team for Keycloak configuration

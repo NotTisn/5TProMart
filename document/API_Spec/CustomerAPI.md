@@ -4,14 +4,14 @@
 
 ## 1.1 Get customers query
 
-**Endpoint:** `GET /api/customers/`
+**Endpoint:** `GET /api/customers`
 
 **Query Parameters**
 
 ```json
 {
   "id": "string",   //customer id = id
-  "fullName": "string"  //fullName contains value
+  "fullName": "string",  //fullName contains value
   "sortBy": "loyaltyPoints",  // Sort by...
   "order": "asc" "desc"   // asc: tang, desc: giam
 }
@@ -69,6 +69,18 @@
 }
 ```
 
+**Response 404**
+
+```json
+{
+{
+  "success": false,
+  "message": "Customer with ID {customerId} not found",
+  "errors": null
+}
+}
+```
+
 ---
 
 ## 1.3 Add new customer
@@ -80,8 +92,8 @@
 ```json
 {
   "fullName": "string",
-  "gender": "string",
-  "dateOfBirth": "DD-MM-YYYY",
+  "gender": "string", // Required: Male, Female, Other
+  "dateOfBirth": "01-01-2000", // Format: dd-MM-yyyy
   "phoneNumber": "string"
 }
 ```
@@ -91,15 +103,13 @@
 ```json
 {
   "success": true,
-  "message": "string",
+  "statusCode": 201,
+  "message": "Customer created successfully",
   "data": {
     "customerId": "string",
     "fullName": "string",
-    "gender": "string",
-    "dateOfBirth": "DD-MM-YYYY",
-    "phoneNumber": "string",
-    "registrationDate": "DD-MM-YYYY", //today
-    "loyaltyPoints": "number"
+    "registrationDate": "dd-MM-yyyy", //today
+    "loyaltyPoints": 0
   }
 }
 ```
@@ -109,21 +119,12 @@
 ```json
 {
   "success": false,
+  "statusCode": 400,
   "message": "Validation failed.",
   "errors": {
-    "fullName": "Full name is required.",
-    "gender": "Gender is required.",
-    "dateOfBirth": "Date of birth must be in format DD-MM-YYYY.",
-    "phoneNumber": [
-      {
-        "code": "REQUIRED",
-        "message": "Phone number is required."
-      },
-      {
-        "code": "INVALID_VALUE",
-        "message": "Phone number must have 10 digits."
-      }
-    ]
+    "fullName": ["Full name is required."],
+    "dateOfBirth": ["Date of birth must be in the past."],
+    "phoneNumber": ["Phone number must have 10 digits."]
   }
 }
 ```
@@ -177,7 +178,8 @@ Same 1.3
 ```json
 {
   "success": true,
-  "message": "string",
+  "statusCode": 200,
+  "message": "Customer deleted successfully",
   "data": null
 }
 ```
