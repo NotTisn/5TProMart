@@ -117,34 +117,34 @@ public class StockInventoryController {
      * 5.4 Update stock inventory
      * PUT /api/stock-inventories/{lot_id}
      */
-//    @PutMapping("/{lot_id}")
-//    @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
-//    public ApiResponse<StockInventoryResponse> updateStockInventory(
-//            @PathVariable("lot_id") String lotId,
-//            @Valid @RequestBody StockInventoryUpdateRequest request
-//    ) {
-//        log.info("Updating stock inventory: {}", lotId);
-//
-//        // Convert to command
-//        StockInventoryUpdateCommand command = mapper.toUpdateCommand(request);
-//
-//        // Call use case
-//        StockInventoryDto dto = stockInventoryUseCase.updateStockInventory(lotId, command);
-//
-//        // Map to response (only return updated fields as per spec)
-//        StockInventoryResponse response = StockInventoryResponse.builder()
-//                .lotId(dto.getLotId())
-//                .stockQuantity(dto.getStockQuantity())
-//                .status(dto.getStatus())
-//                .build();
-//
-//        return ApiResponse.<StockInventoryResponse>builder()
-//                .success(true)
-//                .message("Stock inventory updated.")
-//                .data(response)
-//                .build();
-//    }
-//
+    @PutMapping("/{lot_id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('WarehouseStaff')")
+    public ApiResponse<StockInventoryResponse> updateStockInventory(
+            @PathVariable("lot_id") String lotId,
+            @Valid @RequestBody StockInventoryUpdateRequest request
+    ) {
+        log.info("Updating stock inventory: {}", lotId);
+
+        // Convert to command
+        StockInventoryUpdateCommand command = mapper.toUpdateCommand(request);
+
+        // Call use case
+        StockInventoryDto dto = stockInventoryUseCase.updateStockInventory(lotId, command);
+
+        // Map to response (only return updated fields as per spec)
+        StockInventoryResponse response = StockInventoryResponse.builder()
+                .lotId(dto.getLotId())
+                .stockQuantity(dto.getStockQuantity())
+                .status(dto.getStatus())
+                .build();
+
+        return ApiResponse.<StockInventoryResponse>builder()
+                .success(true)
+                .message("Stock inventory updated.")
+                .data(response)
+                .build();
+    }
+
 //    /**
 //     * Delete stock inventory (not in spec, but commonly needed)
 //     * DELETE /api/stock-inventories/{id}

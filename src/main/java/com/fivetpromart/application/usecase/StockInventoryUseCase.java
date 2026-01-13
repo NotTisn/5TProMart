@@ -85,38 +85,38 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
         return mapper.toDto(savedInventory);
     }
 
-//    @Override
-//    @Transactional
-//    public StockInventoryDto updateStockInventory(String lotId, StockInventoryUpdateCommand command) {
-//        log.info("Updating stock inventory: {}", lotId);
-//
-//        // Find existing inventory
-//        StockInventory inventory = stockInventoryRepository.findById(lotId)
-//                .orElseThrow(() -> new EntityNotFoundException("Stock inventory not found with ID: " + lotId));
-//
-//        // Validate stock quantity if provided
-//        if (command.getStockQuantity() != null && command.getStockQuantity() <= 0) {
-//            throw new NegativeValueException("Stock quantity must be greater than 0");
-//        }
-//
-//        // Update only stockQuantity and status (as per API spec)
-//        inventory.update(
-//                null,  // productId - not updatable
-//                null,  // manufactureDate - not updatable
-//                null,  // expirationDate - not updatable
-//                command.getStockQuantity() != null ? command.getStockQuantity() : inventory.getStockQuantity(),
-//                null,  // importPrice - not updatable
-//                command.getStatus() != null ? command.getStatus() : inventory.getStatus()
-//        );
-//
-//        // Save
-//        StockInventory updatedInventory = stockInventoryRepository.save(inventory);
-//
-//        log.info("Stock inventory updated successfully: {}", lotId);
-//
-//        return mapper.toDto(updatedInventory);
-//    }
-//
+    @Override
+    @Transactional
+    public StockInventoryDto updateStockInventory(String lotId, StockInventoryUpdateCommand command) {
+        log.info("Updating stock inventory: {}", lotId);
+
+        // Find existing inventory
+        StockInventory inventory = stockInventoryRepository.findById(lotId)
+                .orElseThrow(() -> new EntityNotFoundException("Stock inventory not found with ID: " + lotId));
+
+        // Validate stock quantity if provided
+        if (command.getStockQuantity() != null && command.getStockQuantity() <= 0) {
+            throw new NegativeValueException("Stock quantity must be greater than 0");
+        }
+
+        // Update only stockQuantity and status (as per API spec)
+        inventory.update(
+                null,  // productId - not updatable
+                null,  // manufactureDate - not updatable
+                null,  // expirationDate - not updatable
+                command.getStockQuantity() != null ? command.getStockQuantity() : inventory.getStockQuantity(),
+                null,  // importPrice - not updatable
+                command.getStatus() != null ? command.getStatus() : inventory.getStatus()
+        );
+
+        // Save
+        StockInventory updatedInventory = stockInventoryRepository.save(inventory);
+
+        log.info("Stock inventory updated successfully: {}", lotId);
+
+        return mapper.toDto(updatedInventory);
+    }
+
 //    @Override
 //    @Transactional
 //    public void deleteById(String lotId) {

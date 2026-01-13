@@ -26,10 +26,10 @@ public interface IStockInventoryUseCasePort {
     /**
      * Update stock inventory
      */
-//    StockInventoryDto updateStockInventory(String lotId, StockInventoryUpdateCommand command);
-//
-//    /**
-//     * Delete stock inventory
-//     */
+    StockInventoryDto updateStockInventory(String lotId, StockInventoryUpdateCommand command);
+
+    /**
+     * Delete stock inventory
+     */
 //    void deleteById(String lotId);
 }
