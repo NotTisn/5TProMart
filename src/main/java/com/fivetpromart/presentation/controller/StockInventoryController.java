@@ -8,11 +8,16 @@ import com.fivetpromart.application.port.in.IStockInventoryUseCasePort;
 import com.fivetpromart.presentation.dto.request.StockInventoryRequest;
 import com.fivetpromart.presentation.dto.request.StockInventoryUpdateRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
+import com.fivetpromart.presentation.dto.response.PaginationMeta;
 import com.fivetpromart.presentation.dto.response.StockInventoryResponse;
 import com.fivetpromart.presentation.mapper.StockInventoryPresentationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -33,35 +38,50 @@ public class StockInventoryController {
      * 5.1 Get all stock inventory query
      * GET /api/stock-inventories
      */
-//    @GetMapping
-//    @PreAuthorize("hasRole('ROLE_Admin') or hasRole('WarehouseStaff')")
-//    public ApiResponse<List<StockInventoryResponse>> searchStockInventories(
-//            @RequestParam(required = false) String search,
-//            @RequestParam(required = false) String productId,
-//            @RequestParam(required = false) String status,
-//            @RequestParam(required = false) String sortBy,  // expirationDate, stockQuantity, importPrice
-//            @RequestParam(required = false) String order    // asc, desc
-//    ) {
-//        log.info("Searching stock inventories with filters - search: {}, productId: {}, status: {}",
-//                search, productId, status);
-//
-//        // Build query
-//        StockInventorySearchQuery query = mapper.toSearchQuery(search, productId, status, sortBy, order);
-//
-//        // Call use case
-//        List<StockInventoryDto> dtoList = stockInventoryUseCase.searchStockInventories(query);
-//
-//        // Map to response
-//        List<StockInventoryResponse> responseList = dtoList.stream()
-//                .map(mapper::toResponse)
-//                .collect(Collectors.toList());
-//
-//        return ApiResponse.<List<StockInventoryResponse>>builder()
-//                .success(true)
-//                .message("Stock inventories retrieved successfully")
-//                .data(responseList)
-//                .build();
-//    }
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_Admin') or hasRole('WarehouseStaff')")
+    public ApiResponse<List<StockInventoryResponse>> searchStockInventories(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String productId,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "expirationDate") String sortBy,  // expirationDate, stockQuantity, importPrice
+            @RequestParam(defaultValue = "asc") String order,    // asc, desc
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        log.info("Searching stock inventories with filters - search: {}, productId: {}, status: {}, page: {}, size: {}",
+                search, productId, status, page, size);
+
+        // Build query
+        StockInventorySearchQuery query = mapper.toSearchQuery(search, productId, status, sortBy, order);
+
+        // Build pageable
+        Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        // Call use case
+        Page<StockInventoryDto> dtoPage = stockInventoryUseCase.searchStockInventories(query, pageable);
+
+        // Map to response
+        List<StockInventoryResponse> responseList = dtoPage.getContent().stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+
+        // Build pagination meta
+        PaginationMeta paginationMeta = PaginationMeta.builder()
+                .totalItems(dtoPage.getTotalElements())
+                .itemsPerPage(dtoPage.getSize())
+                .totalPages(dtoPage.getTotalPages())
+                .startPage(dtoPage.getNumber() + 1)
+                .build();
+
+        return ApiResponse.<List<StockInventoryResponse>>builder()
+                .success(true)
+                .message("Stock inventories retrieved successfully")
+                .data(responseList)
+                .pagination(paginationMeta)
+                .build();
+    }
 
     /**
      * 5.2 Get stock inventory by ID

@@ -15,6 +15,8 @@ import com.fivetpromart.domain.model.StockInventory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,17 +32,15 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
     private final IProductRepository productRepository;
     private final StockInventoryDataMapper mapper;
 
-//    @Override
-//    @Transactional(readOnly = true)
-//    public List<StockInventoryDto> searchStockInventories(StockInventorySearchQuery query) {
-//        log.info("Searching stock inventories with query: {}", query);
-//
-//        List<StockInventory> inventories = stockInventoryRepository.searchStockInventories(query);
-//
-//        return inventories.stream()
-//                .map(mapper::toDto)
-//                .collect(Collectors.toList());
-//    }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<StockInventoryDto> searchStockInventories(StockInventorySearchQuery query, Pageable pageable) {
+        log.info("Searching stock inventories with query: {} and pageable: {}", query, pageable);
+
+        Page<StockInventory> inventories = stockInventoryRepository.searchStockInventories(query, pageable);
+
+        return inventories.map(mapper::toDto);
+    }
 
     @Override
     @Transactional(readOnly = true)
