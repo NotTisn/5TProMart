@@ -98,16 +98,25 @@ public class SupplierController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<List<SupplierResponse>> getAllSuppliersByPage(
-            @RequestParam(required = false) String supplierName,
-            @RequestParam(required = false) String supplierId,
+            // SEARCH: Tìm kiếm trong supplierName hoặc supplierId
+            @RequestParam(required = false) String search,
+            
+            // FILTERS: Lọc theo các tiêu chí cụ thể
             @RequestParam(required = false) String supplierType,
+            @RequestParam(required = false) String suppliedProductType,
+            @RequestParam(required = false) String phoneNumber,
+            @RequestParam(required = false) String address,
+            
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        SupplierSearchQuery query =  SupplierSearchQuery.builder()
-                .supplierName(supplierName)
-                .supplierId(supplierId)
+        SupplierSearchQuery query = SupplierSearchQuery.builder()
+                .search(search)
                 .supplierType(supplierType)
+                .suppliedProductType(suppliedProductType)
+                .phoneNumber(phoneNumber)
+                .address(address)
                 .build();
+                
         Page<SupplierDto> pageResult = supplierUseCase.getAllSuppliers(query, pageable);
 
         List<SupplierResponse> responses = pageResult.stream()

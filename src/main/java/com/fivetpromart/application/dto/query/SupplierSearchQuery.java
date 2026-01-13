@@ -4,9 +4,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class SupplierSearchQuery {
-    private String supplierId;
-    private String supplierName;
-    private String supplierType;
+    // SEARCH: Tìm kiếm trong supplierName HOẶC supplierId
+    private String search;
+    
+    // FILTERS: Lọc theo các tiêu chí cụ thể
+    private String supplierType;           // Doanh nghiệp / Tư nhân
+    private String suppliedProductType;    // Loại sản phẩm cung cấp
+    private String phoneNumber;            // Số điện thoại
+    private String address;                // Địa chỉ (contains)
 }
