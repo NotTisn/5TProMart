@@ -1,14 +1,22 @@
 package com.fivetpromart.infrastructure.persistence.stock_inventory.adapter;
 
+import com.fivetpromart.application.dto.query.StockInventorySearchQuery;
 import com.fivetpromart.application.port.out.IStockInventoryRepository;
 import com.fivetpromart.domain.model.StockInventory;
+import com.fivetpromart.infrastructure.persistence.stock_inventory.spec.StockInventorySpecification;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.StockInventoryDbo;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.mapper.StockInventoryPersistenceMapper;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.repository.IStockInventoryJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,12 +27,12 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
 
     @Override
     public boolean existsById(String lotId) {
-        return false;
+        return jpaRepository.existsById(lotId);
     }
 
     @Override
     public void deleteById(String lotId) {
-
+        jpaRepository.deleteById(lotId);
     }
 
     @Override
@@ -36,6 +44,41 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
 
     @Override
     public Optional<StockInventory> findById(String lotId) {
-        return Optional.empty();
+        return jpaRepository.findById(lotId)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public List<StockInventory> searchStockInventories(StockInventorySearchQuery query) {
+        Specification<StockInventoryDbo> spec = StockInventorySpecification.getSpecification(query);
+        Sort sort = buildSort(query);
+
+        List<StockInventoryDbo> dbos = jpaRepository.findAll(spec, sort);
+
+        return dbos.stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<StockInventory> searchStockInventories(StockInventorySearchQuery query, Pageable pageable) {
+        Specification<StockInventoryDbo> spec = StockInventorySpecification.getSpecification(query);
+        Page<StockInventoryDbo> dboPage = jpaRepository.findAll(spec, pageable);
+
+        return dboPage.map(mapper::toDomain);
+    }
+
+    /**
+     * Build sort from query parameters
+     */
+    private Sort buildSort(StockInventorySearchQuery query) {
+        String sortBy = query.getSortBy() != null ? query.getSortBy() : "expirationDate";
+        String order = query.getOrder() != null ? query.getOrder() : "asc";
+
+        Sort.Direction direction = "desc".equalsIgnoreCase(order)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        return Sort.by(direction, sortBy);
     }
 }
