@@ -31,5 +31,5 @@ public interface IStockInventoryUseCasePort {
     /**
      * Delete stock inventory
      */
-//    void deleteById(String lotId);
+    void deleteById(String lotId);
 }

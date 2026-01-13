@@ -145,15 +145,15 @@ public class StockInventoryController {
                 .build();
     }
 
-//    /**
-//     * Delete stock inventory (not in spec, but commonly needed)
-//     * DELETE /api/stock-inventories/{id}
-//     */
-//    @DeleteMapping("/{id}")
-//    @PreAuthorize("hasRole('Admin')")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void deleteStockInventory(@PathVariable String id) {
-//        log.info("Deleting stock inventory: {}", id);
-//        stockInventoryUseCase.deleteById(id);
-//    }
+    /**
+     * Delete stock inventory (not in spec, but commonly needed)
+     * DELETE /api/stock-inventories/{id}
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteStockInventory(@PathVariable String id) {
+        log.info("Deleting stock inventory: {}", id);
+        stockInventoryUseCase.deleteById(id);
+    }
 }

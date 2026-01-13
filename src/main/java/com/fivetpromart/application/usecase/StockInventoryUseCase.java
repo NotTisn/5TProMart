@@ -117,17 +117,17 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
         return mapper.toDto(updatedInventory);
     }
 
-//    @Override
-//    @Transactional
-//    public void deleteById(String lotId) {
-//        log.info("Deleting stock inventory: {}", lotId);
-//
-//        if (!stockInventoryRepository.existsById(lotId)) {
-//            throw new EntityNotFoundException("Stock inventory not found with ID: " + lotId);
-//        }
-//
-//        stockInventoryRepository.deleteById(lotId);
-//
-//        log.info("Stock inventory deleted successfully: {}", lotId);
-//    }
+    @Override
+    @Transactional
+    public void deleteById(String lotId) {
+        log.info("Deleting stock inventory: {}", lotId);
+
+        if (!stockInventoryRepository.existsById(lotId)) {
+            throw new EntityNotFoundException("Stock inventory not found with ID: " + lotId);
+        }
+
+        stockInventoryRepository.deleteById(lotId);
+
+        log.info("Stock inventory deleted successfully: {}", lotId);
+    }
 }
