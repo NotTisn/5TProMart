@@ -62,28 +62,28 @@ public class StockInventoryController {
 //                .data(responseList)
 //                .build();
 //    }
-//
-//    /**
-//     * 5.2 Get stock inventory by ID
-//     * GET /api/stock-inventories/{id}
-//     */
-//    @GetMapping("/{id}")
-//    @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
-//    public ApiResponse<StockInventoryResponse> getStockInventoryById(@PathVariable String id) {
-//        log.info("Getting stock inventory by ID: {}", id);
-//
-//        // Call use case
-//        StockInventoryDto dto = stockInventoryUseCase.getStockInventoryById(id);
-//
-//        // Map to response
-//        StockInventoryResponse response = mapper.toResponse(dto);
-//
-//        return ApiResponse.<StockInventoryResponse>builder()
-//                .success(true)
-//                .message("Stock inventory retrieved successfully")
-//                .data(response)
-//                .build();
-//    }
+
+    /**
+     * 5.2 Get stock inventory by ID
+     * GET /api/stock-inventories/{id}
+     */
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('WarehouseStaff')")
+    public ApiResponse<StockInventoryResponse> getStockInventoryById(@PathVariable String id) {
+        log.info("Getting stock inventory by ID: {}", id);
+
+        // Call use case
+        StockInventoryDto dto = stockInventoryUseCase.getStockInventoryById(id);
+
+        // Map to response
+        StockInventoryResponse response = mapper.toResponse(dto);
+
+        return ApiResponse.<StockInventoryResponse>builder()
+                .success(true)
+                .message("Stock inventory retrieved successfully")
+                .data(response)
+                .build();
+    }
 
     /**
      * 5.3 Add new stock inventory

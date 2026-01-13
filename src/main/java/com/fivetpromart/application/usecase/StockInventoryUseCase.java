@@ -41,17 +41,17 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
 //                .map(mapper::toDto)
 //                .collect(Collectors.toList());
 //    }
-//
-//    @Override
-//    @Transactional(readOnly = true)
-//    public StockInventoryDto getStockInventoryById(String lotId) {
-//        log.info("Getting stock inventory by ID: {}", lotId);
-//
-//        StockInventory inventory = stockInventoryRepository.findById(lotId)
-//                .orElseThrow(() -> new EntityNotFoundException("Stock inventory not found with ID: " + lotId));
-//
-//        return mapper.toDto(inventory);
-//    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StockInventoryDto getStockInventoryById(String lotId) {
+        log.info("Getting stock inventory by ID: {}", lotId);
+
+        StockInventory inventory = stockInventoryRepository.findById(lotId)
+                .orElseThrow(() -> new EntityNotFoundException("Stock inventory not found with ID: " + lotId));
+
+        return mapper.toDto(inventory);
+    }
 
     @Override
     @Transactional

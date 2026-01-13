@@ -12,11 +12,11 @@ public interface IStockInventoryUseCasePort {
      * Get all stock inventories with search and filters
      */
 //    List<StockInventoryDto> searchStockInventories(StockInventorySearchQuery query);
-//
-//    /**
-//     * Get stock inventory by ID
-//     */
-//    StockInventoryDto getStockInventoryById(String lotId);
+
+    /**
+     * Get stock inventory by ID
+     */
+    StockInventoryDto getStockInventoryById(String lotId);
 
     /**
      * Create new stock inventory
