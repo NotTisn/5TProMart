@@ -1,4 +1,4 @@
-package com.fivetpromart.infrastructure.persistence.jpa.specification;
+package com.fivetpromart.infrastructure.persistence.stock_inventory.spec;
 
 import com.fivetpromart.application.dto.query.StockInventorySearchQuery;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.StockInventoryDbo;
@@ -21,7 +21,7 @@ public class StockInventorySpecification {
             if (query.getSearch() != null && !query.getSearch().isBlank()) {
                 String searchPattern = "%" + query.getSearch().toLowerCase() + "%";
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("lotId")), 
+                        criteriaBuilder.lower(root.get("lotId")),
                         searchPattern
                 ));
             }

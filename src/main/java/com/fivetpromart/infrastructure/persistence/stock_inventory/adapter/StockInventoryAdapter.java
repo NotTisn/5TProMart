@@ -3,7 +3,7 @@ package com.fivetpromart.infrastructure.persistence.stock_inventory.adapter;
 import com.fivetpromart.application.dto.query.StockInventorySearchQuery;
 import com.fivetpromart.application.port.out.IStockInventoryRepository;
 import com.fivetpromart.domain.model.StockInventory;
-import com.fivetpromart.infrastructure.persistence.jpa.specification.StockInventorySpecification;
+import com.fivetpromart.infrastructure.persistence.stock_inventory.spec.StockInventorySpecification;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.StockInventoryDbo;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.mapper.StockInventoryPersistenceMapper;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.repository.IStockInventoryJpaRepository;

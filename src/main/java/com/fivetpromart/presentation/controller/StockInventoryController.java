@@ -39,7 +39,7 @@ public class StockInventoryController {
      * GET /api/stock-inventories
      */
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('WarehouseStaff')")
     public ApiResponse<List<StockInventoryResponse>> searchStockInventories(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String productId,
