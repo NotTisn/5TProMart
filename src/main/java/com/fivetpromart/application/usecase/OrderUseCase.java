@@ -4,6 +4,7 @@ import com.fivetpromart.application.dto.CheckProductResultDto;
 import com.fivetpromart.application.dto.OrderDto;
 import com.fivetpromart.application.dto.command.CheckProductCommand;
 import com.fivetpromart.application.dto.command.OrderCreationCommand;
+import com.fivetpromart.application.dto.query.OrderSearchQuery;
 import com.fivetpromart.application.mapper.OrderDataMapper;
 import com.fivetpromart.application.port.in.IOrderUseCasePort;
 import com.fivetpromart.application.port.out.ICustomerRepository;
@@ -47,17 +48,17 @@ public class OrderUseCase implements IOrderUseCasePort {
     private final ICustomerRepository customerRepository;
     private final OrderDataMapper mapper;
 
-//    @Override
-//    @Transactional(readOnly = true)
-//    public Page<OrderDto> searchOrders(OrderSearchQuery query, Pageable pageable) {
-//        log.info("Searching orders with query: {}", query);
-//        // Search orders using repository
-//        Page<Order> orderPage = orderRepository.searchOrders(query, pageable);
-//
-//        // Map to DTO
-//        return orderPage.map(mapper::toDto);
-//    }
-//
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderDto> searchOrders(OrderSearchQuery query, Pageable pageable) {
+        log.info("Searching orders with query: {}", query);
+        // Search orders using repository
+        Page<Order> orderPage = orderRepository.searchOrders(query, pageable);
+
+        // Map to DTO
+        return orderPage.map(mapper::toDto);
+    }
+
 //    @Override
 //    @Transactional(readOnly = true)
 //    public OrderDto getOrderById(String orderId) {

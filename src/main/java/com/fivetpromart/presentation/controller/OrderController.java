@@ -4,7 +4,9 @@ import com.fivetpromart.application.dto.CheckProductResultDto;
 import com.fivetpromart.application.dto.OrderDto;
 import com.fivetpromart.application.dto.command.CheckProductCommand;
 import com.fivetpromart.application.dto.command.OrderCreationCommand;
+import com.fivetpromart.application.dto.query.OrderSearchQuery;
 import com.fivetpromart.application.port.in.IOrderUseCasePort;
+import com.fivetpromart.presentation.dto.query.OrderSearchQueryDto;
 import com.fivetpromart.presentation.dto.request.CheckProductRequest;
 import com.fivetpromart.presentation.dto.request.OrderRequest;
 import com.fivetpromart.presentation.dto.response.*;
@@ -36,57 +38,57 @@ public class OrderController {
      * 1.1 Get orders query
      * GET /api/v1/orders
      */
-//    @GetMapping
-//    @PreAuthorize("hasRole('Admin')")
-//    public ApiResponse<List<OrderResponse>> searchOrders(
-//            @RequestParam(required = false) String search,
-//            @RequestParam(required = false) String staffId,
-//            @RequestParam(required = false) String startDate,  // dd-MM-yyyy
-//            @RequestParam(required = false) String endDate,    // dd-MM-yyyy
-//            @RequestParam(required = false) String paymentMethod,
-//            @RequestParam(required = false) String status,
-//            @PageableDefault(size = 10, sort = "orderDate,desc") Pageable pageable
-//    ) {
-//        log.info("Searching orders with filters - search: {}, staffId: {}, dateRange: {} to {}",
-//                search, staffId, startDate, endDate);
-//
-//        // Build query DTO
-//        OrderSearchQueryDto queryDto = OrderSearchQueryDto.builder()
-//                .search(search)
-//                .staffId(staffId)
-//                .startDate(startDate)
-//                .endDate(endDate)
-//                .paymentMethod(paymentMethod)
-//                .status(status)
-//                .build();
-//
-//        // Convert to domain query
-//        OrderSearchQuery query = mapper.toOrderSearchQuery(queryDto);
-//
-//        // Call use case
-//        Page<OrderDto> pageResult = orderUseCase.searchOrders(query, pageable);
-//
-//        // Map to response
-//        List<OrderResponse> responseList = pageResult.getContent().stream()
-//                .map(mapper::toOrderResponse)
-//                .collect(Collectors.toList());
-//
-//        // Build pagination meta
-//        PaginationMeta meta = PaginationMeta.builder()
-//                .totalItems(pageResult.getTotalElements()) // Tổng số bản ghi
-//                .itemsPerPage(pageResult.getSize())        // Kích thước trang
-//                .totalPages(pageResult.getTotalPages())    // Tổng số trang
-//                .startPage(pageResult.getNumber() + 1)     // QUAN TRỌNG: Spring bắt đầu từ 0, bạn muốn 1 thì phải +1
-//                .build();
-//
-//        return ApiResponse.<List<OrderResponse>>builder()
-//                .success(true)
-//                .message("Get order list successfully.")
-//                .data(responseList)
-//                .pagination(meta)
-//                .build();
-//    }
-//
+    @GetMapping
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<List<OrderResponse>> searchOrders(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String staffId,
+            @RequestParam(required = false) String startDate,  // dd-MM-yyyy
+            @RequestParam(required = false) String endDate,    // dd-MM-yyyy
+            @RequestParam(required = false) String paymentMethod,
+            @RequestParam(required = false) String status,
+            @PageableDefault(size = 10, sort = "orderDate,desc") Pageable pageable
+    ) {
+        log.info("Searching orders with filters - search: {}, staffId: {}, dateRange: {} to {}",
+                search, staffId, startDate, endDate);
+
+        // Build query DTO
+        OrderSearchQueryDto queryDto = OrderSearchQueryDto.builder()
+                .search(search)
+                .staffId(staffId)
+                .startDate(startDate)
+                .endDate(endDate)
+                .paymentMethod(paymentMethod)
+                .status(status)
+                .build();
+
+        // Convert to domain query
+        OrderSearchQuery query = mapper.toOrderSearchQuery(queryDto);
+
+        // Call use case
+        Page<OrderDto> pageResult = orderUseCase.searchOrders(query, pageable);
+
+        // Map to response
+        List<OrderResponse> responseList = pageResult.getContent().stream()
+                .map(mapper::toOrderResponse)
+                .collect(Collectors.toList());
+
+        // Build pagination meta
+        PaginationMeta meta = PaginationMeta.builder()
+                .totalItems(pageResult.getTotalElements()) // Tổng số bản ghi
+                .itemsPerPage(pageResult.getSize())        // Kích thước trang
+                .totalPages(pageResult.getTotalPages())    // Tổng số trang
+                .startPage(pageResult.getNumber() + 1)     // QUAN TRỌNG: Spring bắt đầu từ 0, bạn muốn 1 thì phải +1
+                .build();
+
+        return ApiResponse.<List<OrderResponse>>builder()
+                .success(true)
+                .message("Get order list successfully.")
+                .data(responseList)
+                .pagination(meta)
+                .build();
+    }
+
 //    /**
 //     * 1.2 Get order detail
 //     * GET /api/v1/orders/{id}

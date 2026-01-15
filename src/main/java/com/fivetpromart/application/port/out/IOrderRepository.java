@@ -1,6 +1,7 @@
 package com.fivetpromart.application.port.out;
 
 //import com.fivetpromart.application.dto.query.OrderSearchQuery;
+import com.fivetpromart.application.dto.query.OrderSearchQuery;
 import com.fivetpromart.domain.model.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,5 +19,5 @@ public interface IOrderRepository {
 
     void deleteById(String orderId);
 
-    //Page<Order> searchOrders(OrderSearchQuery query, Pageable pageable);
+    Page<Order> searchOrders(OrderSearchQuery query, Pageable pageable);
 }
