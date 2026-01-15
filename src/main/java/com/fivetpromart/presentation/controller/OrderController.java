@@ -4,10 +4,7 @@ import com.fivetpromart.application.dto.CheckProductResultDto;
 import com.fivetpromart.application.dto.OrderDto;
 import com.fivetpromart.application.dto.command.CheckProductCommand;
 import com.fivetpromart.application.dto.command.OrderCreationCommand;
-import com.fivetpromart.application.dto.query.OrderSearchQuery;
 import com.fivetpromart.application.port.in.IOrderUseCasePort;
-import com.fivetpromart.domain.exception.EmptyFieldException;
-import com.fivetpromart.presentation.dto.query.OrderSearchQueryDto;
 import com.fivetpromart.presentation.dto.request.CheckProductRequest;
 import com.fivetpromart.presentation.dto.request.OrderRequest;
 import com.fivetpromart.presentation.dto.response.*;
@@ -20,9 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -113,35 +108,35 @@ public class OrderController {
 //                .data(response)
 //                .build();
 //    }
-//
-//    /**
-//     * 1.3 Check product (scan product code)
-//     * POST /api/v1/orders/check-product
-//     */
-//    @PostMapping("/check-product")
-//    @PreAuthorize("hasRole('Admin') or hasRole('SalesStaff')")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public ApiResponse<CheckProductResponse> checkProduct(
-//            @Valid @RequestBody CheckProductRequest request
-//    ) {
-//        log.info("Checking product for lotId: {}, quantity: {}",
-//                request.getLotId(), request.getQuantity());
-//
-//        // Convert to command
-//        CheckProductCommand command = mapper.toCheckProductCommand(request);
-//
-//        // Call use case
-//        CheckProductResultDto resultDto = orderUseCase.checkProduct(command);
-//
-//        // Map to response
-//        CheckProductResponse response = mapper.toCheckProductResponse(resultDto);
-//
-//        return ApiResponse.<CheckProductResponse>builder()
-//                .success(true)
-//                .message("Item check successfully.")
-//                .data(response)
-//                .build();
-//    }
+
+    /**
+     * 1.3 Check product (scan product code)
+     * POST /api/v1/orders/check-product
+     */
+    @PostMapping("/check-product")
+    @PreAuthorize("hasRole('Admin') or hasRole('SalesStaff')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<CheckProductResponse> checkProduct(
+            @Valid @RequestBody CheckProductRequest request
+    ) {
+        log.info("Checking product for lotId: {}, quantity: {}",
+                request.getLotId(), request.getQuantity());
+
+        // Convert to command
+        CheckProductCommand command = mapper.toCheckProductCommand(request);
+
+        // Call use case
+        CheckProductResultDto resultDto = orderUseCase.checkProduct(command);
+
+        // Map to response
+        CheckProductResponse response = mapper.toCheckProductResponse(resultDto);
+
+        return ApiResponse.<CheckProductResponse>builder()
+                .success(true)
+                .message("Item check successfully.")
+                .data(response)
+                .build();
+    }
 
     /**
      * 1.4 Create Order (Checkout)
@@ -154,18 +149,7 @@ public class OrderController {
             @Valid @RequestBody OrderRequest request
     ) {
         String currentStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        log.info("Creating order for staffId: {}, customerId: {}, items count: {}",
-                currentStaffId, request.getCustomerId(), request.getItems().size());
-        log.info("=== Authentication Debug ===");
-        log.info("Authentication: {}", authentication);
-        log.info("Authentication class: {}", authentication != null ? authentication.getClass().getName() : "null");
-        log.info("Principal: {}", authentication != null ? authentication.getPrincipal() : "null");
-        log.info("Name: {}", authentication != null ? authentication.getName() : "null");
-        log.info("Authorities: {}", authentication != null ? authentication.getAuthorities() : "null");
-        log.info("Is Authenticated: {}", authentication != null ? authentication.isAuthenticated() : "false");
-        log.info("==========================");
         // Convert to command
         OrderCreationCommand command = mapper.toOrderCreationCommand(request, currentStaffId);
         command.setStaffId(currentStaffId);

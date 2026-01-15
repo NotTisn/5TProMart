@@ -4,7 +4,6 @@ import com.fivetpromart.application.dto.CheckProductResultDto;
 import com.fivetpromart.application.dto.OrderDto;
 import com.fivetpromart.application.dto.command.CheckProductCommand;
 import com.fivetpromart.application.dto.command.OrderCreationCommand;
-import com.fivetpromart.application.dto.query.OrderSearchQuery;
 import com.fivetpromart.application.mapper.OrderDataMapper;
 import com.fivetpromart.application.port.in.IOrderUseCasePort;
 import com.fivetpromart.application.port.out.ICustomerRepository;
@@ -22,7 +21,7 @@ import com.fivetpromart.domain.model.Product;
 import com.fivetpromart.domain.model.StockInventory;
 import com.fivetpromart.domain.model.strategy.discount.*;
 import com.fivetpromart.domain.model.strategy.notification.*;
-import com.fivetpromart.domain.specification.OrderSpecification;
+//import com.fivetpromart.domain.specification.OrderSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -71,48 +70,48 @@ public class OrderUseCase implements IOrderUseCasePort {
 //        // Map to DTO
 //        return mapper.toDto(order);
 //    }
-//
-//    @Override
-//    @Transactional(readOnly = true)
-//    public CheckProductResultDto checkProduct(CheckProductCommand command) {
-//        log.info("Checking product for lotId: {}, quantity: {}", command.getLotId(), command.getQuantity());
-//
-//        // 1. Find lot (StockInventory)
-//        StockInventory lot = stockInventoryRepository.findById(command.getLotId())
-//                .orElseThrow(() -> new LotNotFoundException(command.getLotId()));
-//
-//        // 2. Check if lot is expired
-//        if (lot.getExpirationDate().isBefore(LocalDate.now())) {
-//            throw new ExpiredLotException(command.getLotId());
-//        }
-//
-//        // 3. Check if sufficient stock
-//        Long requestedQuantity = command.getQuantity() != null ? command.getQuantity() : 1L;
-//        if (lot.getStockQuantity() < requestedQuantity) {
-//            throw new InsufficientStockException(lot.getStockQuantity(), requestedQuantity);
-//        }
-//
-//        // 4. Get product information
-//        Product product = productRepository.findById(lot.getProductId())
-//                .orElseThrow(() -> new RuntimeException("Product not found: " + lot.getProductId()));
-//
-//        // 5. Calculate subtotal
-//        BigDecimal unitPrice = product.getSellingPrice();
-//        BigDecimal subTotal = unitPrice.multiply(BigDecimal.valueOf(requestedQuantity));
-//
-//        // 6. Build result DTO
-//        return CheckProductResultDto.builder()
-//                .lotId(lot.getLotId())
-//                .productId(product.getProductId())
-//                .productName(product.getProductName())
-//                .unitOfMeasure(product.getUnitOfMeasure())
-//                .unitPrice(unitPrice)
-//                .quantity(requestedQuantity)
-//                .subTotal(subTotal)
-//                .currentStock(lot.getStockQuantity())
-//                .status(lot.getStatus())
-//                .build();
-//    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CheckProductResultDto checkProduct(CheckProductCommand command) {
+        log.info("Checking product for lotId: {}, quantity: {}", command.getLotId(), command.getQuantity());
+
+        // 1. Find lot (StockInventory)
+        StockInventory lot = stockInventoryRepository.findById(command.getLotId())
+                .orElseThrow(() -> new LotNotFoundException(command.getLotId()));
+
+        // 2. Check if lot is expired
+        if (lot.getExpirationDate().isBefore(LocalDate.now())) {
+            throw new ExpiredLotException(command.getLotId());
+        }
+
+        // 3. Check if sufficient stock
+        Long requestedQuantity = command.getQuantity() != null ? command.getQuantity() : 1L;
+        if (lot.getStockQuantity() < requestedQuantity) {
+            throw new InsufficientStockException(lot.getStockQuantity(), requestedQuantity);
+        }
+
+        // 4. Get product information
+        Product product = productRepository.findById(lot.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found: " + lot.getProductId()));
+
+        // 5. Calculate subtotal
+        BigDecimal unitPrice = product.getSellingPrice();
+        BigDecimal subTotal = unitPrice.multiply(BigDecimal.valueOf(requestedQuantity));
+
+        // 6. Build result DTO
+        return CheckProductResultDto.builder()
+                .lotId(lot.getLotId())
+                .productId(product.getProductId())
+                .productName(product.getProductName())
+                .unitOfMeasure(product.getUnitOfMeasure())
+                .unitPrice(unitPrice)
+                .quantity(requestedQuantity)
+                .subTotal(subTotal)
+                .currentStock(lot.getStockQuantity())
+                .status(lot.getStatus())
+                .build();
+    }
 
     @Override
     @Transactional
