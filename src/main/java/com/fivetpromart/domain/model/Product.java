@@ -11,12 +11,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)public class Product {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Product {
     private String productId;
     private String productName;
     private String categoryId;
     private String unitOfMeasure;
     private BigDecimal sellingPrice;
+    private Integer totalStockQuantity;
 
     public static Product create(String productName, String categoryId, String unitOfMeasure, BigDecimal sellingPrice) {
         if (productName == null || productName.isBlank()) {
@@ -35,16 +37,18 @@ import java.util.UUID;
         product.categoryId = categoryId;
         product.unitOfMeasure = unitOfMeasure;
         product.sellingPrice = sellingPrice;
+        product.totalStockQuantity = 0;
 
         return product;
     }
 
-    public static Product reconstitute (
+    public static Product reconstitute(
             String productId,
             String productName,
             String categoryId,
             String unitOfMeasure,
-            BigDecimal sellingPrice
+            BigDecimal sellingPrice,
+            Integer totalStockQuantity
     ) {
         Product product = new Product();
         product.productId = productId;
@@ -52,6 +56,7 @@ import java.util.UUID;
         product.categoryId = categoryId;
         product.unitOfMeasure = unitOfMeasure;
         product.sellingPrice = sellingPrice;
+        product.totalStockQuantity = totalStockQuantity;
         return product;
     }
 
@@ -64,5 +69,11 @@ import java.util.UUID;
             this.unitOfMeasure = unitOfMeasure;
         if (sellingPrice != null && sellingPrice.compareTo(BigDecimal.ZERO) >= 0)
             this.sellingPrice = sellingPrice;
+    }
+
+    public void updateTotalStockQuantity(Integer quantity) {
+        if (quantity != null && quantity >= 0) {
+            this.totalStockQuantity = quantity;
+        }
     }
 }

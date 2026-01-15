@@ -33,6 +33,9 @@ public class ProductDbo {
     @Column(name = "selling_price", precision = 15, scale = 2)
     BigDecimal sellingPrice;
 
+    @Column(name = "total_stock_quantity")
+    private Integer totalStockQuantity;
+
 //    @Transient
 //    @Builder.Default
 //    boolean isNew = true;

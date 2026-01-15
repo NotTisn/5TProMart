@@ -12,4 +12,5 @@ public class ProductRequest {
     private String productName;
     private String unitOfMeasure;
     private BigDecimal sellingPrice;
+    //private Integer totalStockQuantity;
 }

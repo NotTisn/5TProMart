@@ -13,4 +13,5 @@ public class ProductUpdateCommand {
     private String categoryId;
     private String unitOfMeasure;
     private BigDecimal sellingPrice;
+    private Integer totalStockQuantity;
 }
