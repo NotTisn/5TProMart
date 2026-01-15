@@ -36,6 +36,6 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
 
     @Override
     public Optional<StockInventory> findById(String lotId) {
-        return Optional.empty();
+        return jpaRepository.findById(lotId).map(mapper::toDomain);
     }
 }
