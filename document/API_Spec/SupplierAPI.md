@@ -6,13 +6,16 @@
 
 ```json
 "Authorization": "Bearer {token}",
+"role": {
+    "name": "Warehouse Staff" || "Admin"
+}
 ```
 
-## **Endpoint base:** `/api/suppliers`
+## **Endpoint base:** `/api/v1/suppliers`
 
 ## 1.1 Get supplier query
 
-**Endpoint:** `GET /api/suppliers/`
+**Endpoint:** `GET /api/v1/suppliers/`
 
 **Query Parameters**
 
@@ -40,7 +43,6 @@
       "representName": "string",
       "representPhoneNumber": "string",
       "supplierType": "string",
-      "suppliedProductType": "string",
       "currentDebt": "number"
     }
   ],
@@ -55,11 +57,9 @@
 
 ---
 
----
-
 ## 1.2 Get supplier by id
 
-**Endpoint:** `GET /api/supplier/{id}`
+**Endpoint:** `GET /api/v1/suppliers/{id}`
 
 **Response 200**
 
@@ -75,7 +75,6 @@
     "representName": "string",
     "representPhoneNumber": "string",
     "supplierType": "string",
-    "suppliedProductType": "string",
     "currentDebt": "number"
   }
 }
@@ -85,7 +84,7 @@
 
 ## 1.3 Add new supplier
 
-**Endpoint**: `POST /api/supplier`
+**Endpoint**: `POST /api/v1/suppliers`
 
 **Request Body**
 
@@ -97,7 +96,7 @@
   "representName": "string", // not required
   "representPhoneNumber": "string", // not required
   "supplierType": "string", // "Doanh nghiệp" || "Tư nhân"
-  "suppliedProductType": "string" // Ref from product category name
+  "suppliedProductType": ["productId_01", "productId_02, ..."] //Danh sach productId cung cap
 }
 ```
 
@@ -115,7 +114,11 @@
     "representName": "string",
     "representPhoneNumber": "string",
     "supplierType": "string",
-    "suppliedProductType": "string",
+    "suppliedProductType": [
+      { "productId": "productId_01", "lastImportPrice": 0, "lastImportDate": null },
+      { "productId": "productId_02", "lastImportPrice": 0, "lastImportDate": null },
+      {...}
+    ],
     "currentDebt": 0 // Default value
   }
 }
@@ -148,7 +151,7 @@
 
 ## 1.4 Update a supplier
 
-**Endpoint**: `PUT /api/supplier/{id}`
+**Endpoint**: `PUT /api/v1/supplier/{id}`
 
 **Request Body**
 
@@ -160,7 +163,7 @@
   "representName": "string",
   "representPhoneNumber": "string",
   "supplierType": "string",
-  "suppliedProductType": "string"
+  "suppliedProductType": ["productId_01", "productId_03, ..."] //Danh sach productId moi
 }
 ```
 
@@ -169,7 +172,7 @@
 ```json
 {
   "success": true,
-  "message": "Supplier created successfully.",
+  "message": "Supplier updated successfully.",
   "data": {
     "supplierName": "string",
     "phoneNumber": "string",
@@ -177,7 +180,11 @@
     "representName": "string",
     "representPhoneNumber": "string",
     "supplierType": "string",
-    "suppliedProductType": "string",
+    "suppliedProductType": [
+      { "productId": "productId_01", "lastImportPrice": 100000, "lastImportDate": "15/01/2025" },   // Giu nguyen neu la san pham cu
+      { "productId": "productId_03", "lastImportPrice": 0, "lastImportDate": null },  // Tao default value neu la san pham moi
+      {...}
+    ],
     "currentDebt": "number" //not change
   }
 }
@@ -190,7 +197,7 @@ Same 1.3
 
 ## 1.5 Delete a supplier
 
-**Endpoint**: `DELETE /api/supplier/{id}`
+**Endpoint**: `DELETE /api/v1/supplier/{id}`
 
 **Response 200**
 
@@ -229,3 +236,51 @@ Same 1.3
   }
 }
 ```
+
+---
+
+## 1.6 Get supplier's products
+
+**Endpoint**: `GET /api/v1/suppliers/{id}/products`
+
+**Response 201**
+
+```json
+{
+  "success": true,
+  "message": "Get supplier products successfully.",
+  "data": [
+    {
+      "productId": "productId_01",
+      "productName": "productName_01",
+      "unitOfMeasure": "Lo",
+      "totalStockQuantity": 36,
+
+      // Get from field Supplier.suppliedProducts theo ProductId, gop vao du lieu tren va response ve cho UI
+      "lastImportPrice": 1000,
+      "lastImportDate": "15/01/2026"
+    }
+  ],
+  "pagination": {
+    "totalItems": 50,
+    "itemsPerPage": 10,
+    "totalPages": 5,
+    "currentPage": 0
+  }
+}
+```
+
+**Response 400**
+
+```json
+{
+  "success": false,
+  "message": "Not found supplier."
+}
+```
+
+**FE Note**
+
+> 1. Show totalQuantity, lastImportPrice, lastImportDate
+> 2. Neu lastImportDate = null -> chưa nhập lần nào -> hiển thị trống
+> 3. Trong menu nhập giá khi confirm nhập hàng có thể tự đồng điền sẵn lastImportPrice cho nhanh

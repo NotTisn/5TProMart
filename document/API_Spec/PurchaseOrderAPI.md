@@ -185,7 +185,8 @@
       "quantityReceived": 18, // Số lượng nhận
       "importPrice": 36000, // Giá trên hoá đơn của nhà cung cấp xuất khi nhận hàng. Có thể lưu ảnh hoá đơn vào db để double check?
       "manufactureDate": "date",
-      "expirationDate": "date" // Nhập từ thực tế sản phẩm
+      "expirationDate": "date", // Nhập từ thực tế sản phẩm
+      "notes": " " //note nếu cần: hàng hỏng, quantity = 0, giao thiếu hàng,...
     },
     {
       "productId": "productId_02",
@@ -216,7 +217,8 @@
         "lotId": "",
         "productName": "",
         "quantity": 18, // Số tem cần in = số lượng nhập
-        "expirationDate": " "
+        "expirationDate": " ",
+        "notes": " " //note nếu cần: hàng hỏng, quantity = 0, giao thiếu hàng,...
       },
       {
         "lotId": "  ",
@@ -237,8 +239,7 @@
   "message": "Validation failed.",
   "errors": {
     "actualItems": "Received items cannot be empty.",
-    "actualItems[0].expirationDate": "Expiration date is required.",
-    "actualItems[0].quantityReceived": "Quantity received must be greater than 0."
+    "actualItems[0].expirationDate": "Expiration date is required."
   }
 }
 ```
@@ -339,6 +340,7 @@
 > 1. Cập nhật đơn thành Completed
 > 2. Gộp lô theo logic: Nếu có lô trùng productId và expirationDate -> cộng dồn, trả về lotId đó. Nếu chưa có, tạo mới với số lượng = số lượng nhập, trả về lotId.
 > 3. Trả lotsToPrint theo mẫu: lotId, productName, quantity, expirationDate
+> 4. Xem Product API để xử lý số lượng
 
 > **New collection db**
 

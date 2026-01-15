@@ -192,12 +192,14 @@
     "pointsEarned": 100, //1% total amount, customer.loyaltyPoint += pointsEarned
     "items": [
       {
+        "productId": "productId_01",
         "productName": "product_name_1",
         "lotId": "lot_id_1",
         "quantity": 3,
         "subTotal": 300000
       },
       {
+        "productId": "productId_02",
         "productName": "product_name_2",
         "lotId": "lot_id_2",
         "quantity": 6,
