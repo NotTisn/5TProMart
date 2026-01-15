@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -23,7 +25,7 @@ public class SecurityConfig {
 
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuerUri;
-    
+
     private final JwtAuthConverter jwtAuthConverter;
 
     @Bean
@@ -35,19 +37,23 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/error", "/actuator/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/error", "/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
-
-                // 5. Cấu hình là một Resource Server (để xác thực JWT)
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt -> jwt
-                                .decoder(jwtDecoder())
-                                .jwtAuthenticationConverter(jwtAuthConverter)
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(jwtAuthConverter) // ✅ Apply custom converter
                         )
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        // Spring Boot tự động tạo JwtDecoder từ issuer-uri trong application.yml
+        // Nếu muốn custom thêm validation:
+        return NimbusJwtDecoder.withIssuerLocation(issuerUri).build();
     }
 
     @Bean

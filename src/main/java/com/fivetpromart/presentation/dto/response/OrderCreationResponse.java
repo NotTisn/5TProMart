@@ -25,6 +25,7 @@ public class OrderCreationResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class OrderItemInfo {
+        private String productId;
         private String productName;
         private String lotId;
         private Long quantity;

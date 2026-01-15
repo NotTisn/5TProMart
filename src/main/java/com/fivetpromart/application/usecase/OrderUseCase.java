@@ -11,11 +11,7 @@ import com.fivetpromart.application.port.out.ICustomerRepository;
 import com.fivetpromart.application.port.out.IOrderRepository;
 import com.fivetpromart.application.port.out.IProductRepository;
 import com.fivetpromart.application.port.out.IStockInventoryRepository;
-import com.fivetpromart.domain.exception.ExpiredLotException;
-import com.fivetpromart.domain.exception.InsufficientStockException;
-import com.fivetpromart.domain.exception.InvalidOrderException;
-import com.fivetpromart.domain.exception.LotNotFoundException;
-import com.fivetpromart.domain.exception.OrderNotFoundException;
+import com.fivetpromart.domain.exception.*;
 import com.fivetpromart.domain.model.Customer;
 import com.fivetpromart.domain.model.Order;
 import com.fivetpromart.domain.model.Product;
@@ -141,7 +137,7 @@ public class OrderUseCase implements IOrderUseCasePort {
                 
                 // Get product
                 Product product = productRepository.findById(lot.getProductId())
-                        .orElseThrow(() -> new RuntimeException("Product not found: " + lot.getProductId()));
+                        .orElseThrow(() -> new ProductNotFoundException("Product not found: " + lot.getProductId()));
                 
                 // Create order item
                 Order.OrderItem orderItem = Order.OrderItem.create(

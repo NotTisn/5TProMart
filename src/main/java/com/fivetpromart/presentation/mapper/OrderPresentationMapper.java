@@ -131,6 +131,7 @@ public class OrderPresentationMapper {
 
         List<OrderCreationResponse.OrderItemInfo> items = dto.getItems().stream()
                 .map(item -> OrderCreationResponse.OrderItemInfo.builder()
+                        .productId(item.getProductId())
                         .productName(item.getProductName())
                         .lotId(item.getLotId())
                         .quantity(item.getQuantity())
