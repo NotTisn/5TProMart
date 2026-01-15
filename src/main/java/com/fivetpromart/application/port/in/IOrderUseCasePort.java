@@ -14,11 +14,11 @@ public interface IOrderUseCasePort {
      */
     Page<OrderDto> searchOrders(OrderSearchQuery query, Pageable pageable);
 
-//    /**
-//     * Get order detail by ID
-//     */
-//    OrderDto getOrderById(String orderId);
-//
+    /**
+     * Get order detail by ID
+     */
+    OrderDto getOrderById(String orderId);
+
     /**
      * Check product by scanning lot code
      */

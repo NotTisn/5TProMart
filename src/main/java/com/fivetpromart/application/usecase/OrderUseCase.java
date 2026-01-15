@@ -59,18 +59,18 @@ public class OrderUseCase implements IOrderUseCasePort {
         return orderPage.map(mapper::toDto);
     }
 
-//    @Override
-//    @Transactional(readOnly = true)
-//    public OrderDto getOrderById(String orderId) {
-//        log.info("Getting order by ID: {}", orderId);
-//
-//        // Find order
-//        Order order = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new OrderNotFoundException(orderId));
-//
-//        // Map to DTO
-//        return mapper.toDto(order);
-//    }
+    @Override
+    @Transactional(readOnly = true)
+    public OrderDto getOrderById(String orderId) {
+        log.info("Getting order by ID: {}", orderId);
+
+        // Find order
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        // Map to DTO
+        return mapper.toDto(order);
+    }
 
     @Override
     @Transactional(readOnly = true)

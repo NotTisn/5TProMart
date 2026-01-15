@@ -89,27 +89,27 @@ public class OrderController {
                 .build();
     }
 
-//    /**
-//     * 1.2 Get order detail
-//     * GET /api/v1/orders/{id}
-//     */
-//    @GetMapping("/{id}")
-//    @PreAuthorize("hasRole('Admin')")
-//    public ApiResponse<OrderDetailResponse> getOrderById(@PathVariable String id) {
-//        log.info("Getting order detail for ID: {}", id);
-//
-//        // Call use case
-//        OrderDto orderDto = orderUseCase.getOrderById(id);
-//
-//        // Map to detail response
-//        OrderDetailResponse response = mapper.toOrderDetailResponse(orderDto);
-//
-//        return ApiResponse.<OrderDetailResponse>builder()
-//                .success(true)
-//                .message("Get order detail successfully.")
-//                .data(response)
-//                .build();
-//    }
+    /**
+     * 1.2 Get order detail
+     * GET /api/v1/orders/{id}
+     */
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<OrderDetailResponse> getOrderById(@PathVariable String id) {
+        log.info("Getting order detail for ID: {}", id);
+
+        // Call use case
+        OrderDto orderDto = orderUseCase.getOrderById(id);
+
+        // Map to detail response
+        OrderDetailResponse response = mapper.toOrderDetailResponse(orderDto);
+
+        return ApiResponse.<OrderDetailResponse>builder()
+                .success(true)
+                .message("Get order detail successfully.")
+                .data(response)
+                .build();
+    }
 
     /**
      * 1.3 Check product (scan product code)
