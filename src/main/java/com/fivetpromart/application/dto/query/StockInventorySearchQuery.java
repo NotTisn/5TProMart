@@ -5,14 +5,38 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Query object for searching stock inventories
+ * Used in GET /api/stock_inventories endpoint
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class StockInventorySearchQuery {
-    private String search;  // lotId contains search string
-    private String productId;  // filter by productId
-    private String status;  // filter by status
-    private String sortBy;  // expirationDate, stockQuantity, importPrice
-    private String order;  // asc, desc
+    
+    /**
+     * Search in lot_id (contains search string)
+     */
+    private String search;
+    
+    /**
+     * Filter by product_id
+     */
+    private String productId;
+    
+    /**
+     * Filter by status
+     */
+    private String status;
+    
+    /**
+     * Sort by field: "expirationDate", "stockQuantity", "importPrice"
+     */
+    private String sortBy;
+    
+    /**
+     * Sort order: "asc", "desc"
+     */
+    private String order;
 }
