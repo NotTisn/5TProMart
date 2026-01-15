@@ -16,6 +16,7 @@ public interface ProductPersistenceMapper {
                 .categoryId(domain.getCategoryId())
                 .unitOfMeasure(domain.getUnitOfMeasure())
                 .sellingPrice(domain.getSellingPrice())
+                .totalStockQuantity(domain.getTotalStockQuantity())
                 .build();
     }
 
@@ -27,7 +28,8 @@ public interface ProductPersistenceMapper {
                 dbo.getProductName(),
                 dbo.getCategoryId(),
                 dbo.getUnitOfMeasure(),
-                dbo.getSellingPrice()
+                dbo.getSellingPrice(),
+                dbo.getTotalStockQuantity()
         );
     }
 }

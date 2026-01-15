@@ -17,4 +17,5 @@ public class ProductDto {
     private String categoryId;
     private String unitOfMeasure;
     private BigDecimal sellingPrice;
+    private Integer totalStockQuantity;
 }

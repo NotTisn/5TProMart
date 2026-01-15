@@ -12,5 +12,4 @@ public class ProductCreationCommand {
     private String categoryId;
     private String unitOfMeasure;
     private BigDecimal sellingPrice;
-    private Integer totalStockQuantity;
 }
