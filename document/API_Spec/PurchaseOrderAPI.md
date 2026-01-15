@@ -24,6 +24,7 @@
 ```json
 {
   "search": "string", // Filter by poId or supplierName
+  "supplierId": "", // Filter by supplierId
   "status": "string", // Filter: "Draft", "Completed", "Cancelled"
   "startDate": "dd-MM-yyyy",
   "endDate": "dd-MM-yyyy", // filter purchaseDate in startDate -> endDate
