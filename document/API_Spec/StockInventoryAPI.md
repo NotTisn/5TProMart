@@ -35,13 +35,19 @@
       "importPrice": "number",
       "status": "string"
     }
-  ]
+  ],
+  "pagination": {
+    "totalItems": "number",
+    "itemsPerPage": "number",
+    "totalPages": "number",
+    "startPage": 1
+  }
 }
 ```
 
 ---
 
-## 5.2 Get all stock inventory
+## 5.2 Get stock inventory by id
 
 **Endpoint:** `GET /api/stock_inventories/{id}`
 

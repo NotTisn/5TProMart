@@ -1,5 +1,6 @@
 package com.fivetpromart.presentation.dto.response;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +9,9 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@Builder
 public class StockInventoryResponse {
+    private String lotId;
     private String productId;
     private LocalDate manufactureDate;
     private LocalDate expirationDate;

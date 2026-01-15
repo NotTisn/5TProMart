@@ -1,7 +1,5 @@
 # 3. Product API
 
----
-
 ## 3.1 Get all products query
 
 **Endpoint:** `GET /api/products`
@@ -31,7 +29,8 @@
       "categoryId": "number",
       "categoryName": "string", //ref categoryId from category table, display on UI
       "unitOfMeasure": "string",
-      "sellingPrice": "number"
+      "sellingPrice": "number",
+      "totalStockQuantity": "number"
     }
   ],
   "pagination": {
@@ -60,7 +59,8 @@
     "productName": "string",
     "categoryId": "number",
     "unitOfMeasure": "string",
-    "sellingPrice": "number"
+    "sellingPrice": "number",
+    "totalStockQuantity": "number"
   }
 }
 ```
@@ -93,7 +93,8 @@
     "productName": "string",
     "categoryId": "number",
     "unitOfMeasure": "string",
-    "sellingPrice": "number"
+    "sellingPrice": "number",
+    "totalStockQuantity": 0 //default
   }
 }
 ```
@@ -159,7 +160,8 @@
     "productName": "string",
     "categoryId": "number",
     "unitOfMeasure": "string",
-    "sellingPrice": "number"
+    "sellingPrice": "number",
+    "totalStockQuantity": 100000 //khong doi
   }
 }
 ```
@@ -198,3 +200,19 @@ Same 400 3.3
 ```
 
 ---
+
+**Note Luồng**
+
+> 1.  Field totalStockQuantity để lưu cache số lượng sản phẩm tồn trong kho: Cần xử lý BE
+> 2.  Khi nhập hàng, sau khi xử lý gộp lô và trả về được cái lotsToPrint BE xử lý:
+
+>     Cập nhật tồn kho:
+>     product.totalStockQuantity += items.quantityReceived ( check items.productId = product.productId )
+
+>     Cập nhật lịch sử nhập: Tìm trong collection Suppliers theo supplierId, tìm object trong suppliedProducts có productId = items productId, cập nhật:
+>     supplier.suppliedProducts.lastImportPrice = items.importPrice
+>     supplier.suppliedProducts.lastImportDate = checkDate
+
+> 3.  Khi bán hàng, nếu thanh toán xong BE xử lý:
+
+>     product.totalStockQuantity -= items.quantity ( check items.productId = product.productId )
