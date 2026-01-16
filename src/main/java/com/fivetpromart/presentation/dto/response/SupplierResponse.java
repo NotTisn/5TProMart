@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,6 +16,6 @@ public class SupplierResponse {
     private String representName;
     private String representPhoneNumber;
     private String supplierType;
-    private String suppliedProductType;
+    private List<SuppliedProductResponse> suppliedProducts;
     private BigDecimal currentDebt;
 }

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/suppliers")
+@RequestMapping("/api/v1/suppliers")
 @RequiredArgsConstructor
 public class SupplierController {
 
@@ -103,7 +103,6 @@ public class SupplierController {
             
             // FILTERS: Lọc theo các tiêu chí cụ thể
             @RequestParam(required = false) String supplierType,
-            @RequestParam(required = false) String suppliedProductType,
             @RequestParam(required = false) String phoneNumber,
             @RequestParam(required = false) String address,
             
@@ -112,7 +111,6 @@ public class SupplierController {
         SupplierSearchQuery query = SupplierSearchQuery.builder()
                 .search(search)
                 .supplierType(supplierType)
-                .suppliedProductType(suppliedProductType)
                 .phoneNumber(phoneNumber)
                 .address(address)
                 .build();

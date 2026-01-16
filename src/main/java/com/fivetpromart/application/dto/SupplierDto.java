@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
@@ -15,6 +16,6 @@ public class SupplierDto {
     private String representName;
     private String representPhoneNumber;
     private String supplierType;
-    private String suppliedProductType;
+    private List<SuppliedProductDto> suppliedProducts;
     private BigDecimal currentDebt;
 }

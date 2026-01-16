@@ -3,7 +3,7 @@ package com.fivetpromart.application.dto.command;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
@@ -14,5 +14,5 @@ public class SupplierCreationCommand {
     private String representName;
     private String representPhoneNumber;
     private String supplierType;
-    private String suppliedProductType;
+    private List<String> suppliedProductType;
 }

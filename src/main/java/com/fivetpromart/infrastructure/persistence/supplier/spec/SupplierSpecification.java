@@ -41,17 +41,12 @@ public class SupplierSpecification {
                 predicates.add(criteriaBuilder.equal(root.get("supplierType"), query.getSupplierType()));
             }
 
-            // FILTER 2: Lọc theo suppliedProductType (Exact match)
-            if (query.getSuppliedProductType() != null && !query.getSuppliedProductType().isBlank()) {
-                predicates.add(criteriaBuilder.equal(root.get("suppliedProductType"), query.getSuppliedProductType()));
-            }
-
-            // FILTER 3: Lọc theo phoneNumber (Exact match)
+            // FILTER 2: Lọc theo phoneNumber (Exact match)
             if (query.getPhoneNumber() != null && !query.getPhoneNumber().isBlank()) {
                 predicates.add(criteriaBuilder.equal(root.get("phoneNumber"), query.getPhoneNumber()));
             }
 
-            // FILTER 4: Lọc theo address (Contains)
+            // FILTER 3: Lọc theo address (Contains)
             if (query.getAddress() != null && !query.getAddress().isBlank()) {
                 String addressPattern = "%" + query.getAddress().toLowerCase().trim() + "%";
                 predicates.add(criteriaBuilder.like(

@@ -1,13 +1,12 @@
 package com.fivetpromart.infrastructure.persistence.supplier;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -40,8 +39,10 @@ public class SupplierDbo {
     @Column(name = "supplier_type")
     String supplierType;
 
-    @Column(name = "supplied_product_type")
-    String suppliedProductType;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "supplier_id")
+    @Builder.Default
+    List<SuppliedProductDbo> suppliedProducts = new ArrayList<>();
 
     @Column(name = "current_debt", precision = 20, scale = 2)
     BigDecimal currentDebt;

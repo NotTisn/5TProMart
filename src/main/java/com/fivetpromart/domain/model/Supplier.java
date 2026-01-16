@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -19,7 +21,7 @@ public class Supplier {
     private String representName;
     private String representPhoneNumber;
     private String supplierType;
-    private String suppliedProductType;
+    private List<SuppliedProduct> suppliedProducts;
     private BigDecimal currentDebt;
 
     // =================================================================
@@ -32,7 +34,7 @@ public class Supplier {
             String representName,
             String representPhoneNumber,
             String supplierType, 
-            String suppliedProductType
+            List<String> suppliedProductIds
     ) {
         if (supplierName == null || supplierName.isBlank())
             throw new EmptyFieldException("Supplier name");
@@ -40,7 +42,7 @@ public class Supplier {
             throw new EmptyFieldException("Phone number");
         if (address == null || address.isBlank())
             throw new EmptyFieldException("Address");
-        if(suppliedProductType == null || suppliedProductType.isBlank())
+        if(suppliedProductIds == null || suppliedProductIds.isEmpty())
             throw new EmptyFieldException("Supplied product type");
         if(supplierType == null || supplierType.isBlank())
             throw new EmptyFieldException("Supplier type");
@@ -53,7 +55,12 @@ public class Supplier {
         supplier.representName = representName;
         supplier.representPhoneNumber = representPhoneNumber;
         supplier.supplierType = supplierType;
-        supplier.suppliedProductType = suppliedProductType;
+        
+        // Convert product IDs to SuppliedProduct objects with default values
+        supplier.suppliedProducts = new ArrayList<>();
+        for (String productId : suppliedProductIds) {
+            supplier.suppliedProducts.add(SuppliedProduct.createNew(productId));
+        }
 
         supplier.currentDebt = BigDecimal.ZERO;
 
@@ -71,7 +78,7 @@ public class Supplier {
             String representName,
             String representPhoneNumber,
             String supplierType,
-            String suppliedProductType,
+            List<SuppliedProduct> suppliedProducts,
             BigDecimal currentDebt
     ) {
         Supplier supplier = new Supplier();
@@ -82,7 +89,7 @@ public class Supplier {
         supplier.representName = representName;
         supplier.representPhoneNumber = representPhoneNumber;
         supplier.supplierType = supplierType;
-        supplier.suppliedProductType = suppliedProductType;
+        supplier.suppliedProducts = suppliedProducts != null ? suppliedProducts : new ArrayList<>();
         supplier.currentDebt = currentDebt;
         return supplier;
     }
@@ -98,7 +105,7 @@ public class Supplier {
             String representName,
             String representPhoneNumber,
             String supplierType, 
-            String suppliedProductType
+            List<String> suppliedProductIds
     ) {
         if (supplierName != null && !supplierName.isBlank()) this.supplierName = supplierName;
         if (address != null && !address.isBlank()) this.address = address;
@@ -106,7 +113,28 @@ public class Supplier {
         if (representName != null) this.representName = representName;  // Allow empty for optional field
         if (representPhoneNumber != null) this.representPhoneNumber = representPhoneNumber;  // Allow empty for optional field
         if (supplierType != null && !supplierType.isBlank()) this.supplierType = supplierType;
-        if (suppliedProductType != null && !suppliedProductType.isBlank()) this.suppliedProductType = suppliedProductType;
+        
+        // Update supplied products
+        if (suppliedProductIds != null && !suppliedProductIds.isEmpty()) {
+            List<SuppliedProduct> newSuppliedProducts = new ArrayList<>();
+            
+            for (String productId : suppliedProductIds) {
+                // Keep existing product info if already exists
+                SuppliedProduct existing = this.suppliedProducts.stream()
+                        .filter(sp -> sp.getProductId().equals(productId))
+                        .findFirst()
+                        .orElse(null);
+                
+                if (existing != null) {
+                    newSuppliedProducts.add(existing);
+                } else {
+                    // New product - create with default values
+                    newSuppliedProducts.add(SuppliedProduct.createNew(productId));
+                }
+            }
+            
+            this.suppliedProducts = newSuppliedProducts;
+        }
     }
 
     // =================================================================

@@ -1,9 +1,12 @@
 package com.fivetpromart.presentation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,8 +33,8 @@ public class SupplierRequest {
     @Pattern(regexp = "^(Doanh nghiệp|Tư nhân)$", message = "Supplier type must be 'Doanh nghiệp' or 'Tư nhân'.")
     private String supplierType;
 
-    @NotBlank(message = "Supplied product type is required.")
-    private String suppliedProductType;
+    @NotEmpty(message = "Supplied product type is required.")
+    private List<String> suppliedProductType;
 
     // Note: currentDebt is NOT in request body - it's system-managed and defaults to 0
 }

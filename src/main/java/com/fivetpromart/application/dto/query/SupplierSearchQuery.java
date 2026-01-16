@@ -11,7 +11,6 @@ public class SupplierSearchQuery {
     
     // FILTERS: Lọc theo các tiêu chí cụ thể
     private String supplierType;           // Doanh nghiệp / Tư nhân
-    private String suppliedProductType;    // Loại sản phẩm cung cấp
     private String phoneNumber;            // Số điện thoại
     private String address;                // Địa chỉ (contains)
 }
