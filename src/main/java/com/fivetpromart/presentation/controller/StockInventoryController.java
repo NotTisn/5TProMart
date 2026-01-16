@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/stock_inventories")
+@RequestMapping("/api/v1/stock_inventories")
 @RequiredArgsConstructor
 @Slf4j
 public class StockInventoryController {
