@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staffs")
+@RequestMapping("/api/v1/staffs")
 @RequiredArgsConstructor
 public class StaffController {
 
@@ -34,7 +34,7 @@ public class StaffController {
     // TODO: @PreAuthorize("hasRole('Admin')")
     
     @GetMapping
-    @PreAuthorize("hasRole('Admin')")
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<List<StaffResponse>> getAllStaff(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String accountType,
@@ -71,7 +71,7 @@ public class StaffController {
     }
 
     @GetMapping("/{staffId}")
-    @PreAuthorize("hasRole('Admin')")
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<StaffResponse> getStaffById(
             @PathVariable String staffId
     ) {
@@ -87,7 +87,7 @@ public class StaffController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('Admin')")
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<StaffResponse> createStaff(
             @Valid @RequestBody StaffRequest request
     ) {
@@ -106,7 +106,7 @@ public class StaffController {
     }
 
     @PutMapping("/{staffId}")
-    @PreAuthorize("hasRole('Admin')")
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<StaffResponse> updateStaff(
             @PathVariable String staffId,
             @Valid @RequestBody StaffUpdateRequest request
@@ -126,7 +126,7 @@ public class StaffController {
     }
 
     @DeleteMapping("/{staffId}")
-    @PreAuthorize("hasRole('Admin')")
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<Void> deleteStaff(
             @PathVariable String staffId
     ) {
