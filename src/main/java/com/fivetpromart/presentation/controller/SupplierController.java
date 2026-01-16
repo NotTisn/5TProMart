@@ -1,11 +1,14 @@
 package com.fivetpromart.presentation.controller;
 
 import com.fivetpromart.application.dto.CustomerDto;
+import com.fivetpromart.application.dto.ProductDto;
+import com.fivetpromart.application.dto.SuppliedProductDto;
 import com.fivetpromart.application.dto.SupplierDto;
 import com.fivetpromart.application.dto.command.SupplierCreationCommand;
 import com.fivetpromart.application.dto.command.SupplierUpdateCommand;
 import com.fivetpromart.application.dto.query.CustomerSearchQuery;
 import com.fivetpromart.application.dto.query.SupplierSearchQuery;
+import com.fivetpromart.application.usecase.ProductUseCase;
 import com.fivetpromart.application.usecase.SupplierUseCase;
 import com.fivetpromart.infrastructure.persistence.supplier.mapper.SupplierPersistenceMapper;
 import com.fivetpromart.presentation.dto.request.SupplierRequest;
@@ -19,7 +22,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/suppliers")
@@ -28,6 +34,7 @@ public class SupplierController {
 
     private final SupplierUseCase supplierUseCase;
     private final SupplierPresentationMapper mapper;
+    private final ProductUseCase productUseCase;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -135,6 +142,84 @@ public class SupplierController {
                 .message("Get suppliers successfully")
                 .data(responses)  // Mảng dữ liệu
                 .pagination(meta)    // Thông tin phân trang
+                .build();
+    }
+
+    /**
+     * 1.6 Get supplier's products
+     * GET /api/v1/suppliers/{id}/products
+     */
+    @GetMapping("/{supplierId}/products")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<List<SupplierProductResponse>> getSupplierProducts(
+            @PathVariable String supplierId,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        // Get supplier to access suppliedProducts
+        SupplierDto supplier = supplierUseCase.getSupplierById(supplierId);
+        
+        if (supplier.getSuppliedProducts() == null || supplier.getSuppliedProducts().isEmpty()) {
+            return ApiResponse.<List<SupplierProductResponse>>builder()
+                    .success(true)
+                    .statusCode(200)
+                    .message("Get supplier products successfully.")
+                    .data(new ArrayList<>())
+                    .pagination(PaginationMeta.builder()
+                            .totalItems(0L)
+                            .itemsPerPage(pageable.getPageSize())
+                            .totalPages(0)
+                            .startPage(1)
+                            .build())
+                    .build();
+        }
+        
+        // Create a map for quick lookup of supplied product info
+        Map<String, SuppliedProductDto> suppliedProductMap = supplier.getSuppliedProducts().stream()
+                .collect(Collectors.toMap(
+                        SuppliedProductDto::getProductId,
+                        sp -> sp
+                ));
+        
+        // Fetch product details and combine with supplier info
+        List<SupplierProductResponse> productResponses = new ArrayList<>();
+        for (SuppliedProductDto suppliedProduct : supplier.getSuppliedProducts()) {
+            try {
+                ProductDto product = productUseCase.getProductById(suppliedProduct.getProductId());
+                
+                SupplierProductResponse response = SupplierProductResponse.builder()
+                        .productId(product.getProductId())
+                        .productName(product.getProductName())
+                        .unitOfMeasure(product.getUnitOfMeasure())
+                        .totalStockQuantity(product.getTotalStockQuantity())
+                        .lastImportPrice(suppliedProduct.getLastImportPrice())
+                        .lastImportDate(suppliedProduct.getLastImportDate())
+                        .build();
+                
+                productResponses.add(response);
+            } catch (Exception e) {
+                // Skip products that don't exist
+                continue;
+            }
+        }
+        
+        // Manual pagination
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), productResponses.size());
+        List<SupplierProductResponse> paginatedList = productResponses.subList(start, end);
+        
+        PaginationMeta meta = PaginationMeta.builder()
+                .totalItems((long) productResponses.size())
+                .itemsPerPage(pageable.getPageSize())
+                .totalPages((int) Math.ceil((double) productResponses.size() / pageable.getPageSize()))
+                .startPage(pageable.getPageNumber())
+                .build();
+        
+        return ApiResponse.<List<SupplierProductResponse>>builder()
+                .success(true)
+                .statusCode(200)
+                .message("Get supplier products successfully.")
+                .data(paginatedList)
+                .pagination(meta)
                 .build();
     }
 }
