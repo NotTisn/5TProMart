@@ -14,5 +14,4 @@ public class StockInventoryCreationCommand {
     private LocalDate expirationDate;
     private Long stockQuantity;
     private BigDecimal importPrice;
-    private String status;
 }

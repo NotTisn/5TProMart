@@ -14,5 +14,4 @@ public class StockInventoryRequest {
     private LocalDate expirationDate;
     private Long stockQuantity;
     private BigDecimal importPrice;
-    private String status;
 }

@@ -21,7 +21,7 @@ public class StockInventory {
     private BigDecimal importPrice;
     private String status;
 
-    public static StockInventory create(String productId, LocalDate manufactureDate, LocalDate expirationDate, Long stockQuantity, BigDecimal importPrice, String status) {
+    public static StockInventory create(String productId, LocalDate manufactureDate, LocalDate expirationDate, Long stockQuantity, BigDecimal importPrice) {
         if(productId == null || productId.isBlank())
             throw new EmptyFieldException("Product ID");
         if(manufactureDate == null)
@@ -36,16 +36,13 @@ public class StockInventory {
             throw new InvalidDateRangeException();
 
         StockInventory stockInventory = new StockInventory();
-        if(status == null)
-            stockInventory.status = "GOOD";
-
         stockInventory.lotId = UUID.randomUUID().toString();
         stockInventory.productId = productId;
         stockInventory.manufactureDate = manufactureDate;
         stockInventory.expirationDate = expirationDate;
         stockInventory.stockQuantity = stockQuantity;
         stockInventory.importPrice = importPrice;
-        stockInventory.status = status;
+        stockInventory.status = "";
 
         return stockInventory;
     }

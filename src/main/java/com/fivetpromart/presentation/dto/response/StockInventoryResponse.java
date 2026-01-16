@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class StockInventoryResponse {
     private String lotId;
     private String productId;
+    private String productName;
     private LocalDate manufactureDate;
     private LocalDate expirationDate;
     private Long stockQuantity;
