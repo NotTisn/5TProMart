@@ -12,21 +12,18 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface StockInventoryPresentationMapper {
+    StockInventoryCreationCommand toCommand(StockInventoryRequest stockInventory);
     
-    // Map request to creation command
-    StockInventoryCreationCommand toCommand(StockInventoryRequest request);
+    StockInventoryCreationCommand toCreationCommand(StockInventoryRequest stockInventory);
     
-    StockInventoryCreationCommand toCreationCommand(StockInventoryRequest request);
-    
-    // Map update request to update command
-    StockInventoryUpdateCommand toUpdateCommand(StockInventoryUpdateRequest request);
+    StockInventoryUpdateCommand toUpdateCommand(StockInventoryUpdateRequest stockInventory);
 
-    // Map DTO to response
     StockInventoryResponse toResponse(StockInventoryDto stockInventory);
-
-    // Map search params to query
-    default StockInventorySearchQuery toSearchQuery(String search, String productId, 
-                                                     String status, String sortBy, String order) {
+    
+    /**
+     * Map search parameters to query object
+     */
+    default StockInventorySearchQuery toSearchQuery(String search, String productId, String status, String sortBy, String order) {
         return StockInventorySearchQuery.builder()
                 .search(search)
                 .productId(productId)
