@@ -85,60 +85,60 @@ public class PromotionController {
      * 1.2 Get promotion detail
      * GET /api/v1/promotions/{id}
      */
-//    @GetMapping("/{id}")
-//    public ApiResponse<PromotionDetailResponse> getPromotionById(@PathVariable String id) {
-//        PromotionDto promotion = promotionUseCase.getPromotionById(id);
-//
-//        // Fetch product details and calculate promotion price using strategy
-//        List<PromotionDetailProductResponse> detailProducts = new ArrayList<>();
-//        for (PromotionProductDto promotionProduct : promotion.getProducts()) {
-//            try {
-//                ProductDto product = productUseCase.getProductById(promotionProduct.getProductId());
-//
-//                // Use promotion strategy to calculate promotional price
-//                BigDecimal promotionPrice = null;
-//                if ("Discount".equals(promotion.getPromotionType()) && promotion.getDiscountPercent() != null) {
-//                    // Strategy will handle the calculation
-//                    promotionPrice = promotion.getPromotionStrategy()
-//                            .calculatePromotionalPrice(product.getSellingPrice(), 1);
-//                }
-//
-//                PromotionDetailProductResponse detailProduct = PromotionDetailProductResponse.builder()
-//                        .productId(product.getProductId())
-//                        .productName(product.getProductName())
-//                        .unitOfMeasure(product.getUnitOfMeasure())
-//                        .sellingPrice(product.getSellingPrice())
-//                        .promotionPrice(promotionPrice)
-//                        .build();
-//
-//                detailProducts.add(detailProduct);
-//            } catch (Exception e) {
-//                // Skip products that don't exist
-//                continue;
-//            }
-//        }
-//
-//        PromotionDetailResponse response = PromotionDetailResponse.builder()
-//                .promotionId(promotion.getPromotionId())
-//                .promotionName(promotion.getPromotionName())
-//                .promotionDescription(promotion.getPromotionDescription())
-//                .promotionType(promotion.getPromotionType())
-//                .discountPercent(promotion.getDiscountPercent())
-//                .buyQuantity(promotion.getBuyQuantity())
-//                .getQuantity(promotion.getGetQuantity())
-//                .status(promotion.getStatus())
-//                .startDate(promotion.getStartDate())
-//                .endDate(promotion.getEndDate())
-//                .products(detailProducts)
-//                .build();
-//
-//        return ApiResponse.<PromotionDetailResponse>builder()
-//                .success(true)
-//                .message("Get promotions detail successfully.")
-//                .data(response)
-//                .build();
-//    }
-//
+    @GetMapping("/{id}")
+    public ApiResponse<PromotionDetailResponse> getPromotionById(@PathVariable String id) {
+        PromotionDto promotion = promotionUseCase.getPromotionById(id);
+
+        // Fetch product details and calculate promotion price using strategy
+        List<PromotionDetailProductResponse> detailProducts = new ArrayList<>();
+        for (PromotionProductDto promotionProduct : promotion.getProducts()) {
+            try {
+                ProductDto product = productUseCase.getProductById(promotionProduct.getProductId());
+
+                // Use promotion strategy to calculate promotional price
+                BigDecimal promotionPrice = null;
+                if ("Discount".equals(promotion.getPromotionType()) && promotion.getDiscountPercent() != null) {
+                    // Strategy will handle the calculation
+                    promotionPrice = promotion.getPromotionStrategy()
+                            .calculatePromotionalPrice(product.getSellingPrice(), 1);
+                }
+
+                PromotionDetailProductResponse detailProduct = PromotionDetailProductResponse.builder()
+                        .productId(product.getProductId())
+                        .productName(product.getProductName())
+                        .unitOfMeasure(product.getUnitOfMeasure())
+                        .sellingPrice(product.getSellingPrice())
+                        .promotionPrice(promotionPrice)
+                        .build();
+
+                detailProducts.add(detailProduct);
+            } catch (Exception e) {
+                // Skip products that don't exist
+                continue;
+            }
+        }
+
+        PromotionDetailResponse response = PromotionDetailResponse.builder()
+                .promotionId(promotion.getPromotionId())
+                .promotionName(promotion.getPromotionName())
+                .promotionDescription(promotion.getPromotionDescription())
+                .promotionType(promotion.getPromotionType())
+                .discountPercent(promotion.getDiscountPercent())
+                .buyQuantity(promotion.getBuyQuantity())
+                .getQuantity(promotion.getGetQuantity())
+                .status(promotion.getStatus())
+                .startDate(promotion.getStartDate())
+                .endDate(promotion.getEndDate())
+                .products(detailProducts)
+                .build();
+
+        return ApiResponse.<PromotionDetailResponse>builder()
+                .success(true)
+                .message("Get promotions detail successfully.")
+                .data(response)
+                .build();
+    }
+
 //    /**
 //     * 1.3 Create Promotion
 //     * POST /api/v1/promotions

@@ -38,14 +38,14 @@ public class PromotionUseCase implements IPromotionUseCasePort {
         return promotions.map(mapper::toDto);
     }
 
-//    @Override
-//    @Transactional(readOnly = true)
-//    public PromotionDto getPromotionById(String promotionId) {
-//        Promotion promotion = promotionRepository.findById(promotionId)
-//                .orElseThrow(() -> new EntityNotFoundException("Promotion not found with ID: " + promotionId));
-//        return mapper.toDto(promotion);
-//    }
-//
+    @Override
+    @Transactional(readOnly = true)
+    public PromotionDto getPromotionById(String promotionId) {
+        Promotion promotion = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new EntityNotFoundException("Promotion not found with ID: " + promotionId));
+        return mapper.toDto(promotion);
+    }
+
 //    @Override
 //    @Transactional
 //    public PromotionDto createPromotion(PromotionCreationCommand command) {
