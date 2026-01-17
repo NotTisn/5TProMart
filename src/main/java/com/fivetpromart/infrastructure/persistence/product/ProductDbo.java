@@ -34,7 +34,7 @@ public class ProductDbo {
     BigDecimal sellingPrice;
 
     @Column(name = "total_stock_quantity")
-    private Integer totalStockQuantity;
+    private Long totalStockQuantity;
 
 //    @Transient
 //    @Builder.Default

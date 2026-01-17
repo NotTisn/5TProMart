@@ -81,4 +81,19 @@ public class ProductAdapter implements IProductRepository {
 
         return dboPage.map(mapper::toDomain);
     }
+
+    @Override
+    public Long countAll() {
+        return productRepository.countAllProducts();
+    }
+
+    @Override
+    public Long countByTotalStockQuantityGreaterThan(Long threshold) {
+        return productRepository.countByTotalStockQuantityGreaterThan(threshold);
+    }
+
+    @Override
+    public Long countByTotalStockQuantityEquals(Long quantity) {
+        return productRepository.countByTotalStockQuantityEquals(quantity);
+    }
 }
