@@ -92,14 +92,14 @@ public class PromotionUseCase implements IPromotionUseCasePort {
         return mapper.toDto(saved);
     }
 
-//    @Override
-//    @Transactional
-//    public PromotionDto cancelPromotion(String promotionId) {
-//        Promotion promotion = promotionRepository.findById(promotionId)
-//                .orElseThrow(() -> new EntityNotFoundException("Promotion not found with ID: " + promotionId));
-//
-//        promotion.cancel();
-//        Promotion saved = promotionRepository.save(promotion);
-//        return mapper.toDto(saved);
-//    }
+    @Override
+    @Transactional
+    public PromotionDto cancelPromotion(String promotionId) {
+        Promotion promotion = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new EntityNotFoundException("Promotion not found with ID: " + promotionId));
+
+        promotion.cancel();
+        Promotion saved = promotionRepository.save(promotion);
+        return mapper.toDto(saved);
+    }
 }

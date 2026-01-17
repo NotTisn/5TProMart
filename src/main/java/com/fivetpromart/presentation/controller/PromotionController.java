@@ -173,23 +173,23 @@ public class PromotionController {
                 .build();
     }
 
-//    /**
-//     * 1.4 Cancel promotion
-//     * PUT /api/v1/promotions/{id}/cancel
-//     */
-//    @PutMapping("/{id}/cancel")
-//    public ApiResponse<PromotionResponse> cancelPromotion(@PathVariable String id) {
-//        PromotionDto dto = promotionUseCase.cancelPromotion(id);
-//
-//        PromotionResponse response = PromotionResponse.builder()
-//                .promotionId(dto.getPromotionId())
-//                .status(dto.getStatus())
-//                .build();
-//
-//        return ApiResponse.<PromotionResponse>builder()
-//                .success(true)
-//                .message("Promotion cancelled.")
-//                .data(response)
-//                .build();
-//    }
+    /**
+     * 1.4 Cancel promotion
+     * PUT /api/v1/promotions/{id}/cancel
+     */
+    @PutMapping("/{id}/cancel")
+    public ApiResponse<PromotionResponse> cancelPromotion(@PathVariable String id) {
+        PromotionDto dto = promotionUseCase.cancelPromotion(id);
+
+        PromotionResponse response = PromotionResponse.builder()
+                .promotionId(dto.getPromotionId())
+                .status(dto.getStatus())
+                .build();
+
+        return ApiResponse.<PromotionResponse>builder()
+                .success(true)
+                .message("Promotion cancelled.")
+                .data(response)
+                .build();
+    }
 }
