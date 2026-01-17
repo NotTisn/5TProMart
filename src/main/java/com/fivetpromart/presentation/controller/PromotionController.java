@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -38,6 +39,7 @@ public class PromotionController {
      * GET /api/v1/promotions
      */
     @GetMapping
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<List<PromotionResponse>> searchPromotions(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String type,
@@ -86,6 +88,7 @@ public class PromotionController {
      * GET /api/v1/promotions/{id}
      */
     @GetMapping("/{id}")
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<PromotionDetailResponse> getPromotionById(@PathVariable String id) {
         PromotionDto promotion = promotionUseCase.getPromotionById(id);
 
@@ -139,36 +142,37 @@ public class PromotionController {
                 .build();
     }
 
-//    /**
-//     * 1.3 Create Promotion
-//     * POST /api/v1/promotions
-//     */
-//    @PostMapping
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public ApiResponse<PromotionResponse> createPromotion(
-//            @Valid @RequestBody PromotionRequest request
-//    ) {
-//        PromotionCreationCommand command = mapper.toCommand(request);
-//        PromotionDto dto = promotionUseCase.createPromotion(command);
-//
-//        // Create simplified response for creation
-//        PromotionResponse response = PromotionResponse.builder()
-//                .promotionId(dto.getPromotionId())
-//                .promotionName(dto.getPromotionName())
-//                .promotionDescription(dto.getPromotionDescription())
-//                .status(dto.getStatus())
-//                .startDate(dto.getStartDate())
-//                .endDate(dto.getEndDate())
-//                .build();
-//
-//        return ApiResponse.<PromotionResponse>builder()
-//                .success(true)
-//                .statusCode(HttpStatus.CREATED.value())
-//                .message("Promotion created successfully.")
-//                .data(response)
-//                .build();
-//    }
-//
+    /**
+     * 1.3 Create Promotion
+     * POST /api/v1/promotions
+     */
+    @PostMapping
+    //@PreAuthorize("hasRole('Admin')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<PromotionResponse> createPromotion(
+            @Valid @RequestBody PromotionRequest request
+    ) {
+        PromotionCreationCommand command = mapper.toCommand(request);
+        PromotionDto dto = promotionUseCase.createPromotion(command);
+
+        // Create simplified response for creation
+        PromotionResponse response = PromotionResponse.builder()
+                .promotionId(dto.getPromotionId())
+                .promotionName(dto.getPromotionName())
+                .promotionDescription(dto.getPromotionDescription())
+                .status(dto.getStatus())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
+                .build();
+
+        return ApiResponse.<PromotionResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.CREATED.value())
+                .message("Promotion created successfully.")
+                .data(response)
+                .build();
+    }
+
 //    /**
 //     * 1.4 Cancel promotion
 //     * PUT /api/v1/promotions/{id}/cancel

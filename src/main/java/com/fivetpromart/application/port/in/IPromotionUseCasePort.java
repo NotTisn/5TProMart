@@ -9,6 +9,6 @@ import org.springframework.data.domain.Pageable;
 public interface IPromotionUseCasePort {
     Page<PromotionDto> searchPromotions(PromotionSearchQuery query, Pageable pageable);
     PromotionDto getPromotionById(String promotionId);
-//    PromotionDto createPromotion(PromotionCreationCommand command);
+    PromotionDto createPromotion(PromotionCreationCommand command);
 //    PromotionDto cancelPromotion(String promotionId);
 }
