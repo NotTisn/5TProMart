@@ -44,8 +44,7 @@ public class StockInventoryController {
      * GET /api/stock-inventories
      */
     @GetMapping
-    // Temporarily allow all authenticated users for testing
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'WarehouseStaff')")
     public ApiResponse<List<StockInventoryResponse>> searchStockInventories(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String productId,
@@ -94,7 +93,7 @@ public class StockInventoryController {
      * GET /api/stock-inventories/{id}
      */
     @GetMapping("/{id}")
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'WarehouseStaff')")
     public ApiResponse<StockInventoryResponse> getStockInventoryById(@PathVariable String id) {
         log.info("Getting stock inventory by ID: {}", id);
 
@@ -116,7 +115,7 @@ public class StockInventoryController {
      * POST /api/stock-inventories
      */
     @PostMapping
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'WarehouseStaff')")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<StockInventoryResponse> createStockInventory(
             @Valid @RequestBody StockInventoryRequest request
@@ -144,7 +143,7 @@ public class StockInventoryController {
      * PUT /api/stock-inventories/{lot_id}
      */
     @PutMapping("/{lot_id}")
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'WarehouseStaff')")
     public ApiResponse<StockInventoryResponse> updateStockInventory(
             @PathVariable("lot_id") String lotId,
             @Valid @RequestBody StockInventoryUpdateRequest request
@@ -176,7 +175,7 @@ public class StockInventoryController {
      * DELETE /api/stock-inventories/{id}
      */
     @DeleteMapping("/{id}")
-    // @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Admin')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteStockInventory(@PathVariable String id) {
         log.info("Deleting stock inventory: {}", id);
@@ -188,7 +187,7 @@ public class StockInventoryController {
      * POST /api/v1/stock_inventories/{lotId}/dispose
      */
     @PostMapping("/{lotId}/dispose")
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'WarehouseStaff')")
     public ApiResponse<DisposeLotResponse> disposeLot(
             @PathVariable String lotId,
             @Valid @RequestBody DisposeLotRequest request

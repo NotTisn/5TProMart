@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class SupplierController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<SupplierResponse> addNewSupplier (
             @Valid @RequestBody SupplierRequest request
     ) {
@@ -54,6 +56,7 @@ public class SupplierController {
 
     @PutMapping("/{supplierId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<SupplierResponse> updateSupplier (
             @PathVariable String supplierId,
             @Valid @RequestBody SupplierRequest request
@@ -75,6 +78,7 @@ public class SupplierController {
 
     @GetMapping("/{supplierId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'WarehouseStaff')")
     public ApiResponse<SupplierResponse> getSupplierById (
             @PathVariable String supplierId
     ) {
@@ -90,6 +94,7 @@ public class SupplierController {
 
     @DeleteMapping("/{supplierId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse deleteSupplierById (
             @PathVariable String supplierId
     ) {
@@ -104,6 +109,7 @@ public class SupplierController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'WarehouseStaff')")
     public ApiResponse<List<SupplierResponse>> getAllSuppliersByPage(
             // SEARCH: Tìm kiếm trong supplierName hoặc supplierId
             @RequestParam(required = false) String search,
@@ -151,6 +157,7 @@ public class SupplierController {
      */
     @GetMapping("/{supplierId}/products")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'WarehouseStaff')")
     public ApiResponse<List<SupplierProductResponse>> getSupplierProducts(
             @PathVariable String supplierId,
             @PageableDefault(size = 10) Pageable pageable

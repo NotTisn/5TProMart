@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class CustomerController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('Admin', 'SalesStaff')")
     public ApiResponse<CustomerResponse> addNewCustomer(
             @Valid @RequestBody CustomerRequest request
     ) {
@@ -45,6 +47,7 @@ public class CustomerController {
     }
 
     @PutMapping("/{customerId}") // 1. Quan trọng: Khai báo biến đường dẫn
+    @PreAuthorize("hasAnyRole('Admin', 'SalesStaff')")
     public ApiResponse<CustomerResponse> updateCustomer(
             @PathVariable String customerId, // 2. Hứng biến từ URL
             @Valid @RequestBody CustomerRequest request // 3. Hứng dữ liệu từ Body
@@ -72,6 +75,7 @@ public class CustomerController {
     }
 
     @DeleteMapping("/{customerId}")
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse deleteCustomer(
             @PathVariable String customerId
     ) {
@@ -83,6 +87,7 @@ public class CustomerController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff')")
     public ApiResponse<List<CustomerResponse>> getAllCustomers() {
         List<CustomerDto> customerDtos = customerUseCase.getAllCustomers();
 
@@ -99,6 +104,7 @@ public class CustomerController {
 
     @GetMapping("/{customerId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff')")
     public ApiResponse<CustomerResponse> getCustomerById(
             @PathVariable String customerId
     ) {
@@ -114,6 +120,7 @@ public class CustomerController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff')")
     public ApiResponse<List<CustomerResponse>> getAllCustomersByPage(
         @RequestParam(required = false) String customerName,
         @RequestParam(required = false) String customerId,

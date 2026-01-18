@@ -110,7 +110,7 @@ Required:
   "fullName": "string", // Required
   "email": "string", // Required, Unique
   "phoneNumber": "string",
-  "accountType": "string", // "Admin" || "SalesStaff" || "WarehouseStaff"
+  "accountType": "string", // Keycloak Role: "Admin" | "Manager" | "SalesStaff" | "WarehouseStaff"
   "dateOfBirth": "DD-MM-YYYY"
 }
 ```

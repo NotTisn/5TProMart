@@ -89,10 +89,14 @@ All commands run from project root:
 
 ## 👤 Test Users (Keycloak)
 
-| Username | Password | Roles |
-|----------|----------|-------|
-| admin | admin123 | ADMIN, USER |
-| testuser | test123 | USER |
+| Username | Password | Role | Description |
+|----------|----------|------|-------------|
+| `admin` | `admin123` | Admin | Full system access |
+| `manager` | `manager123` | Manager | Read access, reports |
+| `salesstaff` | `sales123` | SalesStaff | Orders, customers, POS |
+| `warehousestaff` | `warehouse123` | WarehouseStaff | Stock, inventory, suppliers |
+
+**⚠️ Important**: Role names are **PascalCase** and **case-sensitive** (`Admin` not `ADMIN`).
 
 ---
 
