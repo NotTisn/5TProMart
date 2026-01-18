@@ -49,6 +49,10 @@ public class Order {
     private BigDecimal changeReturned;
     private Long pointsEarned;
     private List<OrderItem> items;
+    
+    // Cash rounding fields (Vietnam retail standard)
+    private BigDecimal originalAmount;      // Original total before rounding
+    private BigDecimal roundingAdjustment;  // +/- rounding amount
 
     // =================================================================
     // 1. FACTORY: CREATE NEW ORDER (with Polymorphism)
@@ -141,6 +145,8 @@ public class Order {
             BigDecimal totalAmount,
             BigDecimal amountGiven,
             BigDecimal changeReturned,
+            BigDecimal originalAmount,
+            BigDecimal roundingAdjustment,
             Long pointsEarned,
             List<OrderItem> items
     ) {
@@ -154,6 +160,8 @@ public class Order {
         order.totalAmount = totalAmount;
         order.amountGiven = amountGiven;
         order.changeReturned = changeReturned;
+        order.originalAmount = originalAmount;
+        order.roundingAdjustment = roundingAdjustment;
         order.pointsEarned = pointsEarned;
         order.items = items != null ? new ArrayList<>(items) : new ArrayList<>();
         
@@ -207,6 +215,14 @@ public class Order {
         
         this.amountGiven = amountGiven;
         this.changeReturned = result.getChangeReturned();
+        
+        // Capture rounding details (for CASH payments)
+        if (result.getOriginalAmount() != null) {
+            this.originalAmount = result.getOriginalAmount();
+            this.roundingAdjustment = result.getRoundingAdjustment();
+            // Update totalAmount to rounded amount
+            this.totalAmount = result.getAmountPaid();
+        }
         
         log.info("Payment processed: {} - Change: {}", 
                 result.getPaymentMethod(), 
