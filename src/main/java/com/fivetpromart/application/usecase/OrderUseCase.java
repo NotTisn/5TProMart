@@ -12,11 +12,13 @@ import com.fivetpromart.application.port.in.IOrderUseCasePort;
 import com.fivetpromart.application.port.out.ICustomerRepository;
 import com.fivetpromart.application.port.out.IOrderRepository;
 import com.fivetpromart.application.port.out.IProductRepository;
+import com.fivetpromart.application.port.out.IPromotionRepository;
 import com.fivetpromart.application.port.out.IStockInventoryRepository;
 import com.fivetpromart.domain.exception.*;
 import com.fivetpromart.domain.model.Customer;
 import com.fivetpromart.domain.model.Order;
 import com.fivetpromart.domain.model.Product;
+import com.fivetpromart.domain.model.Promotion;
 import com.fivetpromart.domain.model.StockInventory;
 import com.fivetpromart.domain.model.strategy.discount.*;
 import com.fivetpromart.domain.model.strategy.notification.*;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -45,6 +48,7 @@ public class OrderUseCase implements IOrderUseCasePort {
     private final IStockInventoryRepository stockInventoryRepository;
     private final IProductRepository productRepository;
     private final ICustomerRepository customerRepository;
+    private final IPromotionRepository promotionRepository;
     private final OrderDataMapper mapper;
 
     @Override
@@ -98,8 +102,42 @@ public class OrderUseCase implements IOrderUseCasePort {
         // 5. Calculate subtotal
         BigDecimal unitPrice = product.getSellingPrice();
         BigDecimal subTotal = unitPrice.multiply(BigDecimal.valueOf(requestedQuantity));
+        
+        // 6. Check for active promotions on this product
+        CheckProductResultDto.PromotionInfo promotionInfo = null;
+        List<Promotion> activePromotions = promotionRepository.findActivePromotionsByProductId(product.getProductId());
+        
+        if (!activePromotions.isEmpty()) {
+            // Use the first active promotion (could be enhanced to pick "best" promotion)
+            Promotion promo = activePromotions.get(0);
+            
+            BigDecimal promotionalPrice = unitPrice;
+            BigDecimal savings = BigDecimal.ZERO;
+            
+            // Calculate promotional price based on promotion type
+            if ("Discount".equalsIgnoreCase(promo.getPromotionType()) && promo.getDiscountPercent() != null) {
+                // Percentage discount: e.g., 20% off
+                BigDecimal discountRate = BigDecimal.valueOf(promo.getDiscountPercent()).divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+                savings = unitPrice.multiply(discountRate).setScale(0, RoundingMode.HALF_UP);
+                promotionalPrice = unitPrice.subtract(savings);
+            }
+            // For "Buy X Get Y", we don't change unit price - frontend handles quantity-based logic
+            
+            promotionInfo = CheckProductResultDto.PromotionInfo.builder()
+                    .promotionId(promo.getPromotionId())
+                    .promotionName(promo.getPromotionName())
+                    .promotionType(promo.getPromotionType())
+                    .discountPercent(promo.getDiscountPercent())
+                    .buyQuantity(promo.getBuyQuantity())
+                    .getQuantity(promo.getGetQuantity())
+                    .promotionalPrice(promotionalPrice)
+                    .savings(savings)
+                    .build();
+            
+            log.info("Found active promotion '{}' for product '{}'", promo.getPromotionName(), product.getProductName());
+        }
 
-        // 6. Build result DTO
+        // 7. Build result DTO
         return CheckProductResultDto.builder()
                 .lotId(lot.getLotId())
                 .productId(product.getProductId())
@@ -110,6 +148,7 @@ public class OrderUseCase implements IOrderUseCasePort {
                 .subTotal(subTotal)
                 .currentStock(lot.getStockQuantity())
                 .status(lot.getStatus())
+                .promotion(promotionInfo)
                 .build();
     }
 

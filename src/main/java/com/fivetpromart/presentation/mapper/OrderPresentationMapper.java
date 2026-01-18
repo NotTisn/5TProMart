@@ -156,6 +156,22 @@ public class OrderPresentationMapper {
      */
     public CheckProductResponse toCheckProductResponse(CheckProductResultDto dto) {
         if (dto == null) return null;
+        
+        // Map promotion info if present
+        CheckProductResponse.PromotionInfo promotionInfo = null;
+        if (dto.getPromotion() != null) {
+            CheckProductResultDto.PromotionInfo srcPromo = dto.getPromotion();
+            promotionInfo = CheckProductResponse.PromotionInfo.builder()
+                    .promotionId(srcPromo.getPromotionId())
+                    .promotionName(srcPromo.getPromotionName())
+                    .promotionType(srcPromo.getPromotionType())
+                    .discountPercent(srcPromo.getDiscountPercent())
+                    .buyQuantity(srcPromo.getBuyQuantity())
+                    .getQuantity(srcPromo.getGetQuantity())
+                    .promotionalPrice(srcPromo.getPromotionalPrice())
+                    .savings(srcPromo.getSavings())
+                    .build();
+        }
 
         return CheckProductResponse.builder()
                 .lotId(dto.getLotId())
@@ -167,6 +183,7 @@ public class OrderPresentationMapper {
                 .subTotal(dto.getSubTotal())
                 .currentStock(dto.getCurrentStock())
                 .status(dto.getStatus())
+                .promotion(promotionInfo)
                 .build();
     }
 
