@@ -37,12 +37,12 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**", "/error", "/actuator/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/api/v1/signup/**", "/error", "/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
-                                .jwtAuthenticationConverter(jwtAuthConverter) // ✅ Apply custom converter
+                                .jwtAuthenticationConverter(jwtAuthConverter) // Apply custom converter
                         )
                 );
 
