@@ -15,6 +15,13 @@ public interface IStockInventoryRepository {
     void deleteById(String lotId);
     StockInventory save(StockInventory model);
     Optional<StockInventory> findById(String lotId);
+    
+    /**
+     * Find stock by lot ID with pessimistic write lock.
+     * Use this for stock reservation to prevent race conditions.
+     */
+    Optional<StockInventory> findByIdForUpdate(String lotId);
+    
     List<StockInventory> searchStockInventories(StockInventorySearchQuery query);
     Page<StockInventory> searchStockInventories(StockInventorySearchQuery query, Pageable pageable);
     

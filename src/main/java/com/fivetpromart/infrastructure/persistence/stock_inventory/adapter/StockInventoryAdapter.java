@@ -51,6 +51,12 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
     }
 
     @Override
+    public Optional<StockInventory> findByIdForUpdate(String lotId) {
+        return jpaRepository.findByIdForUpdate(lotId)
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public List<StockInventory> searchStockInventories(StockInventorySearchQuery query) {
         Specification<StockInventoryDbo> spec = StockInventorySpecification.getSpecification(query);
         Sort sort = buildSort(query);
