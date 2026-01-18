@@ -1,13 +1,17 @@
 package com.fivetpromart.presentation.controller;
 
+import com.fivetpromart.application.dto.DisposeLotResultDto;
 import com.fivetpromart.application.dto.StockInventoryDto;
+import com.fivetpromart.application.dto.command.DisposeLotCommand;
 import com.fivetpromart.application.dto.command.StockInventoryCreationCommand;
 import com.fivetpromart.application.dto.command.StockInventoryUpdateCommand;
 import com.fivetpromart.application.dto.query.StockInventorySearchQuery;
 import com.fivetpromart.application.port.in.IStockInventoryUseCasePort;
+import com.fivetpromart.presentation.dto.request.DisposeLotRequest;
 import com.fivetpromart.presentation.dto.request.StockInventoryRequest;
 import com.fivetpromart.presentation.dto.request.StockInventoryUpdateRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
+import com.fivetpromart.presentation.dto.response.DisposeLotResponse;
 import com.fivetpromart.presentation.dto.response.PaginationMeta;
 import com.fivetpromart.presentation.dto.response.StockInventoryResponse;
 import com.fivetpromart.presentation.mapper.StockInventoryPresentationMapper;
@@ -22,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -176,5 +181,51 @@ public class StockInventoryController {
     public void deleteStockInventory(@PathVariable String id) {
         log.info("Deleting stock inventory: {}", id);
         stockInventoryUseCase.deleteById(id);
+    }
+
+    /**
+     * 5.5 Dispose a lot of stock (expired/damaged)
+     * POST /api/v1/stock_inventories/{lotId}/dispose
+     */
+    @PostMapping("/{lotId}/dispose")
+    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    public ApiResponse<DisposeLotResponse> disposeLot(
+            @PathVariable String lotId,
+            @Valid @RequestBody DisposeLotRequest request
+    ) {
+        log.info("Disposing lot: {} with quantity: {}", lotId, request.getQuantity());
+
+        // Build command
+        DisposeLotCommand command = DisposeLotCommand.builder()
+                .lotId(lotId)
+                .quantity(request.getQuantity())
+                .reason(request.getReason())
+                .notes(request.getNotes())
+                .staffId(request.getStaffId())
+                .build();
+
+        // Call use case
+        DisposeLotResultDto resultDto = stockInventoryUseCase.disposeLot(command);
+
+        // Map to response
+        DisposeLotResponse response = DisposeLotResponse.builder()
+                .disposalId(resultDto.getDisposalId())
+                .lotId(resultDto.getLotId())
+                .productId(resultDto.getProductId())
+                .productName(resultDto.getProductName())
+                .quantityDisposed(resultDto.getQuantityDisposed())
+                .remainingLotQuantity(resultDto.getRemainingLotQuantity())
+                .productTotalStock(resultDto.getProductTotalStock())
+                .disposedAt(resultDto.getDisposedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .disposedBy(resultDto.getDisposedBy())
+                .reason(resultDto.getReason())
+                .notes(resultDto.getNotes())
+                .build();
+
+        return ApiResponse.<DisposeLotResponse>builder()
+                .success(true)
+                .message("Lot disposed successfully")
+                .data(response)
+                .build();
     }
 }

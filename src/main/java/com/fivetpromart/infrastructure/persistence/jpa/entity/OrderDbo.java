@@ -52,6 +52,13 @@ public class OrderDbo {
 
     @Column(name = "change_returned", precision = 15, scale = 2, nullable = false)
     private BigDecimal changeReturned;
+    
+    // Cash rounding fields (Vietnam retail standard)
+    @Column(name = "original_amount", precision = 15, scale = 2)
+    private BigDecimal originalAmount;
+    
+    @Column(name = "rounding_adjustment", precision = 15, scale = 2)
+    private BigDecimal roundingAdjustment;
 
     @Column(name = "points_earned", nullable = false)
     private Long pointsEarned;

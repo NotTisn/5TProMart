@@ -22,7 +22,9 @@ public class OrderDto {
     private String status;
     private BigDecimal subTotal;
     private BigDecimal discountAmount;
-    private BigDecimal totalAmount;
+    private BigDecimal originalAmount;      // Total before rounding (for cash payments)
+    private BigDecimal roundingAdjustment;  // Rounding amount (positive = rounded up, negative = rounded down)
+    private BigDecimal totalAmount;         // Final total after rounding
     private BigDecimal amountGiven;
     private BigDecimal changeReturned;
     private Long pointsEarned;

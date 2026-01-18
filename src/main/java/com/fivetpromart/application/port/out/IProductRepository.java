@@ -18,4 +18,9 @@ public interface IProductRepository {
     boolean existsByProductName(String name);
     void delete(Product product);
     Page<Product> searchProducts(ProductSearchQuery query, Pageable pageable);
+    
+    // Stats methods
+    Long countAll();
+    Long countByTotalStockQuantityGreaterThan(Long threshold);
+    Long countByTotalStockQuantityEquals(Long quantity);
 }

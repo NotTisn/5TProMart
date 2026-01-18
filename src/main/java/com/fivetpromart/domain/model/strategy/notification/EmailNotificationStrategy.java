@@ -5,7 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Email Notification Strategy
- * Sends notifications via email
+ * 
+ * IMPLEMENTATION STATUS: LOGGING ONLY
+ * This strategy currently logs notifications instead of sending actual emails.
+ * To integrate real email, inject a mail service (Spring Mail, SendGrid, etc.)
+ * through constructor injection and call it in the notify methods.
+ * 
+ * The Strategy Pattern is correctly implemented - just swap this for a real
+ * implementation when ready.
  */
 @Slf4j
 public class EmailNotificationStrategy implements NotificationStrategy {
@@ -26,7 +33,8 @@ public class EmailNotificationStrategy implements NotificationStrategy {
             return;
         }
         
-        // TODO: Implement actual email sending logic
+        // PLACEHOLDER: Logs instead of sending email
+        // Future: Inject MailService and call mailService.send(to, subject, body)
         log.info("📧 [EMAIL] Sending order created notification for order: {}", order.getOrderId());
         log.info("   To: Customer ID: {}", order.getCustomerId());
         log.info("   Subject: Order Confirmation - {}", order.getOrderId());

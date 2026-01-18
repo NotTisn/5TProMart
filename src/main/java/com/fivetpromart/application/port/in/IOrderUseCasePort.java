@@ -1,7 +1,9 @@
 package com.fivetpromart.application.port.in;
 
+import com.fivetpromart.application.dto.CancelOrderResultDto;
 import com.fivetpromart.application.dto.CheckProductResultDto;
 import com.fivetpromart.application.dto.OrderDto;
+import com.fivetpromart.application.dto.command.CancelOrderCommand;
 import com.fivetpromart.application.dto.command.CheckProductCommand;
 import com.fivetpromart.application.dto.command.OrderCreationCommand;
 import com.fivetpromart.application.dto.query.OrderSearchQuery;
@@ -28,4 +30,9 @@ public interface IOrderUseCasePort {
      * Create order (checkout)
      */
     OrderDto createOrder(OrderCreationCommand command);
+
+    /**
+     * Cancel an order
+     */
+    CancelOrderResultDto cancelOrder(CancelOrderCommand command);
 }

@@ -1,6 +1,8 @@
 package com.fivetpromart.application.port.in;
 
+import com.fivetpromart.application.dto.DisposeLotResultDto;
 import com.fivetpromart.application.dto.StockInventoryDto;
+import com.fivetpromart.application.dto.command.DisposeLotCommand;
 import com.fivetpromart.application.dto.command.StockInventoryCreationCommand;
 import com.fivetpromart.application.dto.command.StockInventoryUpdateCommand;
 import com.fivetpromart.application.dto.query.StockInventorySearchQuery;
@@ -34,4 +36,9 @@ public interface IStockInventoryUseCasePort {
      * Delete stock inventory
      */
     void deleteById(String lotId);
+
+    /**
+     * Dispose a lot (mark as disposed, deduct quantity)
+     */
+    DisposeLotResultDto disposeLot(DisposeLotCommand command);
 }

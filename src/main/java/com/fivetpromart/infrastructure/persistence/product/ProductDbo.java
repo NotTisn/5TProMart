@@ -3,12 +3,19 @@ package com.fivetpromart.infrastructure.persistence.product;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable; // Quan trọng để tối ưu insert
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "products")
+@EntityListeners(AuditingEntityListener.class) // NEW: Enable JPA auditing
 @Getter
 @Setter
 @Builder
@@ -34,7 +41,36 @@ public class ProductDbo {
     BigDecimal sellingPrice;
 
     @Column(name = "total_stock_quantity")
-    private Integer totalStockQuantity;
+    private Long totalStockQuantity;
+    // ============================================================================
+    // AUDIT FIELDS (NEW)
+    // ============================================================================
+    
+    @CreatedBy
+    @Column(name = "created_by", updatable = false)
+    String createdBy;
+    
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    LocalDateTime createdAt;
+    
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    String updatedBy;
+    
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    LocalDateTime updatedAt;
+
+    // ============================================================================
+    // SOFT DELETE FIELDS (NEW)
+    // ============================================================================
+    
+    @Column(name = "deleted_at")
+    LocalDateTime deletedAt;
+    
+    @Column(name = "deleted_by")
+    String deletedBy;
 
 //    @Transient
 //    @Builder.Default

@@ -29,27 +29,21 @@ public class StaffController {
 
     private final StaffUseCase staffUseCase;
     private final StaffPresentationMapper mapper;
-
-    // TODO: Add security annotation - only Admin can access
-    // TODO: @PreAuthorize("hasRole('Admin')")
     
     @GetMapping
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
     public ApiResponse<List<StaffResponse>> getAllStaff(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String accountType,
             @PageableDefault(size = 10, sort = "fullName") Pageable pageable
     ) {
-        // TODO: Map query parameters to StaffSearchQuery
         StaffSearchQuery query = StaffSearchQuery.builder()
                 .search(search)
                 .accountType(accountType)
                 .build();
 
-        // TODO: Call use case
         Page<StaffAccountDto> pageResult = staffUseCase.getAllStaff(query, pageable);
 
-        // TODO: Map to response
         List<StaffResponse> responses = pageResult.getContent().stream()
                 .map(mapper::toResponse)
                 .toList();
@@ -71,11 +65,10 @@ public class StaffController {
     }
 
     @GetMapping("/{staffId}")
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
     public ApiResponse<StaffResponse> getStaffById(
             @PathVariable String staffId
     ) {
-        // TODO: Call use case
         StaffAccountDto dto = staffUseCase.getStaffById(staffId);
 
         return ApiResponse.<StaffResponse>builder()
@@ -87,14 +80,11 @@ public class StaffController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<StaffResponse> createStaff(
             @Valid @RequestBody StaffRequest request
     ) {
-        // TODO: Map request to command
         StaffCreationCommand command = mapper.toCreateCommand(request);
-
-        // TODO: Call use case
         StaffAccountDto dto = staffUseCase.createStaffAccount(command);
 
         return ApiResponse.<StaffResponse>builder()
@@ -106,15 +96,12 @@ public class StaffController {
     }
 
     @PutMapping("/{staffId}")
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<StaffResponse> updateStaff(
             @PathVariable String staffId,
             @Valid @RequestBody StaffUpdateRequest request
     ) {
-        // TODO: Map request to command
         StaffUpdateCommand command = mapper.toUpdateCommand(request);
-
-        // TODO: Call use case
         StaffAccountDto dto = staffUseCase.updateStaffAccount(staffId, command);
 
         return ApiResponse.<StaffResponse>builder()
@@ -126,11 +113,10 @@ public class StaffController {
     }
 
     @DeleteMapping("/{staffId}")
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<Void> deleteStaff(
             @PathVariable String staffId
     ) {
-        // TODO: Call use case
         staffUseCase.deleteStaffById(staffId);
 
         return ApiResponse.<Void>builder()

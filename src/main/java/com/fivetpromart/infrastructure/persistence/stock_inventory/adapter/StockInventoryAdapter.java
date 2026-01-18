@@ -14,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,6 +51,12 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
     }
 
     @Override
+    public Optional<StockInventory> findByIdForUpdate(String lotId) {
+        return jpaRepository.findByIdForUpdate(lotId)
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public List<StockInventory> searchStockInventories(StockInventorySearchQuery query) {
         Specification<StockInventoryDbo> spec = StockInventorySpecification.getSpecification(query);
         Sort sort = buildSort(query);
@@ -80,5 +88,35 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
                 : Sort.Direction.ASC;
 
         return Sort.by(direction, sortBy);
+    }
+
+    @Override
+    public Long getTotalStockByProductId(String productId) {
+        return jpaRepository.sumStockQuantityByProductId(productId);
+    }
+
+    @Override
+    public Long countByStockQuantityLessThan(Long threshold) {
+        return jpaRepository.countByStockQuantityLessThan(threshold);
+    }
+
+    @Override
+    public Long countByStockQuantityEquals(Long quantity) {
+        return jpaRepository.countByStockQuantity(quantity);
+    }
+
+    @Override
+    public Long countByExpirationDateBefore(LocalDate date) {
+        return jpaRepository.countByExpirationDateBefore(date);
+    }
+
+    @Override
+    public Long countByExpirationDateBetween(LocalDate startDate, LocalDate endDate) {
+        return jpaRepository.countByExpirationDateBetween(startDate, endDate);
+    }
+
+    @Override
+    public BigDecimal calculateTotalInventoryValue() {
+        return jpaRepository.calculateTotalInventoryValue();
     }
 }

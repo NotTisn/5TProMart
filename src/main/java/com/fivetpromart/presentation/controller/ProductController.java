@@ -1,6 +1,7 @@
 package com.fivetpromart.presentation.controller;
 
 import com.fivetpromart.application.dto.ProductDto;
+import com.fivetpromart.application.dto.ProductStatsDto;
 import com.fivetpromart.application.dto.command.ProductCreationCommand;
 import com.fivetpromart.application.dto.command.ProductUpdateCommand;
 import com.fivetpromart.application.dto.query.ProductSearchQuery;
@@ -9,6 +10,7 @@ import com.fivetpromart.presentation.dto.request.ProductRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
 import com.fivetpromart.presentation.dto.response.PaginationMeta;
 import com.fivetpromart.presentation.dto.response.ProductResponse;
+import com.fivetpromart.presentation.dto.response.ProductStatsResponse;
 import com.fivetpromart.presentation.mapper.ProductPresentationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -130,6 +132,34 @@ public class ProductController {
                 .statusCode(200)
                 .message("Get products successfully")
                 .data(mapper.toProductResponse(product))
+                .build();
+    }
+
+    /**
+     * Get product and inventory statistics for dashboard
+     * GET /api/v1/products/stats
+     */
+    @GetMapping("/stats")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ProductStatsResponse> getProductStats() {
+        ProductStatsDto statsDto = productUseCase.getProductStats();
+
+        ProductStatsResponse response = ProductStatsResponse.builder()
+                .totalProducts(statsDto.getTotalProducts())
+                .activeProducts(statsDto.getActiveProducts())
+                .inactiveProducts(statsDto.getInactiveProducts())
+                .totalInventoryValue(statsDto.getTotalInventoryValue())
+                .lowStockCount(statsDto.getLowStockCount())
+                .outOfStockCount(statsDto.getOutOfStockCount())
+                .expiringSoonCount(statsDto.getExpiringSoonCount())
+                .expiredCount(statsDto.getExpiredCount())
+                .build();
+
+        return ApiResponse.<ProductStatsResponse>builder()
+                .success(true)
+                .statusCode(200)
+                .message("Get product statistics successfully")
+                .data(response)
                 .build();
     }
 }
