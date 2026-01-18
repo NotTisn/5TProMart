@@ -9,6 +9,9 @@ import java.util.List;
 
 public class ProductSpecification {
 
+    /** Low stock threshold - same as ProductUseCase */
+    private static final Long LOW_STOCK_THRESHOLD = 10L;
+
     public static Specification<ProductDbo> getSpec(ProductSearchQuery query) {
         return (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -33,6 +36,27 @@ public class ProductSpecification {
                         criteriaBuilder.lower(root.get("productName")),
                         "%" + query.getProductName().toLowerCase() + "%"
                 ));
+            }
+
+            // 4. Stock Level Filter (for stats drill-down)
+            if (query.getStockLevel() != null && !query.getStockLevel().isBlank()) {
+                switch (query.getStockLevel().toLowerCase()) {
+                    case "low":
+                        // Products with stock > 0 and < threshold
+                        predicates.add(criteriaBuilder.greaterThan(root.get("totalStockQuantity"), 0L));
+                        predicates.add(criteriaBuilder.lessThan(root.get("totalStockQuantity"), LOW_STOCK_THRESHOLD));
+                        break;
+                    case "out":
+                        // Products with zero stock
+                        predicates.add(criteriaBuilder.equal(root.get("totalStockQuantity"), 0L));
+                        break;
+                    // Note: "expiring-soon" and "expired" require batch-level data
+                    // These would need a subquery or join to StockInventory
+                    // For MVP, we filter at product level based on totalStockQuantity
+                    default:
+                        // Unknown stock level, ignore
+                        break;
+                }
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
