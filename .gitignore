@@ -38,6 +38,9 @@ infrastructure/data/
 _output.txt
 *.log
 
+### Java upgrade logs ###
+.github/java-upgrade/
+
 ### env
 .env
 pom.xml
