@@ -81,4 +81,11 @@ public class ProductAdapter implements IProductRepository {
 
         return dboPage.map(mapper::toDomain);
     }
+
+    @Override
+    public Integer calculateTotalStockQuantity(String productId) {
+        // Sum all lot quantities for this product
+        Integer total = productRepository.calculateTotalStockQuantity(productId);
+        return total != null ? total : 0;
+    }
 }

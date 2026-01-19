@@ -112,4 +112,19 @@ public class ProductUseCase implements IProductUseCasePort {
 
         return mapper.toDto(product);
     }
+
+    /**
+     * Update product's total stock quantity by summing all lot quantities
+     */
+    @Transactional
+    public void updateTotalStockQuantity(String productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        // Calculate total stock from all lots for this product
+        Integer totalStock = productRepository.calculateTotalStockQuantity(productId);
+        
+        product.updateTotalStockQuantity(totalStock);
+        productRepository.save(product);
+    }
 }
