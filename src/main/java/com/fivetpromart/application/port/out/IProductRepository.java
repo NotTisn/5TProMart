@@ -18,4 +18,5 @@ public interface IProductRepository {
     boolean existsByProductName(String name);
     void delete(Product product);
     Page<Product> searchProducts(ProductSearchQuery query, Pageable pageable);
+    Integer calculateTotalStockQuantity(String productId);
 }
