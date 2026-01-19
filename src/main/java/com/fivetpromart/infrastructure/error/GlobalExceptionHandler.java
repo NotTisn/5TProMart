@@ -305,6 +305,53 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+  // ============================================================================
+  // STOCK RESERVATION EXCEPTION HANDLERS (NEW)
+  // ============================================================================
+
+  @ExceptionHandler(InsufficientStockException.class)
+  public ResponseEntity<ApiResponse> handleInsufficientStock(InsufficientStockException ex) {
+    log.warn("Insufficient stock: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(InvalidStockReservationException.class)
+  public ResponseEntity<ApiResponse> handleInvalidStockReservation(InvalidStockReservationException ex) {
+    log.warn("Invalid stock reservation: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(StockInventoryNotFoundException.class)
+  public ResponseEntity<ApiResponse> handleStockInventoryNotFound(StockInventoryNotFoundException ex) {
+    log.warn("Stock inventory not found: {}", ex.getMessage());
+    
+    ApiResponse response = ApiResponse.builder()
+            .success(false)
+            .statusCode(HttpStatus.NOT_FOUND.value())
+            .message(ex.getMessage())
+            .build();
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  // ============================================================================
+  // GENERIC APP EXCEPTION HANDLERS
+  // ============================================================================
+
   @ExceptionHandler(value = AppException.class)
   ResponseEntity<ApiResponse> handleAppException(AppException ex) {
     ErrorCode errorCode = ex.getErrorCode();

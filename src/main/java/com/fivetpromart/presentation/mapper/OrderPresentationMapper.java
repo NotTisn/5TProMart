@@ -142,6 +142,8 @@ public class OrderPresentationMapper {
         return OrderCreationResponse.builder()
                 .orderId(dto.getOrderId())
                 .orderDate(formatDateTime(dto.getOrderDate()))
+                .originalAmount(dto.getOriginalAmount())
+                .roundingAdjustment(dto.getRoundingAdjustment())
                 .totalAmount(dto.getTotalAmount())
                 .changeReturned(dto.getChangeReturned())
                 .pointsEarned(dto.getPointsEarned())

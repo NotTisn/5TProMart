@@ -15,6 +15,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Converts Keycloak JWT tokens to Spring Security authentication tokens.
+ * 
+ * Role Extraction Priority:
+ * 1. realm_access.roles (standard Keycloak realm roles) - PRIMARY
+ * 2. resource_access.{client-id}.roles (client-specific roles)
+ * 3. account_type claim (if custom protocol mapper is configured)
+ * 
+ * Expected Roles (PascalCase, must match Keycloak realm configuration):
+ * - Admin: Full system access
+ * - Manager: Read access, limited write
+ * - SalesStaff: Order and customer operations
+ * - WarehouseStaff: Inventory and stock operations
+ */
 @Slf4j
 @Component
 public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
@@ -29,48 +43,38 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
                 extractResourceRoles(jwt).stream()
         ).collect(Collectors.toSet());
 
-        log.info("JWT Claims: {}", jwt.getClaims());
-        log.info("Extracted Authorities: {}", authorities);
+        log.debug("JWT Claims: {}", jwt.getClaims());
+        log.debug("Extracted Authorities: {}", authorities);
 
-        // ✅ Extract principal name (staffId) from JWT
         String principalName = extractPrincipalName(jwt);
-        log.info("Principal Name (staffId): {}", principalName);
+        log.debug("Principal Name: {}", principalName);
 
-        // ✅ Create JwtAuthenticationToken with custom principal name
         return new JwtAuthenticationToken(jwt, authorities, principalName);
     }
 
     /**
-     * ✅ Extract principal name to use as staffId
+     * Extract principal name to use as user identifier.
      * Priority: sub (Keycloak UUID) > preferred_username > email
      */
     private String extractPrincipalName(Jwt jwt) {
-        // Option 1: Dùng Keycloak User ID (UUID) từ "sub"
+        // Primary: Keycloak User ID (UUID) from "sub" claim
         String sub = jwt.getSubject();
         if (sub != null && !sub.isEmpty()) {
-            log.info("Using 'sub' as staffId: {}", sub);
             return sub;
         }
 
-        // Option 2: Fallback to preferred_username
+        // Fallback: preferred_username
         String preferredUsername = jwt.getClaimAsString("preferred_username");
         if (preferredUsername != null && !preferredUsername.isEmpty()) {
-            log.info("Using 'preferred_username' as staffId: {}", preferredUsername);
+            log.debug("Using 'preferred_username' as principal: {}", preferredUsername);
             return preferredUsername;
         }
 
-        // Option 3: Fallback to email
+        // Fallback: email
         String email = jwt.getClaimAsString("email");
         if (email != null && !email.isEmpty()) {
-            log.info("Using 'email' as staffId: {}", email);
+            log.debug("Using 'email' as principal: {}", email);
             return email;
-        }
-
-        // Option 4: Custom claim (nếu bạn config trong Keycloak)
-        String staffId = jwt.getClaimAsString("staff_id");
-        if (staffId != null && !staffId.isEmpty()) {
-            log.info("Using 'staff_id' claim: {}", staffId);
-            return staffId;
         }
 
         log.warn("Cannot extract principal name from JWT, using 'sub' as default");
@@ -78,36 +82,38 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
     }
 
     /**
-     * Extract roles from Keycloak JWT token
-     * Keycloak stores roles in: realm_access.roles or resource_access.{client-id}.roles
+     * Extract roles from Keycloak JWT token.
+     * 
+     * Keycloak stores roles in:
+     * - realm_access.roles (realm-level roles)
+     * - resource_access.{client-id}.roles (client-level roles)
+     * 
+     * Roles are converted to Spring Security authorities with "ROLE_" prefix.
+     * Example: "Admin" -> "ROLE_Admin"
      */
     private Collection<GrantedAuthority> extractResourceRoles(Jwt jwt) {
-        log.info("Extracting roles from JWT...");
-
-        // Try to get realm_access roles first
+        // Priority 1: realm_access.roles (standard Keycloak realm roles)
         Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-        log.info("realm_access claim: {}", realmAccess);
-
         if (realmAccess != null && realmAccess.containsKey("roles")) {
+            @SuppressWarnings("unchecked")
             Collection<String> realmRoles = (Collection<String>) realmAccess.get("roles");
-            log.info("Found realm roles: {}", realmRoles);
+            log.debug("Found realm roles: {}", realmRoles);
             return realmRoles.stream()
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                     .collect(Collectors.toSet());
         }
 
-        // Try to get resource_access roles (if realm_access not found)
+        // Priority 2: resource_access.{client-id}.roles
         Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
-        log.info("resource_access claim: {}", resourceAccess);
-
         if (resourceAccess != null) {
-            // Get the first client's roles
             for (Object clientRoles : resourceAccess.values()) {
                 if (clientRoles instanceof Map) {
+                    @SuppressWarnings("unchecked")
                     Map<String, Object> clientRolesMap = (Map<String, Object>) clientRoles;
                     if (clientRolesMap.containsKey("roles")) {
+                        @SuppressWarnings("unchecked")
                         Collection<String> roles = (Collection<String>) clientRolesMap.get("roles");
-                        log.info("Found resource roles: {}", roles);
+                        log.debug("Found resource roles: {}", roles);
                         return roles.stream()
                                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                                 .collect(Collectors.toSet());
@@ -116,17 +122,18 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
             }
         }
 
-        // Also check for account_type claim (from your database)
+        // Priority 3: account_type claim (requires custom Keycloak protocol mapper)
+        // NOTE: This is a fallback for future use. To enable:
+        // 1. Add a "User Attribute" protocol mapper in Keycloak
+        // 2. Map user attribute "accountType" to token claim "account_type"
         String accountType = jwt.getClaim("account_type");
-        log.info("account_type claim: {}", accountType);
-
         if (accountType != null) {
-            log.info("Using account_type as role: {}", accountType);
+            log.debug("Using account_type as role: {}", accountType);
             return Stream.of(new SimpleGrantedAuthority("ROLE_" + accountType))
                     .collect(Collectors.toList());
         }
 
-        log.warn("No roles found in JWT token!");
+        log.warn("No roles found in JWT token! User will have no authorities.");
         return Stream.<GrantedAuthority>empty().collect(Collectors.toSet());
     }
 }

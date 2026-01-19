@@ -66,3 +66,22 @@ notification:
     brevo-apikey: ${BREVO_API_KEY}
     sender-email: tinvo2005@gmail.com
     sender-name: FiveTProMart Corp.
+
+# --- BUSINESS RULES CONFIGURATION ---
+# Cash payment rounding (Vietnam retail standard)
+payment:
+  cash:
+    rounding-unit: 1000        # Round to nearest 1,000 VND
+    rounding-mode: HALF_UP     # 500 rounds up, 499 rounds down
+    
+# Product & inventory rules  
+inventory:
+  low-stock-threshold: 10      # Products with stock < 10 are "low stock"
+  expiry-warning-days: 30      # Flag lots expiring within 30 days
+
+# --- DEVELOPMENT SECURITY BYPASS ---
+# Set to true to grant all roles to authenticated users (disables role-based authorization)
+# Useful for endpoint testing without role restrictions
+# WARNING: Never enable in production environments
+security:
+  bypass-enabled: ${SECURITY_BYPASS:false}

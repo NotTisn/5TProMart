@@ -2,25 +2,33 @@
   "realm": "fivetpro",
   "enabled": true,
   "displayName": "FiveTProMart",
-  "registrationAllowed": true,
+  "registrationAllowed": false,
   "resetPasswordAllowed": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "verifyEmail": false,
   "sslRequired": "none",
-  "accessTokenLifespan": 3600,
+  "accessTokenLifespan": 1800,
   "refreshTokenMaxReuse": 0,
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 36000,
   "roles": {
     "realm": [
       {
-        "name": "USER",
-        "description": "Regular user role"
+        "name": "Admin",
+        "description": "Administrator - Full system access, can manage staff, settings, and all operations"
       },
       {
-        "name": "ADMIN",
-        "description": "Administrator role"
+        "name": "Manager",
+        "description": "Store Manager - Can view staff, manage inventory, view reports, but cannot manage other admins"
+      },
+      {
+        "name": "SalesStaff",
+        "description": "Sales Staff - Can process orders, handle customers, view products"
+      },
+      {
+        "name": "WarehouseStaff",
+        "description": "Warehouse Staff - Can manage inventory, stock, receive purchase orders"
       }
     ]
   },
@@ -41,11 +49,13 @@
       "directAccessGrantsEnabled": true,
       "redirectUris": [
         "http://localhost:8080/*",
-        "http://localhost:3000/*"
+        "http://localhost:3000/*",
+        "http://localhost:5173/*"
       ],
       "webOrigins": [
         "http://localhost:8080",
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "http://localhost:5173"
       ],
       "defaultClientScopes": [
         "web-origins",
@@ -68,9 +78,9 @@
       "email": "admin@fivetpromart.com",
       "emailVerified": true,
       "enabled": true,
-      "firstName": "Admin",
-      "lastName": "FiveTProMart",
-      "realmRoles": ["ADMIN", "USER"],
+      "firstName": "System",
+      "lastName": "Administrator",
+      "realmRoles": ["Admin"],
       "credentials": [
         {
           "type": "password",
@@ -80,17 +90,49 @@
       ]
     },
     {
-      "username": "testuser",
-      "email": "testuser@fivetpromart.com",
+      "username": "manager",
+      "email": "manager@fivetpromart.com",
       "emailVerified": true,
       "enabled": true,
-      "firstName": "Test",
-      "lastName": "User",
-      "realmRoles": ["USER"],
+      "firstName": "Store",
+      "lastName": "Manager",
+      "realmRoles": ["Manager"],
       "credentials": [
         {
           "type": "password",
-          "value": "test123",
+          "value": "manager123",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "salesstaff",
+      "email": "sales@fivetpromart.com",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Sales",
+      "lastName": "Staff",
+      "realmRoles": ["SalesStaff"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "sales123",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "warehousestaff",
+      "email": "warehouse@fivetpromart.com",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Warehouse",
+      "lastName": "Staff",
+      "realmRoles": ["WarehouseStaff"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "warehouse123",
           "temporary": false
         }
       ]
@@ -99,7 +141,7 @@
   "scopeMappings": [
     {
       "client": "fivetpro",
-      "roles": ["USER", "ADMIN"]
+      "roles": ["Admin", "Manager", "SalesStaff", "WarehouseStaff"]
     }
   ],
   "clientScopeMappings": {},

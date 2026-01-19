@@ -1,6 +1,7 @@
 package com.fivetpromart.application.port.in;
 
 import com.fivetpromart.application.dto.ProductDto;
+import com.fivetpromart.application.dto.ProductStatsDto;
 import com.fivetpromart.application.dto.command.ProductCreationCommand;
 import com.fivetpromart.application.dto.command.ProductUpdateCommand;
 import com.fivetpromart.application.dto.query.ProductSearchQuery;
@@ -19,4 +20,9 @@ public interface IProductUseCasePort {
     Page<ProductDto> getAllProducts(ProductSearchQuery query, Pageable pageable);
 
     ProductDto getProductById(String productId);
+
+    /**
+     * Get product and inventory statistics for dashboard
+     */
+    ProductStatsDto getProductStats();
 }

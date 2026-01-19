@@ -19,6 +19,8 @@ public class OrderDataMapper {
                 .status(order.getStatus())
                 .subTotal(order.getSubTotal())
                 .discountAmount(order.getDiscountAmount())
+                .originalAmount(order.getOriginalAmount())
+                .roundingAdjustment(order.getRoundingAdjustment())
                 .totalAmount(order.getTotalAmount())
                 .amountGiven(order.getAmountGiven())
                 .changeReturned(order.getChangeReturned())

@@ -5,7 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * SMS Notification Strategy
- * Sends notifications via SMS
+ * 
+ * IMPLEMENTATION STATUS: LOGGING ONLY
+ * This strategy currently logs notifications instead of sending actual SMS.
+ * To integrate real SMS, inject an SMS gateway service (Twilio, AWS SNS, etc.)
+ * through constructor injection and call it in the notify methods.
+ * 
+ * The Strategy Pattern is correctly implemented - just swap this for a real
+ * implementation when ready.
  */
 @Slf4j
 public class SmsNotificationStrategy implements NotificationStrategy {
@@ -26,7 +33,8 @@ public class SmsNotificationStrategy implements NotificationStrategy {
             return;
         }
         
-        // TODO: Implement actual SMS sending logic
+        // PLACEHOLDER: Logs instead of sending SMS
+        // Future: Inject SmsGateway and call smsGateway.send(phone, message)
         log.info("📱 [SMS] Sending order created notification for order: {}", order.getOrderId());
         log.info("   Message: Your order {} has been confirmed. Total: {} VND", 
                 order.getOrderId(), order.getTotalAmount());

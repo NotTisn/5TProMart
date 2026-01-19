@@ -5,6 +5,8 @@ import com.fivetpromart.domain.model.StockInventory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +15,21 @@ public interface IStockInventoryRepository {
     void deleteById(String lotId);
     StockInventory save(StockInventory model);
     Optional<StockInventory> findById(String lotId);
+    
+    /**
+     * Find stock by lot ID with pessimistic write lock.
+     * Use this for stock reservation to prevent race conditions.
+     */
+    Optional<StockInventory> findByIdForUpdate(String lotId);
+    
     List<StockInventory> searchStockInventories(StockInventorySearchQuery query);
     Page<StockInventory> searchStockInventories(StockInventorySearchQuery query, Pageable pageable);
+    
+    // Stats methods
+    Long getTotalStockByProductId(String productId);
+    Long countByStockQuantityLessThan(Long threshold);
+    Long countByStockQuantityEquals(Long quantity);
+    Long countByExpirationDateBefore(LocalDate date);
+    Long countByExpirationDateBetween(LocalDate startDate, LocalDate endDate);
+    BigDecimal calculateTotalInventoryValue();
 }

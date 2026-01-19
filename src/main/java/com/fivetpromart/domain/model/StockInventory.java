@@ -18,6 +18,7 @@ public class StockInventory {
     private LocalDate manufactureDate;
     private LocalDate expirationDate;
     private Long stockQuantity;
+    private Long reservedQuantity; // NEW: Track how much is currently reserved
     private BigDecimal importPrice;
     private String status;
 
@@ -41,6 +42,7 @@ public class StockInventory {
         stockInventory.manufactureDate = manufactureDate;
         stockInventory.expirationDate = expirationDate;
         stockInventory.stockQuantity = stockQuantity;
+        stockInventory.reservedQuantity = 0L; // NEW: Initialize reserved to 0
         stockInventory.importPrice = importPrice;
         stockInventory.status = "";
 
@@ -52,7 +54,8 @@ public class StockInventory {
             String productId,
             LocalDate manufactureDate,
             LocalDate expirationDate,
-            Long stockQuantity,
+            Long stockQuantity, // FIXED: Restore stockQuantity parameter
+            Long reservedQuantity, // NEW: Add reserved quantity
             BigDecimal importPrice,
             String status
     ) {
@@ -62,6 +65,7 @@ public class StockInventory {
         stockInventory.manufactureDate = manufactureDate;
         stockInventory.expirationDate = expirationDate;
         stockInventory.stockQuantity = stockQuantity;
+        stockInventory.reservedQuantity = reservedQuantity != null ? reservedQuantity : 0L; // NEW: Default to 0
         stockInventory.importPrice = importPrice;
         stockInventory.status = status;
         return stockInventory;
@@ -102,5 +106,59 @@ public class StockInventory {
         }
 
         return true;
+    }
+    
+    /**
+     * Get available stock (total stock minus reserved)
+     */
+    public Long getAvailableQuantity() {
+        long reserved = reservedQuantity != null ? reservedQuantity : 0L;
+        return stockQuantity - reserved;
+    }
+    
+    /**
+     * Reserve stock for a pending order
+     */
+    public void reserveStock(Long quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Reservation quantity must be positive");
+        }
+        if (getAvailableQuantity() < quantity) {
+            throw new IllegalStateException("Insufficient stock to reserve");
+        }
+        this.reservedQuantity = (reservedQuantity != null ? reservedQuantity : 0L) + quantity;
+    }
+    
+    /**
+     * Release reserved stock (when reservation expires or is cancelled)
+     */
+    public void releaseStock(Long quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Release quantity must be positive");
+        }
+        long current = reservedQuantity != null ? reservedQuantity : 0L;
+        if (current < quantity) {
+            throw new IllegalStateException("Cannot release more than reserved");
+        }
+        this.reservedQuantity = current - quantity;
+    }
+    
+    /**
+     * Commit reserved stock (when order is completed)
+     * Reduces both reserved and total stock
+     */
+    public void commitReservedStock(Long quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Commit quantity must be positive");
+        }
+        long currentReserved = reservedQuantity != null ? reservedQuantity : 0L;
+        if (currentReserved < quantity) {
+            throw new IllegalStateException("Cannot commit more than reserved");
+        }
+        if (stockQuantity < quantity) {
+            throw new IllegalStateException("Insufficient total stock to commit");
+        }
+        this.reservedQuantity = currentReserved - quantity;
+        this.stockQuantity = stockQuantity - quantity;
     }
 }

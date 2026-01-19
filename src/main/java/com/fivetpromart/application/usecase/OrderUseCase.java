@@ -1,7 +1,9 @@
 package com.fivetpromart.application.usecase;
 
+import com.fivetpromart.application.dto.CancelOrderResultDto;
 import com.fivetpromart.application.dto.CheckProductResultDto;
 import com.fivetpromart.application.dto.OrderDto;
+import com.fivetpromart.application.dto.command.CancelOrderCommand;
 import com.fivetpromart.application.dto.command.CheckProductCommand;
 import com.fivetpromart.application.dto.command.OrderCreationCommand;
 import com.fivetpromart.application.dto.query.OrderSearchQuery;
@@ -29,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -275,5 +278,61 @@ public class OrderUseCase implements IOrderUseCasePort {
         composite.addStrategy(new EmailNotificationStrategy());
         composite.addStrategy(new SmsNotificationStrategy());
         return composite;
+    }
+
+    @Override
+    @Transactional
+    public CancelOrderResultDto cancelOrder(CancelOrderCommand command) {
+        log.info("Cancelling order: {} by staff: {}", command.getOrderId(), command.getStaffId());
+
+        // 1. Find order
+        Order order = orderRepository.findById(command.getOrderId())
+                .orElseThrow(() -> new OrderNotFoundException(command.getOrderId()));
+
+        // 2. Cancel order (uses State Pattern in domain)
+        order.cancel();
+
+        // 3. Restore stock quantities
+        boolean stockRestored = false;
+        try {
+            for (Order.OrderItem item : order.getItems()) {
+                StockInventory lot = stockInventoryRepository.findById(item.getLotId())
+                        .orElse(null);
+                
+                if (lot != null) {
+                    // Restore quantity
+                    long restoredQuantity = lot.getStockQuantity() + item.getQuantity();
+                    lot.update(
+                            lot.getProductId(),
+                            lot.getManufactureDate(),
+                            lot.getExpirationDate(),
+                            restoredQuantity,
+                            lot.getImportPrice(),
+                            lot.getStatus()
+                    );
+                    stockInventoryRepository.save(lot);
+                }
+            }
+            stockRestored = true;
+        } catch (Exception e) {
+            log.warn("Failed to restore stock for cancelled order {}: {}", 
+                    command.getOrderId(), e.getMessage());
+        }
+
+        // 4. Save cancelled order
+        Order savedOrder = orderRepository.save(order);
+
+        log.info("Order {} cancelled successfully, stock restored: {}", 
+                command.getOrderId(), stockRestored);
+
+        // 5. Return result
+        return CancelOrderResultDto.builder()
+                .orderId(savedOrder.getOrderId())
+                .status(savedOrder.getStatus())
+                .cancelledAt(LocalDateTime.now())
+                .cancelledBy(command.getStaffId())
+                .reason(command.getReason())
+                .stockRestored(stockRestored)
+                .build();
     }
 }

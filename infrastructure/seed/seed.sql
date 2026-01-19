@@ -1,53 +1,44 @@
 -- =============================================================================
--- 5TPROMART - Seed Data for Development
+-- 5TPROMART - DEPRECATED: Use master_seed.sql instead
 -- =============================================================================
--- Run with: psql -U postgres -d fivetpromart_db -f seed.sql
--- Or via Docker: docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db < seed.sql
+-- This file is kept for backward compatibility but is no longer maintained.
+-- 
+-- NEW MODULAR SYSTEM:
+--   • Run master_seed.sql for complete seeding
+--   • Or run individual modules (01_categories.sql, 02_suppliers.sql, etc.)
+--   • Use seed-only.bat for easy Windows execution
+--
+-- See README.md in this folder for full documentation.
 -- =============================================================================
 
--- Note: Hibernate will create tables via ddl-auto: update
--- This file is for inserting test data AFTER tables exist
+\echo ''
+\echo '⚠ WARNING: This file is deprecated!'
+\echo 'Please use master_seed.sql or seed-only.bat instead.'
+\echo ''
+\echo 'Quick start:'
+\echo '  • Windows: seed-only.bat'
+\echo '  • Manual:  docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db < master_seed.sql'
+\echo ''
+
+-- Legacy data below (may be outdated)
+-- For current seed data, see the 0X_*.sql modules
 
 -- =============================================================================
 -- Categories
 -- =============================================================================
-INSERT INTO category (id, name, description, created_at, updated_at) VALUES
-    (1, 'Electronics', 'Electronic devices and gadgets', NOW(), NOW()),
-    (2, 'Groceries', 'Food and household essentials', NOW(), NOW()),
-    (3, 'Clothing', 'Apparel and fashion items', NOW(), NOW()),
-    (4, 'Home & Garden', 'Home improvement and garden supplies', NOW(), NOW())
-ON CONFLICT (id) DO NOTHING;
-
--- Reset sequence
-SELECT setval('category_id_seq', (SELECT MAX(id) FROM category));
+INSERT INTO product_categories (category_id, category_name) VALUES
+    ('cat-001', 'Electronics'),
+    ('cat-002', 'Groceries & Food'),
+    ('cat-003', 'Beverages'),
+    ('cat-004', 'Personal Care')
+ON CONFLICT (category_id) DO NOTHING;
 
 -- =============================================================================
--- Suppliers
+-- Products (Minimal for backward compatibility)
 -- =============================================================================
-INSERT INTO supplier (id, name, contact_email, phone, address, created_at, updated_at) VALUES
-    (1, 'Tech Supplier Co.', 'contact@techsupplier.com', '0901234567', '123 Tech Street, HCMC', NOW(), NOW()),
-    (2, 'Fresh Foods Inc.', 'orders@freshfoods.com', '0907654321', '456 Food Ave, Hanoi', NOW(), NOW()),
-    (3, 'Fashion Forward', 'hello@fashionforward.com', '0909876543', '789 Style Blvd, HCMC', NOW(), NOW())
-ON CONFLICT (id) DO NOTHING;
-
-SELECT setval('supplier_id_seq', (SELECT MAX(id) FROM supplier));
-
--- =============================================================================
--- Products
--- =============================================================================
-INSERT INTO product (id, name, description, price, stock_quantity, category_id, supplier_id, created_at, updated_at) VALUES
-    (1, 'Laptop Pro 15', 'High-performance laptop for professionals', 25000000, 50, 1, 1, NOW(), NOW()),
-    (2, 'Wireless Mouse', 'Ergonomic wireless mouse', 500000, 200, 1, 1, NOW(), NOW()),
-    (3, 'Organic Rice 5kg', 'Premium organic jasmine rice', 150000, 500, 2, 2, NOW(), NOW()),
-    (4, 'T-Shirt Classic', 'Cotton classic fit t-shirt', 250000, 300, 3, 3, NOW(), NOW())
-ON CONFLICT (id) DO NOTHING;
-
-SELECT setval('product_id_seq', (SELECT MAX(id) FROM product));
-
--- =============================================================================
--- Done
--- =============================================================================
-DO $$
-BEGIN
-    RAISE NOTICE 'Seed data inserted successfully!';
-END $$;
+INSERT INTO products (product_id, product_name, category_id, unit_of_measure, selling_price, total_stock_quantity, created_at, updated_at) VALUES
+    ('prod-001', 'USB Flash Drive 32GB', 'cat-001', 'piece', 150000, 0, NOW(), NOW()),
+    ('prod-002', 'AA Batteries (4-pack)', 'cat-001', 'pack', 35000, 0, NOW(), NOW()),
+    ('prod-003', 'Jasmine Rice 5kg', 'cat-002', 'bag', 125000, 0, NOW(), NOW()),
+    ('prod-004', 'Coca-Cola 330ml', 'cat-003', 'can', 12000, 0, NOW(), NOW())
+ON CONFLICT (product_id) DO NOTHING;

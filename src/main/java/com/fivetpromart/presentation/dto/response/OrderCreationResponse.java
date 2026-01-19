@@ -15,7 +15,9 @@ import java.util.List;
 public class OrderCreationResponse {
     private String orderId;
     private String orderDate;       // dd-MM-yyyy HH:mm:ss
-    private BigDecimal totalAmount;
+    private BigDecimal originalAmount;      // Total before rounding (for cash payments)
+    private BigDecimal roundingAdjustment;  // Rounding amount (positive = rounded up, negative = rounded down)
+    private BigDecimal totalAmount;         // Final total after rounding
     private BigDecimal changeReturned;
     private Long pointsEarned;
     private List<OrderItemInfo> items;
