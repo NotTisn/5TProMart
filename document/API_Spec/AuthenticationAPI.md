@@ -26,6 +26,80 @@ This document describes the authentication flow for the 5TProMart application. T
 
 ---
 
+## 🎭 Role-Based Access Control (RBAC)
+
+### Role Model
+
+The system uses **Keycloak realm roles** for authorization. Roles are embedded in the JWT access token under the `realm_access.roles` claim.
+
+| Role | Description | Primary Responsibilities |
+|------|-------------|-------------------------|
+| `Admin` | Full system access | User management, all CRUD operations, system configuration |
+| `Manager` | Read access + limited write | Reports, analytics, read all data, limited approvals |
+| `SalesStaff` | Customer-facing operations | Orders, customers, payments, returns |
+| `WarehouseStaff` | Inventory operations | Stock, inventory, purchase orders, suppliers |
+
+### Role Hierarchy
+
+```
+Admin (full access)
+├── Manager (read + limited write)
+├── SalesStaff (customer operations)
+└── WarehouseStaff (inventory operations)
+```
+
+**Note**: Roles are **NOT hierarchical** in the system. Each role grants specific permissions independently. An Admin has all permissions explicitly, not by inheriting from other roles.
+
+### Endpoint Authorization Matrix
+
+| Endpoint Group | Admin | Manager | SalesStaff | WarehouseStaff |
+|----------------|-------|---------|------------|----------------|
+| `/api/v1/staff/**` | ✅ Full | ❌ | ❌ | ❌ |
+| `/api/v1/products/**` | ✅ Full | ✅ Read | ✅ Read | ✅ Read |
+| `/api/v1/customers/**` | ✅ Full | ✅ Read | ✅ Full | ❌ |
+| `/api/v1/orders/**` | ✅ Full | ✅ Read | ✅ Full | ❌ |
+| `/api/v1/stock-inventory/**` | ✅ Full | ✅ Read | ❌ | ✅ Full |
+| `/api/v1/suppliers/**` | ✅ Full | ✅ Read | ❌ | ✅ Read |
+| `/api/v1/promotions/**` | ✅ Full | ✅ Read | ❌ | ❌ |
+
+### JWT Token Structure
+
+```json
+{
+  "realm_access": {
+    "roles": ["Admin"]  // PascalCase, must match exactly
+  },
+  "sub": "keycloak-user-uuid",
+  "preferred_username": "admin",
+  "email": "admin@fivetpromart.com"
+}
+```
+
+### Spring Security Annotations
+
+Backend controllers use `@PreAuthorize` with `hasRole()` or `hasAnyRole()`:
+
+```java
+// Single role
+@PreAuthorize("hasRole('Admin')")
+
+// Multiple roles (OR)
+@PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff')")
+```
+
+**⚠️ Case Sensitivity**: Role names are **case-sensitive**. `Admin` ≠ `ADMIN` ≠ `admin`.
+
+### Test Users (Development)
+
+| Username | Password | Role | Purpose |
+|----------|----------|------|---------|
+| `admin` | `admin123` | Admin | Full access testing |
+| `manager` | `manager123` | Manager | Read/report access testing |
+| `salesstaff` | `sales123` | SalesStaff | POS/customer operations testing |
+| `warehousestaff` | `warehouse123` | WarehouseStaff | Inventory operations testing |
+
+---
+
 ## 📋 API Endpoints
 
 ### Base URL

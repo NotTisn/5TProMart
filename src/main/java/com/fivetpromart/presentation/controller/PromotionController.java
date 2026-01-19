@@ -39,7 +39,7 @@ public class PromotionController {
      * GET /api/v1/promotions
      */
     @GetMapping
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
     public ApiResponse<List<PromotionResponse>> searchPromotions(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String type,
@@ -88,7 +88,7 @@ public class PromotionController {
      * GET /api/v1/promotions/{id}
      */
     @GetMapping("/{id}")
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
     public ApiResponse<PromotionDetailResponse> getPromotionById(@PathVariable String id) {
         PromotionDto promotion = promotionUseCase.getPromotionById(id);
 
@@ -147,7 +147,7 @@ public class PromotionController {
      * POST /api/v1/promotions
      */
     @PostMapping
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Admin')")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<PromotionResponse> createPromotion(
             @Valid @RequestBody PromotionRequest request

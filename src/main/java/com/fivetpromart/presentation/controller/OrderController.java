@@ -1,12 +1,15 @@
 package com.fivetpromart.presentation.controller;
 
+import com.fivetpromart.application.dto.CancelOrderResultDto;
 import com.fivetpromart.application.dto.CheckProductResultDto;
 import com.fivetpromart.application.dto.OrderDto;
+import com.fivetpromart.application.dto.command.CancelOrderCommand;
 import com.fivetpromart.application.dto.command.CheckProductCommand;
 import com.fivetpromart.application.dto.command.OrderCreationCommand;
 import com.fivetpromart.application.dto.query.OrderSearchQuery;
 import com.fivetpromart.application.port.in.IOrderUseCasePort;
 import com.fivetpromart.presentation.dto.query.OrderSearchQueryDto;
+import com.fivetpromart.presentation.dto.request.CancelOrderRequest;
 import com.fivetpromart.presentation.dto.request.CheckProductRequest;
 import com.fivetpromart.presentation.dto.request.OrderRequest;
 import com.fivetpromart.presentation.dto.response.*;
@@ -22,6 +25,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +43,7 @@ public class OrderController {
      * GET /api/v1/orders
      */
     @GetMapping
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff')")
     public ApiResponse<List<OrderResponse>> searchOrders(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String staffId,
@@ -94,7 +98,7 @@ public class OrderController {
      * GET /api/v1/orders/{id}
      */
     @GetMapping("/{id}")
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff')")
     public ApiResponse<OrderDetailResponse> getOrderById(@PathVariable String id) {
         log.info("Getting order detail for ID: {}", id);
 
@@ -116,7 +120,7 @@ public class OrderController {
      * POST /api/v1/orders/check-product
      */
     @PostMapping("/check-product")
-    //@PreAuthorize("hasRole('Admin') or hasRole('SalesStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'SalesStaff')")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<CheckProductResponse> checkProduct(
             @Valid @RequestBody CheckProductRequest request
@@ -145,7 +149,7 @@ public class OrderController {
      * POST /api/v1/orders
      */
     @PostMapping
-    //@PreAuthorize("hasRole('Admin') or hasRole('SalesStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'SalesStaff')")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<OrderCreationResponse> createOrder(
             @Valid @RequestBody OrderRequest request
@@ -165,6 +169,45 @@ public class OrderController {
         return ApiResponse.<OrderCreationResponse>builder()
                 .success(true)
                 .message("Order created")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * 1.5 Cancel Order
+     * POST /api/v1/orders/{id}/cancel
+     */
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff')")
+    public ApiResponse<CancelOrderResponse> cancelOrder(
+            @PathVariable String id,
+            @Valid @RequestBody CancelOrderRequest request
+    ) {
+        log.info("Cancelling order: {} by staff: {}", id, request.getStaffId());
+
+        // Build command
+        CancelOrderCommand command = CancelOrderCommand.builder()
+                .orderId(id)
+                .reason(request.getReason())
+                .staffId(request.getStaffId())
+                .build();
+
+        // Call use case
+        CancelOrderResultDto resultDto = orderUseCase.cancelOrder(command);
+
+        // Map to response
+        CancelOrderResponse response = CancelOrderResponse.builder()
+                .orderId(resultDto.getOrderId())
+                .status(resultDto.getStatus())
+                .cancelledAt(resultDto.getCancelledAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .cancelledBy(resultDto.getCancelledBy())
+                .reason(resultDto.getReason())
+                .stockRestored(resultDto.getStockRestored())
+                .build();
+
+        return ApiResponse.<CancelOrderResponse>builder()
+                .success(true)
+                .message("Order cancelled successfully")
                 .data(response)
                 .build();
     }

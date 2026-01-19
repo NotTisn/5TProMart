@@ -1,6 +1,8 @@
 package com.fivetpromart.application.usecase;
 
+import com.fivetpromart.application.dto.DisposeLotResultDto;
 import com.fivetpromart.application.dto.StockInventoryDto;
+import com.fivetpromart.application.dto.command.DisposeLotCommand;
 import com.fivetpromart.application.dto.command.StockInventoryCreationCommand;
 import com.fivetpromart.application.dto.command.StockInventoryUpdateCommand;
 import com.fivetpromart.application.dto.query.StockInventorySearchQuery;
@@ -9,6 +11,8 @@ import com.fivetpromart.application.port.in.IStockInventoryUseCasePort;
 import com.fivetpromart.application.port.out.IProductRepository;
 import com.fivetpromart.application.port.out.IStockInventoryRepository;
 import com.fivetpromart.domain.exception.EmptyFieldException;
+import com.fivetpromart.domain.exception.InsufficientStockException;
+import com.fivetpromart.domain.exception.LotNotFoundException;
 import com.fivetpromart.domain.exception.NegativeValueException;
 import com.fivetpromart.domain.model.Product;
 import com.fivetpromart.domain.model.StockInventory;
@@ -20,7 +24,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -128,5 +134,59 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
         stockInventoryRepository.deleteById(lotId);
         
         log.info("Stock inventory deleted successfully: {}", lotId);
+    }
+
+    @Override
+    @Transactional
+    public DisposeLotResultDto disposeLot(DisposeLotCommand command) {
+        log.info("Disposing lot: {} with quantity: {}", command.getLotId(), command.getQuantity());
+
+        // 1. Find lot
+        StockInventory lot = stockInventoryRepository.findById(command.getLotId())
+                .orElseThrow(() -> new LotNotFoundException(command.getLotId()));
+
+        // 2. Validate quantity
+        if (command.getQuantity() > lot.getStockQuantity()) {
+            throw new InsufficientStockException(lot.getStockQuantity(), command.getQuantity());
+        }
+
+        // 3. Get product info
+        Product product = productRepository.findById(lot.getProductId())
+                .orElseThrow(() -> new EntityNotFoundException("Product not found: " + lot.getProductId()));
+
+        // 4. Deduct quantity
+        long remainingQuantity = lot.getStockQuantity() - command.getQuantity();
+        String newStatus = remainingQuantity == 0 ? "DISPOSED" : lot.getStatus();
+        
+        lot.update(
+                lot.getProductId(),
+                lot.getManufactureDate(),
+                lot.getExpirationDate(),
+                remainingQuantity,
+                lot.getImportPrice(),
+                newStatus
+        );
+        
+        stockInventoryRepository.save(lot);
+
+        // 5. Calculate product total stock (across all lots)
+        Long productTotalStock = stockInventoryRepository.getTotalStockByProductId(lot.getProductId());
+
+        log.info("Lot {} disposed successfully, remaining: {}", command.getLotId(), remainingQuantity);
+
+        // 6. Return result
+        return DisposeLotResultDto.builder()
+                .disposalId(UUID.randomUUID().toString())
+                .lotId(lot.getLotId())
+                .productId(product.getProductId())
+                .productName(product.getProductName())
+                .quantityDisposed(command.getQuantity())
+                .remainingLotQuantity(remainingQuantity)
+                .productTotalStock(productTotalStock != null ? productTotalStock : 0L)
+                .disposedAt(LocalDateTime.now())
+                .disposedBy(command.getStaffId())
+                .reason(command.getReason())
+                .notes(command.getNotes())
+                .build();
     }
 }

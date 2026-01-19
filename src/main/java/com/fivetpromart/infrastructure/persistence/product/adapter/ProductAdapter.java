@@ -11,8 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,12 +28,14 @@ public class ProductAdapter implements IProductRepository {
 
     @Override
     public Product addProduct(Product product) {
-        return null;
+        // Delegate to save() - both do the same thing
+        return save(product);
     }
 
     @Override
     public Product updateProduct(Product product) {
-        return null;
+        // Delegate to save() - JPA handles update if entity exists
+        return save(product);
     }
 
     @Override
@@ -42,17 +47,24 @@ public class ProductAdapter implements IProductRepository {
 
     @Override
     public Optional<Product> findById(String productId) {
-        return productRepository.findById(productId).map(mapper::toDomain);
+        // Use query that filters soft-deleted products
+        return productRepository.findByIdAndNotDeleted(productId).map(mapper::toDomain);
     }
 
     @Override
     public List<Product> findByName(String productName) {
-        return List.of();
+        return productRepository.findByProductNameContainingAndNotDeleted(productName)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
     public List<Product> findAll() {
-        return List.of();
+        return productRepository.findAllNotDeleted()
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -67,7 +79,19 @@ public class ProductAdapter implements IProductRepository {
 
     @Override
     public void delete(Product product) {
+        // SOFT DELETE: Set deletedAt and deletedBy instead of removing from database
+        ProductDbo dbo = productRepository.findById(product.getProductId())
+                .orElseThrow();
 
+        dbo.setDeletedAt(LocalDateTime.now());
+        dbo.setDeletedBy(getCurrentUser());
+
+        productRepository.save(dbo);
+    }
+
+    private String getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null ? authentication.getName() : "system";
     }
 
     @Override
@@ -80,5 +104,27 @@ public class ProductAdapter implements IProductRepository {
         Page<ProductDbo> dboPage = productRepository.findAll(spec, pageable);
 
         return dboPage.map(mapper::toDomain);
+    }
+
+    @Override
+    public Long countAll() {
+        return productRepository.countAllProducts();
+    }
+
+    @Override
+    public Long countByTotalStockQuantityGreaterThan(Long threshold) {
+        return productRepository.countByTotalStockQuantityGreaterThan(threshold);
+    }
+
+    @Override
+    public Long countByTotalStockQuantityEquals(Long quantity) {
+        return productRepository.countByTotalStockQuantityEquals(quantity);
+    }
+
+    @Override
+    public Integer calculateTotalStockQuantity(String productId) {
+        // Sum all lot quantities for this product
+        Integer total = productRepository.calculateTotalStockQuantity(productId);
+        return total != null ? total : 0;
     }
 }

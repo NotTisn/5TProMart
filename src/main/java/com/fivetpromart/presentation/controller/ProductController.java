@@ -1,6 +1,7 @@
 package com.fivetpromart.presentation.controller;
 
 import com.fivetpromart.application.dto.ProductDto;
+import com.fivetpromart.application.dto.ProductStatsDto;
 import com.fivetpromart.application.dto.command.ProductCreationCommand;
 import com.fivetpromart.application.dto.command.ProductUpdateCommand;
 import com.fivetpromart.application.dto.query.ProductSearchQuery;
@@ -9,6 +10,7 @@ import com.fivetpromart.presentation.dto.request.ProductRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
 import com.fivetpromart.presentation.dto.response.PaginationMeta;
 import com.fivetpromart.presentation.dto.response.ProductResponse;
+import com.fivetpromart.presentation.dto.response.ProductStatsResponse;
 import com.fivetpromart.presentation.mapper.ProductPresentationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +33,7 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<ProductResponse> createProduct(
             @Valid @RequestBody ProductRequest request
     ) {
@@ -46,6 +50,7 @@ public class ProductController {
 
     @PutMapping("/{productId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<ProductResponse> updateProduct(
             @PathVariable String productId,
             @Valid @RequestBody ProductRequest request
@@ -67,6 +72,7 @@ public class ProductController {
 
     @DeleteMapping("/{productId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse deleteProduct(
             @PathVariable String productId
     ) {
@@ -80,6 +86,7 @@ public class ProductController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff', 'WarehouseStaff')")
     public ApiResponse<List<ProductResponse>> getAllProducts(
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) String categoryId,
@@ -120,6 +127,7 @@ public class ProductController {
 
     @GetMapping("/{productId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff', 'WarehouseStaff')")
     public ApiResponse<ProductResponse> getProductById(
             @PathVariable String productId
     ) {
@@ -130,6 +138,35 @@ public class ProductController {
                 .statusCode(200)
                 .message("Get products successfully")
                 .data(mapper.toProductResponse(product))
+                .build();
+    }
+
+    /**
+     * Get product and inventory statistics for dashboard
+     * GET /api/v1/products/stats
+     */
+    @GetMapping("/stats")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
+    public ApiResponse<ProductStatsResponse> getProductStats() {
+        ProductStatsDto statsDto = productUseCase.getProductStats();
+
+        ProductStatsResponse response = ProductStatsResponse.builder()
+                .totalProducts(statsDto.getTotalProducts())
+                .activeProducts(statsDto.getActiveProducts())
+                .inactiveProducts(statsDto.getInactiveProducts())
+                .totalInventoryValue(statsDto.getTotalInventoryValue())
+                .lowStockCount(statsDto.getLowStockCount())
+                .outOfStockCount(statsDto.getOutOfStockCount())
+                .expiringSoonCount(statsDto.getExpiringSoonCount())
+                .expiredCount(statsDto.getExpiredCount())
+                .build();
+
+        return ApiResponse.<ProductStatsResponse>builder()
+                .success(true)
+                .statusCode(200)
+                .message("Get product statistics successfully")
+                .data(response)
                 .build();
     }
 }

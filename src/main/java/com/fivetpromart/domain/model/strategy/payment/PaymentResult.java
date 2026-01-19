@@ -20,4 +20,8 @@ public class PaymentResult {
     private String paymentMethod;
     private boolean successful;
     private String transactionReference;  // For bank transfers or e-wallets
+    
+    // Cash rounding fields (Vietnam retail standard)
+    private BigDecimal originalAmount;      // Before rounding (e.g., 37,300)
+    private BigDecimal roundingAdjustment;  // +/- adjustment (e.g., -300)
 }

@@ -31,6 +31,8 @@ public interface OrderPersistenceMapper {
                 .totalAmount(order.getTotalAmount())
                 .amountGiven(order.getAmountGiven())
                 .changeReturned(order.getChangeReturned())
+                .originalAmount(order.getOriginalAmount())
+                .roundingAdjustment(order.getRoundingAdjustment())
                 .pointsEarned(order.getPointsEarned())
                 .build();
 
@@ -73,6 +75,8 @@ public interface OrderPersistenceMapper {
                 dbo.getTotalAmount(),
                 dbo.getAmountGiven(),
                 dbo.getChangeReturned(),
+                dbo.getOriginalAmount(),
+                dbo.getRoundingAdjustment(),
                 dbo.getPointsEarned(),
                 items
         );
