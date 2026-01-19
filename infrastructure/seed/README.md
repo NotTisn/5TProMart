@@ -1,128 +1,71 @@
-# 5TProMart - Database Seed System
+# Database Seed System
 
-## Overview
+Modular SQL seed data for local development and testing.
 
-This folder contains a **modular, production-ready** seed data system for local development and testing.
+## Quick Start
+
+```bash
+# Option 1: Auto-seed on startup
+dev.bat --seed
+
+# Option 2: Seed existing tables (safe)
+cd infrastructure\seed
+seed-only.bat
+
+# Option 3: Drop all + reseed (DESTRUCTIVE)
+cd infrastructure\seed
+rinse-and-seed.bat
+
+# Check status
+check-status.bat
+```
 
 ## Structure
 
 ```
-seed/
-├── master_seed.sql          ← Main entry point (runs all modules)
-├── 01_categories.sql        ← Product categories
-├── 02_suppliers.sql         ← Supplier data
-├── 03_products.sql          ← 30 realistic products
-├── 04_stock_inventory.sql   ← Stock batches with expiry dates
-├── 05_customers.sql         ← 15 test customers with loyalty points
-├── 06_promotions.sql        ← Active promotions
-├── rinse-and-seed.bat       ← Drop schema + reseed (DESTRUCTIVE)
-└── seed-only.bat            ← Seed existing tables (safe)
+01_categories.sql          Product categories (10)
+02_suppliers.sql           Suppliers (5)
+03_products.sql            Products (30, 6k-150k VND)
+04_stock_inventory.sql     Stock batches with expiry (30)
+05_customers.sql           Customers with loyalty points (15)
+06_promotions.sql          Active promotions (3)
+master_seed.sql            Runs all modules in order
 ```
 
-## Quick Start
+## Seed Data
 
-### Option 1: Fresh Start (Drops Everything)
-```bash
-cd infrastructure/seed
-rinse-and-seed.bat
-```
-
-### Option 2: Add Data to Existing Tables
-```bash
-cd infrastructure/seed
-seed-only.bat
-```
-
-### Option 3: Automatic Seeding on Startup
-```bash
-cd 5TProMart_be
-dev.bat --seed
-```
-
-## What Gets Seeded
-
-| Entity | Count | Description |
-|--------|-------|-------------|
-| **Categories** | 10 | Electronics, Food, Beverages, Personal Care, etc. |
-| **Suppliers** | 5 | Diverse supplier types (ELECTRONICS, FOOD, DAIRY, etc.) |
-| **Products** | 30 | Realistic products with prices (12,000 VND - 150,000 VND) |
-| **Stock Inventory** | 30 | Batches with manufacture/expiry dates, import prices |
-| **Customers** | 15 | Vietnamese names with loyalty points (340 - 3,200 points) |
-| **Promotions** | 3 | Active promotions (percentage discount, buy-X-get-Y) |
+- **10 Categories**: Electronics, Food, Beverages, Personal Care, etc.
+- **30 Products**: 6,000 - 150,000 VND with realistic Vietnamese context
+- **30 Stock Batches**: With manufacture/expiry dates, import prices
+- **15 Customers**: Vietnamese names, loyalty points (340-3,200)
+- **5 Suppliers**: ELECTRONICS, FOOD, DAIRY, BEVERAGES, PERSONAL_CARE types
+- **3 Promotions**: Active Jan-Mar 2026 (percentage discount, buy-X-get-Y)
 
 ## Test Users (Keycloak)
 
-These users are pre-configured in Keycloak (managed by `keycloak-config/fivetpro-realm.json`):
+Configured in `keycloak-config/fivetpro-realm.json`:
 
-| Username | Password | Role | Description |
-|----------|----------|------|-------------|
-| `admin` | `admin123` | Admin | Full system access |
-| `manager` | `manager123` | Manager | Read access + limited write |
-| `salesstaff` | `sales123` | SalesStaff | Orders, customers, payments |
-| `warehousestaff` | `warehouse123` | WarehouseStaff | Stock, inventory, suppliers |
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `admin123` | Admin |
+| `manager` | `manager123` | Manager |
+| `salesstaff` | `sales123` | SalesStaff |
+| `warehousestaff` | `warehouse123` | WarehouseStaff |
 
 ## Modular Design
 
-Each SQL file is **independent and reusable**:
-- Want only products? Run `03_products.sql` directly
-- Need to reset customers? Run `05_customers.sql`
-- All modules use `ON CONFLICT DO NOTHING` for idempotency
+EacIndividual Modules
 
-### Running Individual Modules
+Each SQL file is independent and uses `ON CONFLICT DO NOTHING` for idempotency.
 
 ```bash
-# Via Docker
+# Run single module
 docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db < 03_products.sql
 
-# Via psql CLI
-psql -U postgres -d fivetpromart_db -f 03_products.sql
-```
-
-## Integration with dev.bat
-
-The main dev.bat now supports automatic seeding:
-
-```bash
-# Start dev mode with seeding prompt
-dev.bat
-
-# Skip seeding (default behavior)
-dev.bat --no-seed
-
-# Auto-seed without prompt
-dev.bat --seed
-```
-
-## Advanced Usage
-
-### Reset Only One Entity
-
-```bash
-# Reset products only
+# Reset specific entity
 docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db -c "DELETE FROM products;"
 docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db < 03_products.sql
 ```
-
-### Check Seeded Data
-
-```bash
-# Count all entities
-docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db -c "
-SELECT 'Categories' as entity, COUNT(*) FROM product_categories
-UNION ALL SELECT 'Products', COUNT(*) FROM products
-UNION ALL SELECT 'Customers', COUNT(*) FROM customers
-UNION ALL SELECT 'Stock Lots', COUNT(*) FROM stock_inventories
-UNION ALL SELECT 'Promotions', COUNT(*) FROM promotions;
-"
-```
-
-### Customize Seed Data
-
-1. Edit the relevant SQL file (e.g., `03_products.sql`)
-2. Add/modify INSERT statements
-3. Run `seed-only.bat` or the specific module
-
-## Troubleshooting
 
 ### "Tables don't exist"
 → Start Spring Boot first (Hibernate will create tables), then run seeding
@@ -156,3 +99,15 @@ UNION ALL SELECT 'Promotions', COUNT(*) FROM promotions;
 
 **Last Updated**: January 19, 2026  
 **Maintainer**: 5TProMart Dev Team
+| Issue | Solution |
+|-------|----------|
+| Tables don't exist | Start Spring Boot first, then seed |
+| Duplicate key error | Use `rinse-and-seed.bat` for fresh start |
+| PostgreSQL not running | Check `docker ps`, start with `dev.bat` |
+
+## Notes
+
+- All modules use `ON CONFLICT DO NOTHING` - safe to re-run
+- Audit fields (`created_at`, `updated_at`) managed by Spring Data JPA
+- Full seed takes ~2-3 seconds
+- Modular design - run individual files or all via `master_seed.sql`
