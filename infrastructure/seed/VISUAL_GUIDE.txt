@@ -1,0 +1,248 @@
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║               🌟 5TPROMART - SEED SYSTEM QUICK VISUAL GUIDE 🌟            ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                         🚀 GETTING STARTED                                 │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  OPTION 1: Auto-seed on startup (Recommended for new devs)
+  ┌──────────────────────────────────────────────────────────┐
+  │  cd 5TProMart_be                                         │
+  │  dev.bat --seed                                          │
+  └──────────────────────────────────────────────────────────┘
+  ↓
+  ✅ Infrastructure starts → Database seeded → App ready!
+
+
+  OPTION 2: Manual seeding (Recommended for existing databases)
+  ┌──────────────────────────────────────────────────────────┐
+  │  cd infrastructure\seed                                  │
+  │  seed-only.bat                                           │
+  └──────────────────────────────────────────────────────────┘
+  ↓
+  ✅ Adds test data without touching existing data
+
+
+  OPTION 3: Nuclear option (Fresh start)
+  ┌──────────────────────────────────────────────────────────┐
+  │  cd infrastructure\seed                                  │
+  │  rinse-and-seed.bat                                      │
+  └──────────────────────────────────────────────────────────┘
+  ↓
+  ⚠️  Drops ALL tables → Recreates → Seeds fresh data
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                         📦 WHAT YOU GET                                    │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  📂 CATEGORIES (10)                                         │
+  │    Electronics • Food • Beverages • Personal Care           │
+  │    Home & Kitchen • Stationery • Snacks • Dairy            │
+  │    Cleaning • Health & Wellness                            │
+  └─────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  🏭 SUPPLIERS (5)                                           │
+  │    Tech Electronics • Fresh Farm • Vinamilk                │
+  │    Global Beverages • Unilever Vietnam                     │
+  └─────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  📦 PRODUCTS (30)                                           │
+  │    Price Range: 6,000 - 150,000 VND                        │
+  │    ├─ USB Drive 32GB (150k)                                │
+  │    ├─ Jasmine Rice 5kg (125k)                              │
+  │    ├─ Fresh Milk 1L (32k)                                  │
+  │    ├─ Coca-Cola 330ml (12k)                                │
+  │    └─ Bottled Water 500ml (6k)                             │
+  └─────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  📊 STOCK INVENTORY (30 batches)                           │
+  │    ✓ Manufacture dates                                      │
+  │    ✓ Expiry tracking (perishables)                         │
+  │    ✓ Import pricing                                        │
+  │    ✓ Stock quantities (80-2000 units)                      │
+  └─────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  👥 CUSTOMERS (15)                                          │
+  │    Vietnamese names • Phone numbers • Dates of birth       │
+  │    Loyalty points: 340 - 3,200 points                      │
+  └─────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  🎁 PROMOTIONS (3 active)                                   │
+  │    • New Year Sale - 15% off Electronics                   │
+  │    • Buy 2 Get 1 - Beverages                               │
+  │    • Summer Discount - 20% off Personal Care               │
+  └─────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      🔑 TEST USERS (KEYCLOAK)                             │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────┬──────────────┬─────────────────────────────┐
+  │  Username           │  Password    │  Role & Access              │
+  ├─────────────────────┼──────────────┼─────────────────────────────┤
+  │  admin              │  admin123    │  👑 Admin (Full access)    │
+  │  manager            │  manager123  │  📊 Manager (Read + Limited)│
+  │  salesstaff         │  sales123    │  🛒 Sales (Orders/Customers)│
+  │  warehousestaff     │  warehouse123│  📦 Warehouse (Inventory)   │
+  └─────────────────────┴──────────────┴─────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      🛠 USEFUL COMMANDS                                    │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  📋 Check seed status
+  ┌──────────────────────────────────────────────────────────┐
+  │  cd infrastructure\seed                                  │
+  │  check-status.bat                                        │
+  └──────────────────────────────────────────────────────────┘
+
+  🔍 View all products in database
+  ┌──────────────────────────────────────────────────────────┐
+  │  docker exec -i fivetpromart-postgres psql \             │
+  │    -U postgres -d fivetpromart_db \                      │
+  │    -c "SELECT product_name, selling_price FROM products;"│
+  └──────────────────────────────────────────────────────────┘
+
+  👥 View all customers
+  ┌──────────────────────────────────────────────────────────┐
+  │  docker exec -i fivetpromart-postgres psql \             │
+  │    -U postgres -d fivetpromart_db \                      │
+  │    -c "SELECT full_name, loyalty_points FROM customers;" │
+  └──────────────────────────────────────────────────────────┘
+
+  🗑 Reset specific entity (example: products)
+  ┌──────────────────────────────────────────────────────────┐
+  │  docker exec -i fivetpromart-postgres psql \             │
+  │    -U postgres -d fivetpromart_db \                      │
+  │    -c "DELETE FROM products;"                            │
+  │                                                          │
+  │  cd infrastructure\seed                                  │
+  │  docker exec -i fivetpromart-postgres psql \             │
+  │    -U postgres -d fivetpromart_db < 03_products.sql      │
+  └──────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      📚 FILE STRUCTURE                                    │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  infrastructure/seed/
+  │
+  ├── 🎯 CORE MODULES (Run in order)
+  │   ├── 01_categories.sql         ← Product categories
+  │   ├── 02_suppliers.sql          ← Suppliers
+  │   ├── 03_products.sql           ← Products (depends on categories)
+  │   ├── 04_stock_inventory.sql   ← Stock (depends on products)
+  │   ├── 05_customers.sql         ← Customers
+  │   └── 06_promotions.sql        ← Promotions (depends on products)
+  │
+  ├── 🚀 ORCHESTRATION
+  │   └── master_seed.sql           ← Runs all modules
+  │
+  ├── 🪟 WINDOWS SCRIPTS
+  │   ├── seed-only.bat             ← Safe: add data to existing tables
+  │   ├── rinse-and-seed.bat        ← Dangerous: drop all + reseed
+  │   └── check-status.bat          ← View seed data counts
+  │
+  ├── 📖 DOCUMENTATION
+  │   ├── README.md                 ← Complete technical docs
+  │   ├── CHEATSHEET.md             ← Quick reference
+  │   └── VISUAL_GUIDE.txt          ← This file!
+  │
+  └── 🗑 LEGACY (deprecated)
+      ├── seed.sql                  ← Old seed file (use master_seed.sql)
+      └── init.sql                  ← Docker init (one-time)
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      ⚠️  TROUBLESHOOTING                                  │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  ❌ "Tables don't exist"
+  ┌──────────────────────────────────────────────────────────┐
+  │  CAUSE: Spring Boot hasn't created tables yet            │
+  │  FIX:   Start app first: dev.bat                         │
+  │         Then run: seed-only.bat                          │
+  └──────────────────────────────────────────────────────────┘
+
+  ❌ "Duplicate key violation"
+  ┌──────────────────────────────────────────────────────────┐
+  │  CAUSE: Data already exists                              │
+  │  FIX:   Use rinse-and-seed.bat for fresh start           │
+  └──────────────────────────────────────────────────────────┘
+
+  ❌ "PostgreSQL not running"
+  ┌──────────────────────────────────────────────────────────┐
+  │  CAUSE: Docker not started                               │
+  │  FIX:   Run: dev.bat                                     │
+  │         Or:  cd infrastructure && docker compose \       │
+  │              -f compose-infra-only.yaml up -d            │
+  └──────────────────────────────────────────────────────────┘
+
+  ❌ "Seeding slow or hangs"
+  ┌──────────────────────────────────────────────────────────┐
+  │  CAUSE: Docker Desktop resource limits                   │
+  │  FIX:   Increase Docker memory to 4GB+                   │
+  │         Settings → Resources → Memory                    │
+  └──────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      🎓 PRO TIPS                                          │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  💡 Always use dev.bat --seed for new feature branches
+
+  💡 Edit SQL files directly to customize test data
+
+  💡 Use check-status.bat to verify seeding success
+
+  💡 Individual modules can be run independently:
+     docker exec -i fivetpromart-postgres psql -U postgres \
+       -d fivetpromart_db < 03_products.sql
+
+  💡 Seed data is git-tracked - commit changes for team sync
+
+  💡 Performance: Full seed takes ~2-3 seconds
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      🎉 SUCCESS CHECKLIST                                 │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  After seeding, verify:
+
+  ✅ Backend API: http://localhost:8080/api/v1/products
+     → Should return 30 products
+
+  ✅ Keycloak: http://localhost:8180/admin
+     → Login: admin / admin
+
+  ✅ Test login in app:
+     → Use: salesstaff / sales123
+     → Should see customer/order screens
+
+  ✅ Database check:
+     → Run: check-status.bat
+     → All entities should show ✓
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      📞 NEED HELP?                                        │
+└───────────────────────────────────────────────────────────────────────────┘
+
+  📖 Full docs:        infrastructure/seed/README.md
+  ⚡ Quick reference:   infrastructure/seed/CHEATSHEET.md
+  🎯 Implementation:   5TProMart_be/SEED_IMPLEMENTATION.md
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║                  ✨ Happy Coding with 5TProMart! ✨                       ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```

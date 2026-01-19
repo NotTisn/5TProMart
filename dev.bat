@@ -45,6 +45,8 @@ REM ============================================================================
 REM Parse Arguments
 REM ============================================================================
 
+set "AUTO_SEED=prompt"
+
 if /i "%~1"=="--stop" (
     if /i "%~2"=="--docker" (
         call "%INFRA%\scripts\stop_all.bat" --docker
@@ -62,6 +64,14 @@ if /i "%~1"=="--status" (
 if /i "%~1"=="--clean" (
     call "%INFRA%\scripts\clean.bat"
     goto :eof
+)
+
+if /i "%~1"=="--seed" (
+    set "AUTO_SEED=yes"
+)
+
+if /i "%~1"=="--no-seed" (
+    set "AUTO_SEED=no"
 )
 
 REM ============================================================================
@@ -208,6 +218,54 @@ echo       Infrastructure: OK
 echo.
 
 REM ============================================================================
+REM Step 2.5: Offer Database Seeding (NEW)
+REM ============================================================================
+
+if "%AUTO_SEED%"=="prompt" (
+    echo.
+    echo  ╔════════════════════════════════════════════════════════════════╗
+    echo  ║  Database Seed Available                                       ║
+    echo  ╠════════════════════════════════════════════════════════════════╣
+    echo  ║  Do you want to seed the database with test data?              ║
+    echo  ║                                                                ║
+    echo  ║  This includes:                                                ║
+    echo  ║    • 10 Categories                                             ║
+    echo  ║    • 30 Products with stock                                    ║
+    echo  ║    • 15 Customers with loyalty points                          ║
+    echo  ║    • 5 Suppliers                                               ║
+    echo  ║    • 3 Active promotions                                       ║
+    echo  ║                                                                ║
+    echo  ║  Note: This is SAFE - it won't delete existing data           ║
+    echo  ║        (uses ON CONFLICT DO NOTHING)                           ║
+    echo  ╚════════════════════════════════════════════════════════════════╝
+    echo.
+    
+    set /p seed_choice="  Seed database now? (y/n, default: n): "
+    if /i "!seed_choice!"=="y" (
+        set "AUTO_SEED=yes"
+    ) else (
+        set "AUTO_SEED=no"
+    )
+)
+
+if "%AUTO_SEED%"=="yes" (
+    echo.
+    echo  [Seeding] Inserting test data...
+    
+    pushd "%ROOT%\infrastructure\seed"
+    docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db < master_seed.sql >nul 2>&1
+    
+    if errorlevel 1 (
+        echo       [WARN] Seeding failed. Tables may not exist yet.
+        echo       Run 'seed-only.bat' after app starts to seed manually.
+    ) else (
+        echo       ✓ Database seeded successfully!
+    )
+    popd
+    echo.
+)
+
+REM ============================================================================
 REM Step 3: Verify Realm + Start App
 REM ============================================================================
 
@@ -275,11 +333,24 @@ echo   API:        http://localhost:8080
 echo   Keycloak:   http://localhost:8180/admin (admin/admin)
 echo   PostgreSQL: localhost:5432 (postgres/votrungtin2005)
 echo.
+echo   Test Users:
+echo     admin / admin123           (Full access)
+echo     manager / manager123       (Manager role)
+echo     salesstaff / sales123      (Sales operations)
+echo     warehousestaff / warehouse123 (Inventory ops)
+echo.
 echo   Commands:
-echo     dev --stop           Stop Java services
-echo     dev --stop --docker  Stop everything
-echo     dev --status         Check status
-echo     dev --clean          Reset all data
+echo     dev                      Start dev mode (prompt for seeding)
+echo     dev --seed               Start and auto-seed database
+echo     dev --no-seed            Start without seeding
+echo     dev --stop               Stop Java services
+echo     dev --stop --docker      Stop everything
+echo     dev --status             Check status
+echo     dev --clean              Reset all data
+echo.
+echo   Database Seeding:
+echo     infrastructure\seed\seed-only.bat        Seed existing tables
+echo     infrastructure\seed\rinse-and-seed.bat   Drop all + reseed
 echo.
 goto :eof
 
