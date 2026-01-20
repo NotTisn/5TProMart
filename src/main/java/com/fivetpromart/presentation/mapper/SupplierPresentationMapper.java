@@ -8,11 +8,12 @@ import com.fivetpromart.presentation.dto.request.SupplierRequest;
 import com.fivetpromart.presentation.dto.response.SuppliedProductResponse;
 import com.fivetpromart.presentation.dto.response.SupplierResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SupplierPresentationMapper {
     
     SupplierCreationCommand toCreateCommand(SupplierRequest request);
