@@ -82,13 +82,13 @@ public class ProductAdapter implements IProductRepository {
         // SOFT DELETE: Set deletedAt and deletedBy instead of removing from database
         ProductDbo dbo = productRepository.findById(product.getProductId())
                 .orElseThrow();
-        
+
         dbo.setDeletedAt(LocalDateTime.now());
         dbo.setDeletedBy(getCurrentUser());
-        
+
         productRepository.save(dbo);
     }
-    
+
     private String getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null ? authentication.getName() : "system";
@@ -119,5 +119,12 @@ public class ProductAdapter implements IProductRepository {
     @Override
     public Long countByTotalStockQuantityEquals(Long quantity) {
         return productRepository.countByTotalStockQuantityEquals(quantity);
+    }
+
+    @Override
+    public Integer calculateTotalStockQuantity(String productId) {
+        // Sum all lot quantities for this product
+        Integer total = productRepository.calculateTotalStockQuantity(productId);
+        return total != null ? total : 0;
     }
 }

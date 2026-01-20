@@ -40,4 +40,7 @@ public interface IProductJpaRepository extends
 
     @Query("SELECT COUNT(p) FROM ProductDbo p WHERE p.deletedAt IS NULL AND p.totalStockQuantity = :quantity")
     Long countByTotalStockQuantityEquals(Long quantity);
+
+    @Query("SELECT COALESCE(SUM(s.stockQuantity), 0) FROM StockInventoryDbo s WHERE s.productId = :productId")
+    Integer calculateTotalStockQuantity(@Param("productId") String productId);
 }
