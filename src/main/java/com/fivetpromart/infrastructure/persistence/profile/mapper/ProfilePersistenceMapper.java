@@ -4,8 +4,9 @@ import com.fivetpromart.domain.model.Profile;
 import com.fivetpromart.infrastructure.persistence.profile.ProfileDbo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProfilePersistenceMapper {
 
     // 1. Dịch từ Domain -> DBO
