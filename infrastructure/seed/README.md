@@ -45,12 +45,14 @@ master_seed.sql            Runs all modules in order
 
 Configured in `keycloak-config/fivetpro-realm.json`:
 
-| Username | Password | Role |
-|----------|----------|------|
-| `admin` | `admin123` | Admin |
-| `manager` | `manager123` | Manager |
-| `salesstaff` | `sales123` | SalesStaff |
-| `warehousestaff` | `warehouse123` | WarehouseStaff |
+**⚠️ IMPORTANT: Login with EMAIL, not username**
+
+| Email | Password | Username | Role |
+|-------|----------|----------|------|
+| `admin@fivetpromart.com` | `admin123` | admin | Admin (Full access) |
+| `manager@fivetpromart.com` | `manager123` | manager | Manager (Read + limited write) |
+| `sales@fivetpromart.com` | `sales123` | salesstaff | SalesStaff (Orders, customers) |
+| `warehouse@fivetpromart.com` | `warehouse123` | warehousestaff | WarehouseStaff (Inventory) |
 
 ## Modular Design
 
