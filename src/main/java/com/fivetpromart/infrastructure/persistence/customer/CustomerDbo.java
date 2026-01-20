@@ -3,6 +3,7 @@ package com.fivetpromart.infrastructure.persistence.customer;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -43,4 +44,8 @@ public class CustomerDbo {
 
     @Column(name = "updated_at")
     Instant updatedAt;
+
+    @Column(name = "created_at")
+    @CreationTimestamp
+    Instant createdAt;
 }

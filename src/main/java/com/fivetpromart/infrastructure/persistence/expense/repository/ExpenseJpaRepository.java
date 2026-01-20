@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -44,4 +46,7 @@ public interface ExpenseJpaRepository extends JpaRepository<ExpenseDbo, String> 
         String getCategoryName();
         java.math.BigDecimal getTotalAmount();
     }
+
+    @Query("SELECT SUM(e.amount) FROM ExpenseDbo e WHERE e.payDate >= :startDate AND e.payDate <= :endDate")
+    BigDecimal calculateTotalExpenses(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }
