@@ -27,8 +27,8 @@ INSERT INTO promotions (
         15,
         NULL,
         NULL,
-        '2026-01-01',
-        '2026-01-31',
+        CURRENT_DATE - INTERVAL '2 days',
+        CURRENT_DATE + INTERVAL '1 day',
         'ACTIVE'
     ),
     (
@@ -39,8 +39,8 @@ INSERT INTO promotions (
         NULL,
         2,
         1,
-        '2026-01-15',
-        '2026-02-15',
+        CURRENT_DATE - INTERVAL '5 days',
+        CURRENT_DATE + INTERVAL '16 days',
         'ACTIVE'
     ),
     (
@@ -51,8 +51,8 @@ INSERT INTO promotions (
         20,
         NULL,
         NULL,
-        '2026-01-10',
-        '2026-03-31',
+        CURRENT_DATE - INTERVAL '5 days',
+        CURRENT_DATE + INTERVAL '11 days',
         'ACTIVE'
     )
 ON CONFLICT (promotion_id) DO NOTHING;

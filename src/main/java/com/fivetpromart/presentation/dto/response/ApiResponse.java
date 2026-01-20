@@ -22,6 +22,13 @@ public class ApiResponse<T> {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     PaginationMeta pagination;
+    
+    /**
+     * Structured error information (code, details)
+     * Only present when success = false
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    ErrorDetail error;
 
     // --- CÁC HÀM FACTORY TIỆN LỢI (NÂNG CẤP) ---
 
@@ -78,6 +85,32 @@ public class ApiResponse<T> {
                 .success(false)
                 .statusCode(status.value())
                 .message(message)
+                .data(null)
+                .build();
+    }
+    
+    /**
+     * Error response with structured error detail (code + details)
+     */
+    public static <T> ApiResponse<T> error(HttpStatus status, String message, String errorCode) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .statusCode(status.value())
+                .message(message)
+                .error(ErrorDetail.of(errorCode))
+                .data(null)
+                .build();
+    }
+    
+    /**
+     * Error response with full error detail
+     */
+    public static <T> ApiResponse<T> error(HttpStatus status, String message, String errorCode, Object details) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .statusCode(status.value())
+                .message(message)
+                .error(ErrorDetail.of(errorCode, details))
                 .data(null)
                 .build();
     }

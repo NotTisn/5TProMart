@@ -171,10 +171,10 @@ ON CONFLICT (customer_id) DO NOTHING;
 \echo ''
 \echo '[Phase 6/6] Promotions'
 
-INSERT INTO promotions (promotion_id, promotion_name, promotion_description, promotion_type, discount_percent, start_date, end_date, status) VALUES
-('promo-001', 'Flash Sale Điện Tử', 'Giảm giá sốc các sản phẩm điện tử trong 3 ngày', 'PERCENTAGE', 15, '2024-03-25', '2024-03-27', 'ACTIVE'),
-('promo-002', 'Mua 2 Tặng 1', 'Áp dụng cho tất cả đồ ăn vặt', 'BUY_X_GET_Y', 33, '2024-03-20', '2024-04-05', 'ACTIVE'),
-('promo-003', 'Khuyến Mãi Hàng Tươi Sống', 'Giảm 10% cho sữa tươi, trứng, rau đông lạnh', 'PERCENTAGE', 10, '2024-03-15', '2024-03-31', 'ACTIVE')
+INSERT INTO promotions (promotion_id, promotion_name, promotion_description, promotion_type, discount_percent, buy_quantity, get_quantity, start_date, end_date, status) VALUES
+('promo-001', 'Flash Sale Điện Tử', 'Giảm giá sốc các sản phẩm điện tử trong 3 ngày', 'PERCENTAGE', 15, NULL, NULL, CURRENT_DATE - INTERVAL '2 days', CURRENT_DATE + INTERVAL '1 day', 'ACTIVE'),
+('promo-002', 'Mua 2 Tặng 1', 'Áp dụng cho tất cả đồ ăn vặt', 'BUY_X_GET_Y', 33, 2, 1, CURRENT_DATE - INTERVAL '5 days', CURRENT_DATE + INTERVAL '16 days', 'ACTIVE'),
+('promo-003', 'Khuyến Mãi Hàng Tươi Sống', 'Giảm 10% cho sữa tươi, trứng, rau đông lạnh', 'PERCENTAGE', 10, NULL, NULL, CURRENT_DATE - INTERVAL '5 days', CURRENT_DATE + INTERVAL '11 days', 'ACTIVE')
 ON CONFLICT (promotion_id) DO NOTHING;
 
 -- Only insert promotion_products if they don't already exist (check via NOT EXISTS)
