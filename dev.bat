@@ -253,7 +253,7 @@ if "%AUTO_SEED%"=="yes" (
     echo  [Seeding] Inserting test data...
     
     pushd "%ROOT%\infrastructure\seed"
-    docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db < master_seed.sql >nul 2>&1
+    docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db < consolidated_seed.sql >nul 2>&1
     
     if errorlevel 1 (
         echo       [WARN] Seeding failed. Tables may not exist yet.

@@ -72,7 +72,7 @@ echo.
 echo  [4/4] Seeding data...
 
 pushd "%SCRIPT_DIR%"
-docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db < master_seed.sql
+docker exec -i fivetpromart-postgres psql -U postgres -d fivetpromart_db < consolidated_seed.sql
 
 if errorlevel 1 (
     echo       [ERROR] Seeding failed!
