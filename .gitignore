@@ -36,7 +36,11 @@ infrastructure/data/
 
 ### Temporary output files ###
 _output.txt
+_*.txt
 *.log
+
+### Dev Mode temporary runner scripts (auto-generated, never commit!) ###
+infrastructure/scripts/.run-*.ps1
 
 ### Java upgrade logs ###
 .github/java-upgrade/
