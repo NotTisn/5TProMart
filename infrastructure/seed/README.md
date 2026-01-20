@@ -39,18 +39,23 @@ master_seed.sql            Runs all modules in order
 - **30 Stock Batches**: With manufacture/expiry dates, import prices
 - **15 Customers**: Vietnamese names, loyalty points (340-3,200)
 - **5 Suppliers**: ELECTRONICS, FOOD, DAIRY, BEVERAGES, PERSONAL_CARE types
-- **3 Promotions**: Active Jan-Mar 2026 (percentage discount, buy-X-get-Y)
+- **3 Promotions**: Active promotions with relative dates (CURRENT_DATE ± days)
+- **12 Promotion-Product Links**: Junction table entries
+
+**Total: 105 rows** across 7 tables (10+5+30+30+15+3+12)
 
 ## Test Users (Keycloak)
 
 Configured in `keycloak-config/fivetpro-realm.json`:
 
-| Username | Password | Role |
-|----------|----------|------|
-| `admin` | `admin123` | Admin |
-| `manager` | `manager123` | Manager |
-| `salesstaff` | `sales123` | SalesStaff |
-| `warehousestaff` | `warehouse123` | WarehouseStaff |
+**⚠️ IMPORTANT: Login with USERNAME (not email)**
+
+| Username | Password | Role | Description |
+|----------|----------|------|-------------|
+| `admin` | `admin123` | Admin | Full system access |
+| `manager` | `manager123` | Manager | Read access + limited write |
+| `salesstaff` | `sales123` | SalesStaff | Orders, customers, payments |
+| `warehousestaff` | `warehouse123` | WarehouseStaff | Stock, inventory, suppliers |
 
 ## Modular Design
 

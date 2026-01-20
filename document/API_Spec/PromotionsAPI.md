@@ -63,12 +63,10 @@
       "promotionType": "Buy X Get Y",
       "products": [
         {
-          "productId": "productId_01",
-          "productName": "Coca"
-        },
-        {
-          "productId": "productId_02",
-          "productName": "Pepsi"
+          "productBuy": "productId_01",
+          "productName": "Coca",
+          "productGet": "productId_02",
+          "productName": "Kho Ga"
         }
       ],
       "buyQuantity": 1,
@@ -158,7 +156,16 @@
   "promotionName": "String",
   "promotionDescription": "String",
 
-  "products": ["productId_01", "productId_02",...],
+  "products": [
+    {
+        "productBuy": "productId_01",
+        "productGet": "productId_02",
+    },
+    {
+        "productBuy": "productId_03",
+        "productGet": "productId_04",
+    }
+  ]
 
   "promotionType": "Buy X Get Y",      // Required
   "buyQuantity": 1,        // Required
@@ -221,6 +228,39 @@
 }
 ```
 
+---
+
+## 1.5 Update promtions
+
+**Endpoint**: `PUT /api/v1/promotions/{id}/cancel`
+
+**Request Body**
+
+```json
+{
+  "promotionName": "String",
+  "promotionDescription": "Stringz",
+  "products": ["productId_01", "productId_03"],
+  "discountPercent": 15,
+  "startDate": "dd-MM-yyyy",
+  "endDate": "dd-MM-yyyy"
+}
+```
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Promotion updated successfully.",
+  "data": {
+    "promotionId": "promotionId_01",
+    "status": "Active", // BE tính và set lại
+    "updatedAt": "2026-01-20T..."
+  }
+}
+```
+
 > **NOTE LUỒNG:**
 >
 > **GHI CHÚ**
@@ -235,12 +275,13 @@
 > **NOTE FOR BACKEND:**
 >
 > 1. Khi thêm khuyến mãi mới, BE phải kiểm tra trong khoảng startDate -> endDate các sản phẩm trong danh sách đã có khuyến mãi nào Active chưa, nếu có thì response conflict
+> 2. Chỉ được update khuyến mãi có trạng thái khác "Active"
 
 > **NOTE CHO TÍNH NĂNG BÁN HÀNG (ORDERS)**
 >
 > 1. Khi gọi API **1.3 Check product (scan product code)**, hệ thống phải:
 > 2. Query để xem Promotion đang có status "Active" của sản phẩm đó
-> 3. Xử lý giá với "Discount" và tự thêm sản phẩm giá 0đ với "Buy X Get Y" khi khách mua >= X
+> 3. Xử lý giá với "Discount" và tự thêm sản phẩm "getProduct" số lượng "getQuantity" với giá 0đ khi khi khách mua "getProduct" >= "buyQuantity"
 
 > **PROMOTION COLLECTION**
 

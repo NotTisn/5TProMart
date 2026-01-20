@@ -31,6 +31,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("EMPTY_FIELD"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -44,6 +45,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_CUSTOMER_DATA"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -57,6 +59,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.NOT_FOUND.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("CUSTOMER_NOT_FOUND"))
             .build();
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -70,6 +73,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_PHONE_NUMBER"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -83,6 +87,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INSUFFICIENT_LOYALTY_POINTS"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -96,6 +101,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_PRODUCT_DATA"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -109,6 +115,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.NOT_FOUND.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("PRODUCT_NOT_FOUND"))
             .build();
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -122,6 +129,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_PRICE"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -135,6 +143,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_CATEGORY_DATA"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -148,6 +157,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.NOT_FOUND.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("CATEGORY_NOT_FOUND"))
             .build();
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -161,6 +171,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_SUPPLIER_DATA"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -174,6 +185,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.NOT_FOUND.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("SUPPLIER_NOT_FOUND"))
             .build();
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -187,6 +199,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_STOCK_DATA"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -200,6 +213,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_DATE_RANGE"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -213,6 +227,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("NEGATIVE_VALUE"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -226,6 +241,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.NOT_FOUND.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("RESOURCE_NOT_FOUND"))
             .build();
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -239,6 +255,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("OTP_EXPIRED"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -252,6 +269,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_OTP"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -265,6 +283,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_OPERATION"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -279,6 +298,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("DOMAIN_EXCEPTION"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -300,6 +320,7 @@ public class GlobalExceptionHandler {
                 .success(false)
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .message(ex.getMessage())
+                .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("ILLEGAL_ARGUMENT"))
                 .build();
 
         return ResponseEntity.badRequest().body(response);
@@ -317,6 +338,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INSUFFICIENT_STOCK"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -330,6 +352,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("INVALID_STOCK_RESERVATION"))
             .build();
 
     return ResponseEntity.badRequest().body(response);
@@ -343,6 +366,7 @@ public class GlobalExceptionHandler {
             .success(false)
             .statusCode(HttpStatus.NOT_FOUND.value())
             .message(ex.getMessage())
+            .error(com.fivetpromart.presentation.dto.response.ErrorDetail.of("STOCK_INVENTORY_NOT_FOUND"))
             .build();
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);

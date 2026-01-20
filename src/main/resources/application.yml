@@ -85,3 +85,10 @@ inventory:
 # WARNING: Never enable in production environments
 security:
   bypass-enabled: ${SECURITY_BYPASS:false}
+
+# --- AI ANALYTICS SERVICE ---
+# Python microservice for demand forecasting, bundle insights, margin optimization
+analytics:
+  service:
+    url: ${ANALYTICS_SERVICE_URL:http://localhost:8090}
+    enabled: ${ANALYTICS_ENABLED:true}

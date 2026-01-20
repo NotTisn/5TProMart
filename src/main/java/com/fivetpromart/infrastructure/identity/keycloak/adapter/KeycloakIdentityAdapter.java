@@ -51,7 +51,7 @@ public class KeycloakIdentityAdapter implements IdentityProviderPort {
             formParams.put("grant_type", "password");
             formParams.put("client_id", clientId);
             formParams.put("client_secret", clientSecret);
-            formParams.put("username", command.getEmail());
+            formParams.put("username", command.getUsername());
             formParams.put("password", command.getPassword());
             formParams.put("scope", "openid");
 
