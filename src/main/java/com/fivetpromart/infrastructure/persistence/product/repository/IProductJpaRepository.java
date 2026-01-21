@@ -12,33 +12,35 @@ import java.util.Optional;
 public interface IProductJpaRepository extends
         JpaRepository<ProductDbo,String>,
         JpaSpecificationExecutor<ProductDbo> {
+    
+    // Check existence including soft-deleted
     boolean existsByProductName(String productName);
 
     /**
-     * Find product by ID, excluding soft-deleted products
+     * Find product by ID, only active products
      */
-    @Query("SELECT p FROM ProductDbo p WHERE p.productId = :productId AND p.deletedAt IS NULL")
-    Optional<ProductDbo> findByIdAndNotDeleted(@Param("productId") String productId);
+    @Query("SELECT p FROM ProductDbo p WHERE p.productId = :productId AND p.isActive = true")
+    Optional<ProductDbo> findByProductIdAndIsActiveTrue(@Param("productId") String productId);
 
     /**
-     * Find product by name (case-insensitive), excluding soft-deleted
+     * Find product by name (case-insensitive), only active
      */
-    @Query("SELECT p FROM ProductDbo p WHERE LOWER(p.productName) LIKE LOWER(CONCAT('%', :name, '%')) AND p.deletedAt IS NULL")
-    List<ProductDbo> findByProductNameContainingAndNotDeleted(@Param("name") String name);
+    @Query("SELECT p FROM ProductDbo p WHERE LOWER(p.productName) LIKE LOWER(CONCAT('%', :name, '%')) AND p.isActive = true")
+    List<ProductDbo> findByProductNameContainingAndIsActiveTrue(@Param("name") String name);
 
     /**
-     * Find all products, excluding soft-deleted
+     * Find all active products
      */
-    @Query("SELECT p FROM ProductDbo p WHERE p.deletedAt IS NULL")
-    List<ProductDbo> findAllNotDeleted();
+    @Query("SELECT p FROM ProductDbo p WHERE p.isActive = true")
+    List<ProductDbo> findAllActive();
 
-    @Query("SELECT COUNT(p) FROM ProductDbo p WHERE p.deletedAt IS NULL")
+    @Query("SELECT COUNT(p) FROM ProductDbo p WHERE p.isActive = true")
     Long countAllProducts();
 
-    @Query("SELECT COUNT(p) FROM ProductDbo p WHERE p.deletedAt IS NULL AND p.totalStockQuantity > :threshold")
+    @Query("SELECT COUNT(p) FROM ProductDbo p WHERE p.isActive = true AND p.totalStockQuantity > :threshold")
     Long countByTotalStockQuantityGreaterThan(Long threshold);
 
-    @Query("SELECT COUNT(p) FROM ProductDbo p WHERE p.deletedAt IS NULL AND p.totalStockQuantity = :quantity")
+    @Query("SELECT COUNT(p) FROM ProductDbo p WHERE p.isActive = true AND p.totalStockQuantity = :quantity")
     Long countByTotalStockQuantityEquals(Long quantity);
 
     @Query("SELECT COALESCE(SUM(s.stockQuantity), 0) FROM StockInventoryDbo s WHERE s.productId = :productId")
