@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface IStaffRepository {
     Staff save(Staff staff);
     Optional<Staff> findById(String staffId);
+    Optional<Staff> findByIdIncludingDeleted(String staffId);
     Optional<Staff> findByUsername(String username);
     Optional<Staff> findByEmail(String email);
     boolean existsById(String staffId);

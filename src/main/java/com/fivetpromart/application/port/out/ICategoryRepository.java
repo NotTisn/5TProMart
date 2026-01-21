@@ -9,8 +9,12 @@ public interface ICategoryRepository {
     Category save(Category category);
 
     Optional<Category> findById(String categoryId);
+    
+    Optional<Category> findByIdIncludingDeleted(String categoryId);
 
     List<Category> findAll();
+    
+    List<Category> findAllIncludingDeleted();
 
     void delete(Category category);
 

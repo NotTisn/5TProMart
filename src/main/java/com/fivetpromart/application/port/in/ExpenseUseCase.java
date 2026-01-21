@@ -13,4 +13,5 @@ public interface ExpenseUseCase {
     ExpenseDto createExpense(CreateExpenseCommand command);
     ExpenseDto updateExpense(UpdateExpenseCommand command);
     ExpenseReportDto getCategoryReport(GetExpenseReportQuery query);
+    ExpenseDto restoreExpense(String expenseId);
 }

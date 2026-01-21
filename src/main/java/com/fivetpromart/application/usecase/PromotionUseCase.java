@@ -102,4 +102,18 @@ public class PromotionUseCase implements IPromotionUseCasePort {
         Promotion saved = promotionRepository.save(promotion);
         return mapper.toDto(saved);
     }
+
+    @Override
+    @Transactional
+    public PromotionDto restorePromotion(String promotionId) {
+        Promotion promotion = promotionRepository.findByIdIncludingDeleted(promotionId)
+                .orElseThrow(() -> new EntityNotFoundException("Promotion not found with ID: " + promotionId));
+        
+        if (promotion.isActive()) {
+            log.warn("Promotion {} is already active", promotionId);
+        }
+        
+        promotion.activate();
+        return mapper.toDto(promotionRepository.save(promotion));
+    }
 }

@@ -54,6 +54,20 @@ public class CategoryUseCase implements ICategoryUseCasePort {
     }
 
     @Override
+    public List<CategoryDto> findAllCategories(Boolean includeDeleted) {
+        List<Category> categories;
+        if (includeDeleted != null && includeDeleted) {
+            categories = categoryRepository.findAllIncludingDeleted();
+        } else {
+            categories = categoryRepository.findAll();
+        }
+
+        return categories.stream()
+                .map(mapper::ToDto)
+                .toList();
+    }
+
+    @Override
     public CategoryDto findCategoryById(String categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException(categoryId));
@@ -68,5 +82,16 @@ public class CategoryUseCase implements ICategoryUseCasePort {
         categoryRepository.delete(category);
     }
 
-
+    @Override
+    public CategoryDto restoreCategory(String categoryId) {
+        Category category = categoryRepository.findByIdIncludingDeleted(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
+        
+        if (category.isActive()) {
+            log.warn("Category {} is already active", categoryId);
+        }
+        
+        category.activate();
+        return mapper.ToDto(categoryRepository.save(category));
+    }
 }

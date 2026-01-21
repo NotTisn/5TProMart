@@ -115,4 +115,17 @@ public class CustomerUseCase implements ICustomerUseCasePort {
         Page<Customer> page = customerRepository.searchCustomers(query, pageable);
         return page.map(mapper::toDto);
     }
+
+    @Override
+    public CustomerDto restoreCustomer(String customerId) {
+        Customer customer = customerRepository.findByIdIncludingDeleted(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+        
+        if (customer.isActive()) {
+            log.warn("Customer {} is already active", customerId);
+        }
+        
+        customer.activate();
+        return mapper.toDto(customerRepository.save(customer));
+    }
 }

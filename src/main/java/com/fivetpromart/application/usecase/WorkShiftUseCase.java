@@ -50,13 +50,23 @@ public class WorkShiftUseCase {
     }
     
     @Transactional(readOnly = true)
-    public List<WorkShiftDto> getWorkShifts(Boolean isActive) {
+    public List<WorkShiftDto> getWorkShifts(Boolean isActive, Boolean includeDeleted) {
         List<WorkShift> shifts;
         
-        if (isActive != null) {
-            shifts = workShiftRepository.findByIsActive(isActive);
+        if (includeDeleted != null && includeDeleted) {
+            // Return all including deleted
+            if (isActive != null) {
+                shifts = workShiftRepository.findByIsActive(isActive);
+            } else {
+                shifts = workShiftRepository.findAllIncludingDeleted();
+            }
         } else {
-            shifts = workShiftRepository.findAll();
+            // Default: only active records
+            if (isActive != null) {
+                shifts = workShiftRepository.findByIsActive(isActive);
+            } else {
+                shifts = workShiftRepository.findAll();
+            }
         }
         
         return shifts.stream()
@@ -70,5 +80,19 @@ public class WorkShiftUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Work shift not found with id: " + id));
         
         return mapper.toDto(shift);
+    }
+
+    @Transactional
+    public WorkShiftDto restoreWorkShift(String shiftId) {
+        WorkShift shift = workShiftRepository.findByIdIncludingDeleted(shiftId)
+                .orElseThrow(() -> new IllegalArgumentException("Work shift not found with id: " + shiftId));
+        
+        if (shift.isActive()) {
+            // Already active, no need to restore
+            return mapper.toDto(shift);
+        }
+        
+        shift.activate();
+        return mapper.toDto(workShiftRepository.save(shift));
     }
 }

@@ -16,5 +16,5 @@ public interface ICustomerUseCasePort {
     List<CustomerDto> getAllCustomers();
     CustomerDto getCustomerById(String customerId);
     Page<CustomerDto> getAllCustomers(CustomerSearchQuery query, Pageable pageable);
-
+    CustomerDto restoreCustomer(String customerId);
 }

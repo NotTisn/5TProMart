@@ -13,6 +13,7 @@ public interface IProductRepository {
     Product updateProduct(Product product);
     Product save(Product product);
     Optional<Product> findById(String productId);
+    Optional<Product> findByIdIncludingDeleted(String productId); // For restore
     List<Product> findByName(String productName);
     List<Product> findAll();
     boolean existsByProductName(String name);

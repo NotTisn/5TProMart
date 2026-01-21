@@ -101,4 +101,22 @@ public class ExpenseUseCaseImpl implements ExpenseUseCase {
         
         return expenseDataMapper.toDto(report);
     }
+
+    @Override
+    @Transactional
+    public ExpenseDto restoreExpense(String expenseId) {
+        log.info("Restoring expense: {}", expenseId);
+        
+        Expense expense = expensePersistencePort.findByIdIncludingDeleted(new ExpenseId(expenseId))
+                .orElseThrow(() -> new ResourceNotFoundException("Expense not found with ID: " + expenseId));
+        
+        if (expense.isActive()) {
+            log.warn("Expense {} is already active", expenseId);
+        }
+        
+        expense.activate();
+        Expense saved = expensePersistencePort.save(expense);
+        
+        return expenseDataMapper.toDto(saved);
+    }
 }

@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface ExpensePersistencePort {
     Page<Expense> findExpenses(LocalDate startDate, LocalDate endDate, String search, Pageable pageable);
     Optional<Expense> findById(ExpenseId expenseId);
+    Optional<Expense> findByIdIncludingDeleted(ExpenseId expenseId);
     Expense save(Expense expense);
     ExpenseReport generateCategoryReport(LocalDate startDate, LocalDate endDate);
 }

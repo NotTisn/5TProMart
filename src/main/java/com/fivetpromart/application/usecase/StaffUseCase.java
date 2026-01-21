@@ -198,4 +198,17 @@ public class StaffUseCase implements IStaffUseCasePort {
         log.info("Local staff profile created and saved: profileId={}, userId={}",
                 staff.getProfileId(), userId);
     }
+
+    @Override
+    public StaffAccountDto restoreStaff(String staffId) {
+        Staff staff = staffRepository.findByIdIncludingDeleted(staffId)
+                .orElseThrow(() -> new EntityNotFoundException("Staff not found with ID: " + staffId));
+        
+        if (staff.isActive()) {
+            log.warn("Staff {} is already active", staffId);
+        }
+        
+        staff.activate();
+        return mapper.toDto(staffRepository.save(staff));
+    }
 }

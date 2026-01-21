@@ -104,6 +104,24 @@ public class ProductUseCase implements IProductUseCasePort {
     }
 
     @Override
+    @Transactional
+    public ProductDto restoreProduct(String productId) {
+        // Find including deleted records
+        Product product = productRepository.findByIdIncludingDeleted(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+        
+        if (product.isActive()) {
+            log.warn("Product {} is already active", productId);
+        }
+        
+        product.activate(); // Domain method
+        Product restored = productRepository.save(product);
+        
+        log.info("Restored product: {}", productId);
+        return mapper.toDto(restored);
+    }
+
+    @Override
     public List<ProductDto> getAllProducts() {
         List<Product> products = productRepository.findAll();
 

@@ -11,4 +11,5 @@ public interface IPromotionUseCasePort {
     PromotionDto getPromotionById(String promotionId);
     PromotionDto createPromotion(PromotionCreationCommand command);
     PromotionDto cancelPromotion(String promotionId);
+    PromotionDto restorePromotion(String promotionId);
 }

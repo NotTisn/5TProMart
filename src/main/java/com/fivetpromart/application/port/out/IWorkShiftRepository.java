@@ -11,7 +11,11 @@ public interface IWorkShiftRepository {
     
     Optional<WorkShift> findById(String id);
     
+    Optional<WorkShift> findByIdIncludingDeleted(String id);
+    
     List<WorkShift> findAll();
+    
+    List<WorkShift> findAllIncludingDeleted();
     
     List<WorkShift> findByIsActive(boolean isActive);
     
