@@ -44,6 +44,7 @@ public class ExpenseController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate endDate,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @RequestParam(defaultValue = "payDate") String sortBy,
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(defaultValue = "0") int page,
@@ -56,6 +57,7 @@ public class ExpenseController {
                 .startDate(startDate)
                 .endDate(endDate)
                 .search(search)
+                .includeDeleted(includeDeleted)
                 .sortBy(sortBy)
                 .order(order)
                 .page(page)
@@ -135,6 +137,24 @@ public class ExpenseController {
                 .success(true)
                 .message("Expense updated successfully.")
                 .data(response)
+                .build();
+    }
+
+    @PostMapping("/{id}/restore")
+    @PreAuthorize("hasRole('Admin')")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ExpenseResponse> restoreExpense(
+            @PathVariable String id
+    ) {
+        log.info("Restoring expense: {}", id);
+
+        ExpenseDto expenseDto = expenseUseCase.restoreExpense(id);
+
+        return ApiResponse.<ExpenseResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully restored expense")
+                .data(mapper.toResponse(expenseDto))
                 .build();
     }
 

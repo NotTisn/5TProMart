@@ -91,6 +91,7 @@ public class ProductController {
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) String categoryId,
             @RequestParam(required = false) String productId,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         // 1. Gọi UseCase (Nhận về Page của Spring)
@@ -98,6 +99,7 @@ public class ProductController {
                 .productName(productName)
                 .categoryId(categoryId)
                 .productId(productId)
+                .includeDeleted(includeDeleted)
                 .build();
         Page<ProductDto> pageResult = productUseCase.getAllProducts(query, pageable);
 
@@ -167,6 +169,20 @@ public class ProductController {
                 .statusCode(200)
                 .message("Get product statistics successfully")
                 .data(response)
+                .build();
+    }
+
+    @PostMapping("/{productId}/restore")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<ProductResponse> restoreProduct(@PathVariable String productId) {
+        ProductDto dto = productUseCase.restoreProduct(productId);
+        
+        return ApiResponse.<ProductResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully restored product")
+                .data(mapper.toProductResponse(dto))
                 .build();
     }
 }

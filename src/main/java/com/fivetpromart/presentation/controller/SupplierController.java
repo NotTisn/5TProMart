@@ -107,6 +107,22 @@ public class SupplierController {
                 .build();
     }
 
+    @PostMapping("/{supplierId}/restore")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<SupplierResponse> restoreSupplier(
+            @PathVariable String supplierId
+    ) {
+        SupplierDto dto = supplierUseCase.restoreSupplier(supplierId);
+
+        return ApiResponse.<SupplierResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully restored supplier")
+                .data(mapper.toResponse(dto))
+                .build();
+    }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyRole('Admin', 'Manager', 'WarehouseStaff')")
@@ -118,6 +134,7 @@ public class SupplierController {
             @RequestParam(required = false) String supplierType,
             @RequestParam(required = false) String phoneNumber,
             @RequestParam(required = false) String address,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             
             @PageableDefault(size = 10) Pageable pageable
     ) {
@@ -126,6 +143,7 @@ public class SupplierController {
                 .supplierType(supplierType)
                 .phoneNumber(phoneNumber)
                 .address(address)
+                .includeDeleted(includeDeleted)
                 .build();
                 
         Page<SupplierDto> pageResult = supplierUseCase.getAllSuppliers(query, pageable);

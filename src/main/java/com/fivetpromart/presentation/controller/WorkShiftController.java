@@ -24,9 +24,10 @@ public class WorkShiftController {
 
     @GetMapping("/work-shifts")
     public ApiResponse<List<WorkShiftResponse>> getWorkShifts(
-            @RequestParam(required = false) Boolean isActive
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(required = false) Boolean includeDeleted
     ) {
-        var dtos = useCase.getWorkShifts(isActive);
+        var dtos = useCase.getWorkShifts(isActive, includeDeleted);
         var responses = dtos.stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());

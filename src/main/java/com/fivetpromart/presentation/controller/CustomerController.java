@@ -86,6 +86,22 @@ public class CustomerController {
                 .build();
     }
 
+    @PostMapping("/{customerId}/restore")
+    @PreAuthorize("hasRole('Admin')")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<CustomerResponse> restoreCustomer(
+            @PathVariable String customerId
+    ) {
+        CustomerDto dto = customerUseCase.restoreCustomer(customerId);
+
+        return ApiResponse.<CustomerResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully restored customer")
+                .data(mapper.toResponse(dto))
+                .build();
+    }
+
     @GetMapping("/all")
     @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff')")
     public ApiResponse<List<CustomerResponse>> getAllCustomers() {
@@ -124,11 +140,13 @@ public class CustomerController {
     public ApiResponse<List<CustomerResponse>> getAllCustomersByPage(
         @RequestParam(required = false) String customerName,
         @RequestParam(required = false) String customerId,
+        @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
         @PageableDefault(size = 10) Pageable pageable
     ) {
         CustomerSearchQuery query =  CustomerSearchQuery.builder()
                 .customerName(customerName)
                 .customerId(customerId)
+                .includeDeleted(includeDeleted)
                 .build();
         Page<CustomerDto> pageResult = customerUseCase.getAllCustomers(query, pageable);
 

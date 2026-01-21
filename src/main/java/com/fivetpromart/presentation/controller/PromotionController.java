@@ -46,6 +46,7 @@ public class PromotionController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @RequestParam(defaultValue = "startDate") String sortBy,
             @RequestParam(defaultValue = "asc") String order,
             @RequestParam(defaultValue = "0") int page,
@@ -55,6 +56,7 @@ public class PromotionController {
                 .search(search)
                 .type(type)
                 .status(status)
+                .includeDeleted(includeDeleted)
                 .sortBy(sortBy)
                 .order(order)
                 .build();
@@ -189,6 +191,25 @@ public class PromotionController {
         return ApiResponse.<PromotionResponse>builder()
                 .success(true)
                 .message("Promotion cancelled.")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * 1.5 Restore promotion
+     * POST /api/v1/promotions/{id}/restore
+     */
+    @PostMapping("/{id}/restore")
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<PromotionResponse> restorePromotion(@PathVariable String id) {
+        PromotionDto dto = promotionUseCase.restorePromotion(id);
+
+        PromotionResponse response = mapper.toResponse(dto);
+
+        return ApiResponse.<PromotionResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully restored promotion")
                 .data(response)
                 .build();
     }
