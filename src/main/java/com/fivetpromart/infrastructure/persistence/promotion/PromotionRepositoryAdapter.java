@@ -29,8 +29,13 @@ public class PromotionRepositoryAdapter implements IPromotionRepository {
 
     @Override
     public Optional<Promotion> findById(String promotionId) {
-        return jpaRepository.findById(promotionId)
+        return jpaRepository.findByPromotionIdAndIsActiveTrue(promotionId)
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Promotion> findByIdIncludingDeleted(String promotionId) {
+        return jpaRepository.findById(promotionId).map(mapper::toDomain);
     }
 
     @Override
@@ -42,7 +47,11 @@ public class PromotionRepositoryAdapter implements IPromotionRepository {
 
     @Override
     public void deleteById(String promotionId) {
-        jpaRepository.deleteById(promotionId);
+        // SOFT DELETE: Set isActive to false
+        PromotionDbo dbo = jpaRepository.findById(promotionId)
+                .orElseThrow();
+        dbo.setIsActive(false);
+        jpaRepository.save(dbo);
     }
 
     @Override

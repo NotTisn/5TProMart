@@ -14,6 +14,12 @@ public class PromotionSpecification {
         return (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // 0. Filter by isActive status (default: only active promotions)
+            Boolean includeDeleted = query.getIncludeDeleted();
+            if (includeDeleted == null || !includeDeleted) {
+                predicates.add(criteriaBuilder.equal(root.get("isActive"), true));
+            }
+
             // SEARCH: promotionId, promotionName, productName
             if (query.getSearch() != null && !query.getSearch().isBlank()) {
                 String searchPattern = "%" + query.getSearch().toLowerCase() + "%";

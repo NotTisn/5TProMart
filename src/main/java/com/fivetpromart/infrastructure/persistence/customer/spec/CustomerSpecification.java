@@ -13,6 +13,12 @@ public class CustomerSpecification {
         return((root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // 0. Filter by isActive status (default: only active customers)
+            Boolean includeDeleted = query.getIncludeDeleted();
+            if (includeDeleted == null || !includeDeleted) {
+                predicates.add(criteriaBuilder.equal(root.get("isActive"), true));
+            }
+
             // 1. Lọc theo id
             if (query.getCustomerId() != null && !query.getCustomerId().isBlank()) {
                 predicates.add(criteriaBuilder.equal(root.get("customerId"), query.getCustomerId()));
@@ -22,7 +28,7 @@ public class CustomerSpecification {
             if (query.getCustomerName() != null && !query.getCustomerName().isBlank()) {
                 // lower(customerName) like %value%
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("productName")),
+                        criteriaBuilder.lower(root.get("fullName")),
                         "%" + query.getCustomerName().toLowerCase() + "%"
                 ));
             }

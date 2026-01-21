@@ -3,8 +3,11 @@ package com.fivetpromart.infrastructure.persistence.supplier;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,4 +49,16 @@ public class SupplierDbo {
 
     @Column(name = "current_debt", precision = 20, scale = 2)
     BigDecimal currentDebt;
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    Boolean isActive = true;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    LocalDateTime updatedAt;
 }

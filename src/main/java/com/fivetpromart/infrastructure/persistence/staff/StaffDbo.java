@@ -3,8 +3,11 @@ package com.fivetpromart.infrastructure.persistence.staff;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "staff_profiles")
@@ -48,4 +51,16 @@ public class StaffDbo {
 
     @Column(name = "bio", columnDefinition = "TEXT")
     String bio;
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    Boolean isActive = true;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    LocalDateTime updatedAt;
 }

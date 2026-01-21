@@ -3,7 +3,10 @@ package com.fivetpromart.infrastructure.persistence.workshift;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +30,17 @@ public class ShiftRoleConfigDbo {
     @Column(name = "description", length = 500)
     String description;
     
-    @Column(name = "is_active")
-    boolean isActive;
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    boolean isActive = true;
+    
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    LocalDateTime createdAt;
+    
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    LocalDateTime updatedAt;
     
     @ElementCollection
     @CollectionTable(

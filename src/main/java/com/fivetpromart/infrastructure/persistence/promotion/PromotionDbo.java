@@ -3,8 +3,11 @@ package com.fivetpromart.infrastructure.persistence.promotion;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,4 +55,16 @@ public class PromotionDbo {
 
     @Column(name = "status", nullable = false)
     String status;
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    Boolean isActive = true;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    LocalDateTime updatedAt;
 }
