@@ -9,6 +9,7 @@ public record GetExpensesQuery(
         LocalDate startDate,
         LocalDate endDate,
         String search,
+        Boolean includeDeleted,
         String sortBy,
         String order,
         int page,

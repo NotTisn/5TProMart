@@ -13,4 +13,7 @@ public class SupplierSearchQuery {
     private String supplierType;           // Doanh nghiệp / Tư nhân
     private String phoneNumber;            // Số điện thoại
     private String address;                // Địa chỉ (contains)
+    
+    // Soft delete filter
+    private Boolean includeDeleted;        // null or false = only active, true = include deleted
 }

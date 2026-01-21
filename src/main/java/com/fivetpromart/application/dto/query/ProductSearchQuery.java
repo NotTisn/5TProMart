@@ -10,4 +10,7 @@ public class ProductSearchQuery {
     private String productId;
     private String categoryId;
     private String productName;
+    
+    // Soft delete filter
+    private Boolean includeDeleted; // null or false = only active, true = include deleted
 }

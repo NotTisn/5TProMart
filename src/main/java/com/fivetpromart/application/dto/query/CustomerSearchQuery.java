@@ -8,4 +8,7 @@ import lombok.Getter;
 public class CustomerSearchQuery {
     private String customerId;
     private String customerName;
+    
+    // Soft delete filter
+    private Boolean includeDeleted; // null or false = only active, true = include deleted
 }
