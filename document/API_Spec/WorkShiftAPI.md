@@ -97,6 +97,95 @@
 
 ---
 
+---
+
+## 2.1.3 Update role config
+
+**Endpoint:** `PUT /api/v1/shift-role-configs/{id}`
+
+**Request Body**
+
+```json
+{
+  "configName": "String",
+  "requirements": [
+    {
+      "accountType": "SalesStaff",
+      "quantity": 3
+    },
+    {
+      "accountType": "WarehouseStaff",
+      "quantity": 3
+    }
+  ],
+  "isActive": "true" || "false"
+}
+```
+
+**Response 201**
+
+```json
+{
+  "success": true,
+  "message": "Role config updated successfully.",
+  "data": {
+    "id": "String",
+    "configName": "Ca sáng",
+    "requirements": [
+      {
+        "accountType": "SalesStaff",
+        "quantity": 3
+      },
+      {
+        "accountType": "WarehouseStaff",
+        "quantity": 2
+      }
+    ],
+    "isActive": true
+  }
+}
+```
+
+## 2.1.4 Delete role config
+
+**Endpoint:** `DELETE /api/v1/shift-role-configs/{id}`
+
+**Request Body**
+
+```json
+{
+  "success": true,
+  "message": "Role config deleted successfully.", //  Xoá mềm, set isActive = false
+  "data": null
+}
+```
+
+**Response 201**
+
+```json
+{
+  "success": true,
+  "message": "Role config updated successfully.",
+  "data": {
+    "id": "String",
+    "configName": "Ca sáng",
+    "requirements": [
+      {
+        "accountType": "SalesStaff",
+        "quantity": 3
+      },
+      {
+        "accountType": "WarehouseStaff",
+        "quantity": 2
+      }
+    ],
+    "isActive": true
+  }
+}
+```
+
+---
+
 ## 2.2. Work Shift
 
 ---

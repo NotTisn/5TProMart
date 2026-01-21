@@ -158,18 +158,18 @@
 
   "products": [
     {
-        "productBuy": "productId_01",
-        "productGet": "productId_02",
+      "productBuy": "productId_01",
+      "productGet": "productId_02"
     },
     {
-        "productBuy": "productId_03",
-        "productGet": "productId_04",
+      "productBuy": "productId_03",
+      "productGet": "productId_04"
     }
-  ]
+  ],
 
-  "promotionType": "Buy X Get Y",      // Required
-  "buyQuantity": 1,        // Required
-  "getQuantity": 1,        // Required
+  "promotionType": "Buy X Get Y", // Required
+  "buyQuantity": 1, // Required
+  "getQuantity": 1, // Required
 
   "startDate": "Date",
   "endDate": "Date"
