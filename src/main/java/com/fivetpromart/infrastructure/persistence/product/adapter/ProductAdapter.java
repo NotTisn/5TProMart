@@ -48,12 +48,18 @@ public class ProductAdapter implements IProductRepository {
     @Override
     public Optional<Product> findById(String productId) {
         // Use query that filters soft-deleted products
-        return productRepository.findByIdAndNotDeleted(productId).map(mapper::toDomain);
+        return productRepository.findByProductIdAndIsActiveTrue(productId).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Product> findByIdIncludingDeleted(String productId) {
+        // Find even deleted records - for restore functionality
+        return productRepository.findById(productId).map(mapper::toDomain);
     }
 
     @Override
     public List<Product> findByName(String productName) {
-        return productRepository.findByProductNameContainingAndNotDeleted(productName)
+        return productRepository.findByProductNameContainingAndIsActiveTrue(productName)
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -61,7 +67,7 @@ public class ProductAdapter implements IProductRepository {
 
     @Override
     public List<Product> findAll() {
-        return productRepository.findAllNotDeleted()
+        return productRepository.findAllActive()
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -79,19 +85,13 @@ public class ProductAdapter implements IProductRepository {
 
     @Override
     public void delete(Product product) {
-        // SOFT DELETE: Set deletedAt and deletedBy instead of removing from database
+        // SOFT DELETE: Set isActive to false instead of removing from database
         ProductDbo dbo = productRepository.findById(product.getProductId())
                 .orElseThrow();
 
-        dbo.setDeletedAt(LocalDateTime.now());
-        dbo.setDeletedBy(getCurrentUser());
+        dbo.setIsActive(false);
 
         productRepository.save(dbo);
-    }
-
-    private String getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null ? authentication.getName() : "system";
     }
 
     @Override

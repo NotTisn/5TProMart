@@ -27,13 +27,13 @@ public class ShiftRoleConfigAdapter implements IShiftRoleConfigRepository {
     
     @Override
     public Optional<ShiftRoleConfig> findById(String id) {
-        return jpaRepository.findById(id)
+        return jpaRepository.findByIdAndIsActiveTrue(id)
                 .map(mapper::toDomain);
     }
     
     @Override
     public List<ShiftRoleConfig> findAll() {
-        return jpaRepository.findAll().stream()
+        return jpaRepository.findByIsActive(true).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }

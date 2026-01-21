@@ -28,17 +28,31 @@ public class CategoryAdapter implements ICategoryRepository {
 
     @Override
     public Optional<Category> findById(String categoryId) {
+        return categoryJpaRepository.findByCategoryIdAndIsActiveTrue(categoryId).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Category> findByIdIncludingDeleted(String categoryId) {
         return categoryJpaRepository.findById(categoryId).map(mapper::toDomain);
     }
 
     @Override
     public List<Category> findAll() {
+        return categoryJpaRepository.findAllActive().stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
+    public List<Category> findAllIncludingDeleted() {
         return categoryJpaRepository.findAll().stream().map(mapper::toDomain).toList();
     }
 
     @Override
     public void delete(Category category) {
-        categoryJpaRepository.delete(mapper.toDbo(category));
+        // SOFT DELETE: Set isActive to false
+        CategoryDbo dbo = categoryJpaRepository.findById(category.getCategoryId())
+                .orElseThrow();
+        dbo.setIsActive(false);
+        categoryJpaRepository.save(dbo);
     }
 
     @Override

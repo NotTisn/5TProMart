@@ -42,6 +42,13 @@ public class ExpensePersistenceAdapter implements ExpensePersistencePort {
     @Override
     public Optional<Expense> findById(ExpenseId expenseId) {
         log.debug("Finding expense by ID: {}", expenseId.value());
+        return expenseJpaRepository.findByExpenseIdAndIsActiveTrue(expenseId.value())
+                .map(expensePersistenceMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Expense> findByIdIncludingDeleted(ExpenseId expenseId) {
+        log.debug("Finding expense by ID including deleted: {}", expenseId.value());
         return expenseJpaRepository.findById(expenseId.value())
                 .map(expensePersistenceMapper::toDomain);
     }

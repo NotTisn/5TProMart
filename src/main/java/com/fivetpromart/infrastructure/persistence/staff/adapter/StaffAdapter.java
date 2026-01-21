@@ -31,12 +31,17 @@ public class StaffAdapter implements IStaffRepository {
 
     @Override
     public Optional<Staff> findById(String staffId) {
+        return staffJpaRepository.findByProfileIdAndIsActiveTrue(staffId).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Staff> findByIdIncludingDeleted(String staffId) {
         return staffJpaRepository.findById(staffId).map(mapper::toDomain);
     }
 
     @Override
     public Optional<Staff> findByUsername(String username) {
-        return staffJpaRepository.findByUsername(username).map(mapper::toDomain);
+        return staffJpaRepository.findByUsernameAndIsActiveTrue(username).map(mapper::toDomain);
     }
 
     @Override
@@ -61,7 +66,11 @@ public class StaffAdapter implements IStaffRepository {
 
     @Override
     public void deleteById(String staffId) {
-        staffJpaRepository.deleteById(staffId);
+        // SOFT DELETE: Set isActive to false
+        StaffDbo dbo = staffJpaRepository.findById(staffId)
+                .orElseThrow();
+        dbo.setIsActive(false);
+        staffJpaRepository.save(dbo);
     }
 
     @Override

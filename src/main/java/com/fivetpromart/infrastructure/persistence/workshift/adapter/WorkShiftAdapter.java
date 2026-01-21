@@ -27,12 +27,25 @@ public class WorkShiftAdapter implements IWorkShiftRepository {
     
     @Override
     public Optional<WorkShift> findById(String id) {
+        return jpaRepository.findByIdAndIsActiveTrue(id)
+                .map(mapper::toDomain);
+    }
+    
+    @Override
+    public Optional<WorkShift> findByIdIncludingDeleted(String id) {
         return jpaRepository.findById(id)
                 .map(mapper::toDomain);
     }
     
     @Override
     public List<WorkShift> findAll() {
+        return jpaRepository.findByIsActive(true).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<WorkShift> findAllIncludingDeleted() {
         return jpaRepository.findAll().stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
