@@ -19,6 +19,7 @@ public class Product {
     private String unitOfMeasure;
     private BigDecimal sellingPrice;
     private Integer totalStockQuantity;
+    private Boolean isActive = true;
 
     public static Product create(String productName, String categoryId, String unitOfMeasure, BigDecimal sellingPrice) {
         if (productName == null || productName.isBlank()) {
@@ -75,5 +76,18 @@ public class Product {
         if (quantity != null && quantity >= 0) {
             this.totalStockQuantity = quantity;
         }
+    }
+
+    // Soft delete methods
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public boolean isActive() {
+        return this.isActive != null && this.isActive;
     }
 }

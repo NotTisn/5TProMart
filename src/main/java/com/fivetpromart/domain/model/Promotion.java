@@ -31,6 +31,7 @@ public class Promotion {
     private LocalDate endDate;
     private String status;
     private PromotionStrategy promotionStrategy;
+    private Boolean isActive = true;
 
     public static Promotion create(
             String promotionName,
@@ -153,5 +154,18 @@ public class Promotion {
             }
             default -> throw new InvalidPromotionException("Unknown promotion type: " + promotionType);
         };
+    }
+
+    // Soft delete methods
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public boolean isActive() {
+        return this.isActive != null && this.isActive;
     }
 }

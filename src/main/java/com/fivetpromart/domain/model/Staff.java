@@ -21,6 +21,7 @@ public class Staff {
     private String avatarUrl;
     private String location;
     private String bio;
+    private Boolean isActive = true;
 
     // =================================================================
     // 1. FACTORY: CREATE NEW STAFF
@@ -119,5 +120,18 @@ public class Staff {
     public void updateAvatar(String avatarUrl) {
         // TODO: Validate avatar URL format if needed
         this.avatarUrl = avatarUrl;
+    }
+
+    // Soft delete methods
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public boolean isActive() {
+        return this.isActive != null && this.isActive;
     }
 }

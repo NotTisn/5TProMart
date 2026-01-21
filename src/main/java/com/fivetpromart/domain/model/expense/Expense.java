@@ -16,6 +16,8 @@ public class Expense {
     private final BigDecimal amount;
     private final LocalDate payDate;
     private final List<String> images;
+    @Builder.Default
+    private final Boolean isActive = true;
 
     public void validate() {
         if (category == null || category.isBlank()) {
@@ -51,5 +53,18 @@ public class Expense {
 
     public Expense withImages(List<String> images) {
         return this.toBuilder().images(images).build();
+    }
+
+    // Soft delete methods
+    public Expense deactivate() {
+        return this.toBuilder().isActive(false).build();
+    }
+
+    public Expense activate() {
+        return this.toBuilder().isActive(true).build();
+    }
+
+    public boolean isActive() {
+        return this.isActive != null && this.isActive;
     }
 }

@@ -12,6 +12,7 @@ import java.util.UUID;
 public class Category {
     private String categoryId;
     private String categoryName;
+    private Boolean isActive = true;
 
     public static Category create(String categoryName) {
         if (categoryName == null || categoryName.isEmpty())
@@ -30,6 +31,7 @@ public class Category {
         Category category = new Category();
         category.categoryId = id;
         category.categoryName = name;
+        category.isActive = true;
         return category;
     }
 
@@ -37,6 +39,19 @@ public class Category {
         if(categoryName != null && categoryName.isBlank()) {
             this.categoryName = categoryName;
         }
+    }
+
+    // Soft delete methods
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public boolean isActive() {
+        return this.isActive != null && this.isActive;
     }
 }
 
