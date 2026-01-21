@@ -155,7 +155,7 @@
 ```json
 {
   "success": true,
-  "message": "Role config deleted successfully.", //  Xoá mềm, set isActive = false
+  "message": "Role config deleted successfully.", //  Xoá mềm, set isActive = falsé
   "data": null
 }
 ```
