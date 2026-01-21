@@ -33,6 +33,8 @@
       "expirationDate": "dd-MM-yyyy",
       "stockQuantity": "number",
       "importPrice": "number",
+      "quantityShelf": "number",
+      "quantityStorage": "number",
       "status": "string"
     }
   ],
@@ -64,6 +66,8 @@
     "expirationDate": "dd-MM-yyyy",
     "stockQuantity": "number",
     "importPrice": "number",
+    "quantityShelf": "number",
+    "quantityStorage": "number",
     "status": "string"
   }
 }
@@ -100,6 +104,8 @@
     "expirationDate": "dd-MM-yyyy",
     "stockQuantity": "number",
     "importPrice": "number",
+    "quantityShelf": 0, // default = 0
+    "quantityStorage": "number", // quantityStorage = stockQuantity
     "status": ""
   }
 }
@@ -130,10 +136,10 @@
 
 ```json
 {
-{
   "stockQuantity": "number",
-  "status": "string"
-}
+  "status": "string",
+  "quantityStorage": "number",
+  "quantityShelf": "number"
 }
 ```
 
@@ -146,6 +152,8 @@
   "data": {
     "lotId": "string",
     "stockQuantity": "number",
+    "quantityStorage": "number",
+    "quantityShelf": "number",
     "status": "string"
   }
 }
@@ -249,3 +257,11 @@
 > 3. Trừ tồn kho cache **totalStockQuantity** trên bảng **Product** cho khớp
 
 > Trước khi trừ, phải kiểm tra số lượng tồn hiện tại. Nếu số lượng muốn huỷ > số lượng tồn thực tế -> Trả về 400.
+
+**Note xử lý quantityStorage và quantityShelf**
+
+> 1. quantityStorage + quantityShelf = stockQuantity
+
+> 2. Khi nhập hàng mới, đặt quantityStorage = stockQuantity, quantityShelf = 0
+
+> 3. Khi lấy hàng từ kho ra trưng bày, update quantityShelf += số lượng lấy ra, trừ quantityStorage
