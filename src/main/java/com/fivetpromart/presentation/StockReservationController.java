@@ -1,5 +1,6 @@
 package com.fivetpromart.presentation;
 
+import com.fivetpromart.application.dto.request.ReleaseBatchReservationsRequest;
 import com.fivetpromart.application.dto.request.ReleaseReservationRequest;
 import com.fivetpromart.application.dto.request.ReserveStockRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse; // FIXED: Correct package
@@ -48,5 +49,19 @@ public class StockReservationController {
         
         return ResponseEntity
                 .ok(ApiResponse.success("Reservation released successfully")); // FIXED: Use correct method
+    }
+
+    /**
+     * Release multiple reservations (best-effort)
+     * POST /api/v1/stock-reservations/release-batch
+     */
+    @PostMapping("/release-batch")
+    public ResponseEntity<ApiResponse<String>> releaseReservationsBatch(
+            @RequestBody @Valid ReleaseBatchReservationsRequest request) {
+
+        stockReservationUseCase.releaseReservationsBatch(request);
+
+        return ResponseEntity
+                .ok(ApiResponse.success("Reservations released successfully"));
     }
 }

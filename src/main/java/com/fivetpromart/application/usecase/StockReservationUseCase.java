@@ -1,6 +1,7 @@
 package com.fivetpromart.application.usecase;
 
 import com.fivetpromart.application.dto.request.ReserveStockRequest;
+import com.fivetpromart.application.dto.request.ReleaseBatchReservationsRequest;
 import com.fivetpromart.application.dto.request.ReleaseReservationRequest;
 import com.fivetpromart.application.dto.response.StockReservationDto;
 import com.fivetpromart.application.port.out.IStockInventoryRepository;
@@ -125,6 +126,21 @@ public class StockReservationUseCase {
         stockInventoryRepository.save(lot);
         
         log.info("Released reservation {}: {}", request.reservationId(), request.reason());
+    }
+
+    /**
+     * Release multiple reservations (best-effort)
+     * Used by browser unload cleanup to avoid zombie reservations.
+     */
+    @Transactional
+    public void releaseReservationsBatch(ReleaseBatchReservationsRequest request) {
+        for (String reservationId : request.reservationIds()) {
+            try {
+                releaseReservation(new ReleaseReservationRequest(reservationId, request.reason()));
+            } catch (Exception e) {
+                log.warn("Failed to release reservation {} in batch: {}", reservationId, e.getMessage());
+            }
+        }
     }
     
     /**
