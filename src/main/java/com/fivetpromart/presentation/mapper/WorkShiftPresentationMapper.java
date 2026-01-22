@@ -50,6 +50,7 @@ public class WorkShiftPresentationMapper {
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .roleConfigId(request.getRoleConfigId())
+                .isActive(request.getIsActive())
                 .build();
     }
 }
