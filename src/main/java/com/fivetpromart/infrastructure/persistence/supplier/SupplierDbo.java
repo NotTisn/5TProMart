@@ -42,8 +42,12 @@ public class SupplierDbo {
     @Column(name = "supplier_type")
     String supplierType;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "supplier_id")
+//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+//    @JoinColumn(name = "supplier_id")
+//    @Builder.Default
+//    List<SuppliedProductDbo> suppliedProducts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     List<SuppliedProductDbo> suppliedProducts = new ArrayList<>();
 

@@ -39,7 +39,7 @@ public class SupplierController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('Admin')")
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<SupplierResponse> addNewSupplier (
             @Valid @RequestBody SupplierRequest request
     ) {
@@ -56,7 +56,7 @@ public class SupplierController {
 
     @PutMapping("/{supplierId}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('Admin')")
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<SupplierResponse> updateSupplier (
             @PathVariable String supplierId,
             @Valid @RequestBody SupplierRequest request
