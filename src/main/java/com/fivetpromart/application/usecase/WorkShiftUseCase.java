@@ -2,6 +2,7 @@ package com.fivetpromart.application.usecase;
 
 import com.fivetpromart.application.dto.WorkShiftDto;
 import com.fivetpromart.application.dto.command.CreateWorkShiftCommand;
+import com.fivetpromart.application.dto.command.UpdateWorkShiftCommand;
 import com.fivetpromart.application.mapper.WorkShiftDataMapper;
 import com.fivetpromart.application.port.out.IShiftRoleConfigRepository;
 import com.fivetpromart.application.port.out.IWorkShiftRepository;
@@ -95,4 +96,27 @@ public class WorkShiftUseCase {
         shift.activate();
         return mapper.toDto(workShiftRepository.save(shift));
     }
+
+//    @Transactional
+//    public WorkShiftDto updateWorkShift(String id, UpdateWorkShiftCommand command) {
+//        // Validate role config exists
+//        ShiftRoleConfig roleConfig = roleConfigRepository.findById(command.getRoleConfigId())
+//                .orElseThrow(() -> new IllegalArgumentException("Role config not found with id: " + command.getRoleConfigId()));
+//        if (!roleConfig.isActive()) {
+//            throw new IllegalArgumentException("Role config is not active");
+//        }
+//        // Find existing work shift
+//        WorkShift workShift = workShiftRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("Work shift not found with id: " + id));
+//        // Update fields
+//
+//        workShift.setShiftName(command.getShiftName());
+//        workShift.setStartTime(command.getStartTime());
+//        workShift.setEndTime(command.getEndTime());
+//        workShift.setRoleConfigId(roleConfig.getId());
+//        workShift.setRoleConfigName(roleConfig.getConfigName());
+//        // Save
+//        WorkShift saved = workShiftRepository.save(workShift);
+//        return mapper.toDto(saved);
+//    }
 }

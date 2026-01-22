@@ -7,9 +7,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface IStatisticsPersistencePort {
-    DashboardSummary getDashboardSummary(Instant startDate, Instant endDate);
-    List<RevenueProfitData> getRevenueProfitData(Instant startDate, Instant endDate);
-    List<OrderData> getOrderData(Instant startDate, Instant endDate);
-    List<CategoryRevenue> getCategoryRevenue(Instant startDate, Instant endDate, Integer limit);
-    List<TopSellingProduct> getTopSellingProducts(Instant startDate, Instant endDate, Integer limit);
+    DashboardSummary getDashboardSummary(LocalDate startDate, LocalDate endDate);
+    List<RevenueProfitData> getRevenueProfitData(LocalDate startDate, LocalDate endDate);
+    List<OrderData> getOrderData(LocalDate startDate, LocalDate endDate);
+    List<CategoryRevenue> getCategoryRevenue(LocalDate startDate, LocalDate endDate, Integer limit);
+    List<TopSellingProduct> getTopSellingProducts(LocalDate startDate, LocalDate endDate, Integer limit);
 }

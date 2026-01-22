@@ -2,6 +2,7 @@ package com.fivetpromart.presentation.controller;
 
 import com.fivetpromart.application.usecase.WorkShiftUseCase;
 import com.fivetpromart.presentation.dto.request.CreateWorkShiftRequest;
+import com.fivetpromart.presentation.dto.request.UpdateWorkShiftRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
 import com.fivetpromart.presentation.dto.response.CreateWorkShiftResponse;
 import com.fivetpromart.presentation.dto.response.WorkShiftResponse;
@@ -55,4 +56,19 @@ public class WorkShiftController {
                 .data(response)
                 .build();
     }
+
+//    @PutMapping("/work-shift-templates/{id}")
+//    public ApiResponse<WorkShiftResponse> updateWorkShiftTemplate(
+//            @PathVariable String id,
+//            @Valid @RequestBody UpdateWorkShiftRequest request
+//    ) {
+//        var command = mapper.toUpdateCommand(request, id);
+//        var dto = useCase.updateWorkShift(id, command);
+//        var response = mapper.toResponse(dto);
+//        return ApiResponse.<WorkShiftResponse>builder()
+//                .success(true)
+//                .message("Work shifts updated successfully.")
+//                .data(response)
+//                .build();
+//    }
 }

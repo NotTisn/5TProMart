@@ -2,7 +2,9 @@ package com.fivetpromart.presentation.mapper;
 
 import com.fivetpromart.application.dto.WorkShiftDto;
 import com.fivetpromart.application.dto.command.CreateWorkShiftCommand;
+import com.fivetpromart.application.dto.command.UpdateWorkShiftCommand;
 import com.fivetpromart.presentation.dto.request.CreateWorkShiftRequest;
+import com.fivetpromart.presentation.dto.request.UpdateWorkShiftRequest;
 import com.fivetpromart.presentation.dto.response.CreateWorkShiftResponse;
 import com.fivetpromart.presentation.dto.response.WorkShiftResponse;
 import org.springframework.stereotype.Component;
@@ -38,6 +40,16 @@ public class WorkShiftPresentationMapper {
                 .id(dto.getId())
                 .shiftName(dto.getShiftName())
                 .isActive(dto.isActive())
+                .build();
+    }
+    
+    public UpdateWorkShiftCommand toUpdateCommand(UpdateWorkShiftRequest request, String id) {
+        return UpdateWorkShiftCommand.builder()
+                .id(id)
+                .shiftName(request.getShiftName())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .roleConfigId(request.getRoleConfigId())
                 .build();
     }
 }
