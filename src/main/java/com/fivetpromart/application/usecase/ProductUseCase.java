@@ -14,6 +14,7 @@ import com.fivetpromart.domain.exception.CategoryNotFoundException;
 import com.fivetpromart.domain.exception.ProductAlreadyExistsException;
 import com.fivetpromart.domain.exception.ProductNotFoundException;
 import com.fivetpromart.domain.model.Product;
+import com.fivetpromart.infrastructure.config.InventoryProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,22 +31,11 @@ import java.util.List;
 @Slf4j
 public class ProductUseCase implements IProductUseCasePort {
 
-    /**
-     * Threshold below which stock is considered "low".
-     * TODO: Move to application.yml for runtime configuration.
-     */
-    private static final long LOW_STOCK_THRESHOLD = 10L;
-
-    /**
-     * Number of days to look ahead for expiring inventory.
-     * TODO: Move to application.yml for runtime configuration.
-     */
-    private static final int EXPIRY_WARNING_DAYS = 30;
-
     private final IProductRepository productRepository;
     private final ICategoryRepository categoryRepository;
     private final IStockInventoryRepository stockInventoryRepository;
     private final ProductDataMapper mapper;
+    private final InventoryProperties inventoryProperties;
 
     @Override
     @Transactional
@@ -151,20 +141,23 @@ public class ProductUseCase implements IProductUseCasePort {
     @Override
     @Transactional(readOnly = true)
     public ProductStatsDto getProductStats() {
-        log.info("Getting product statistics");
+        log.info("Getting product statistics (expiryWarningDays={}, lowStockThreshold={})", 
+                inventoryProperties.getExpiryWarningDays(), 
+                inventoryProperties.getLowStockThreshold());
 
         // Product counts
         Long totalProducts = productRepository.countAll();
         Long activeProducts = productRepository.countByTotalStockQuantityGreaterThan(0L);
         Long inactiveProducts = productRepository.countByTotalStockQuantityEquals(0L);
 
-        // Inventory stats from stock inventory
-        Long lowStockCount = stockInventoryRepository.countByStockQuantityLessThan(LOW_STOCK_THRESHOLD);
+        // Inventory stats from stock inventory (using configurable threshold)
+        Long lowStockCount = stockInventoryRepository.countByStockQuantityLessThan(
+                inventoryProperties.getLowStockThreshold());
         Long outOfStockCount = stockInventoryRepository.countByStockQuantityEquals(0L);
 
-        // Expiry stats
+        // Expiry stats (using configurable warning days)
         LocalDate today = LocalDate.now();
-        LocalDate expiryWarningDate = today.plusDays(EXPIRY_WARNING_DAYS);
+        LocalDate expiryWarningDate = today.plusDays(inventoryProperties.getExpiryWarningDays());
         Long expiredCount = stockInventoryRepository.countByExpirationDateBefore(today);
         Long expiringSoonCount = stockInventoryRepository.countByExpirationDateBetween(today, expiryWarningDate);
 

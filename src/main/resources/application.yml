@@ -77,7 +77,7 @@ payment:
 # Product & inventory rules  
 inventory:
   low-stock-threshold: 10      # Products with stock < 10 are "low stock"
-  expiry-warning-days: 30      # Flag lots expiring within 30 days
+  expiry-warning-days: 7       # Flag lots expiring within 7 days (Vietnam retail standard)
 
 # --- DEVELOPMENT SECURITY BYPASS ---
 # Set to true to grant all roles to authenticated users (disables role-based authorization)
