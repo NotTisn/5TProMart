@@ -12,9 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -112,7 +110,7 @@ public class StatisticsRepositoryAdapter implements IStatisticsPersistencePort {
             BigDecimal profit = revenue.subtract(cogs).subtract(expense);
             
             result.add(RevenueProfitData.builder()
-                    .date(currentDate)
+                    .date(currentDate.atStartOfDay(ZoneId.of("UTC")).toInstant())
                     .revenue(revenue)
                     .expense(expense)
                     .profit(profit)
@@ -138,7 +136,7 @@ public class StatisticsRepositoryAdapter implements IStatisticsPersistencePort {
             Integer completedOrders = orderRepository.countCompletedOrders(dayStart, dayEnd);
             
             result.add(OrderData.builder()
-                    .date(currentDate)
+                    .date(currentDate.atStartOfDay(ZoneId.of("UTC")).toInstant())
                     .completedOrders(completedOrders != null ? completedOrders : 0)
                     .build());
             
