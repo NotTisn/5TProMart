@@ -11,19 +11,17 @@
 -- =============================================================================
 -- Categories
 -- =============================================================================
-INSERT INTO category (id, name, description, created_at, updated_at) VALUES
-    (1, 'Electronics', 'Electronic devices and gadgets', NOW(), NOW()),
-    (2, 'Groceries', 'Food and household essentials', NOW(), NOW()),
-    (3, 'Clothing', 'Apparel and fashion items', NOW(), NOW()),
-    (4, 'Home & Garden', 'Home improvement and garden supplies', NOW(), NOW())
-ON CONFLICT (id) DO NOTHING;
-
--- Reset sequence
-SELECT setval('category_id_seq', (SELECT MAX(id) FROM category));
+INSERT INTO product_categories (category_id, category_name, is_active) VALUES
+    ('cat-001', 'Electronics', true),
+    ('cat-002', 'Groceries & Food', true),
+    ('cat-003', 'Beverages', true),
+    ('cat-004', 'Personal Care', true)
+ON CONFLICT (category_id) DO NOTHING;
 
 -- =============================================================================
 -- Suppliers
 -- =============================================================================
+<<<<<<< Updated upstream
 INSERT INTO supplier (id, name, contact_email, phone, address, created_at, updated_at) VALUES
     (1, 'Tech Supplier Co.', 'contact@techsupplier.com', '0901234567', '123 Tech Street, HCMC', NOW(), NOW()),
     (2, 'Fresh Foods Inc.', 'orders@freshfoods.com', '0907654321', '456 Food Ave, Hanoi', NOW(), NOW()),
@@ -51,3 +49,11 @@ DO $$
 BEGIN
     RAISE NOTICE 'Seed data inserted successfully!';
 END $$;
+=======
+INSERT INTO products (product_id, product_name, category_id, unit_of_measure, selling_price, total_stock_quantity, created_at, updated_at, is_active) VALUES
+    ('prod-001', 'USB Flash Drive 32GB', 'cat-001', 'piece', 150000, 0, NOW(), NOW(), true),
+    ('prod-002', 'AA Batteries (4-pack)', 'cat-001', 'pack', 35000, 0, NOW(), NOW(), true),
+    ('prod-003', 'Jasmine Rice 5kg', 'cat-002', 'bag', 125000, 0, NOW(), NOW(), true),
+    ('prod-004', 'Coca-Cola 330ml', 'cat-003', 'can', 12000, 0, NOW(), NOW(), true)
+ON CONFLICT (product_id) DO NOTHING;
+>>>>>>> Stashed changes
