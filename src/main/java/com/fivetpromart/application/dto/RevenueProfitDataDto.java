@@ -6,12 +6,13 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 @Builder
 public class RevenueProfitDataDto {
-    private Instant date;
+    private LocalDate date;
     private BigDecimal revenue;
     private BigDecimal expense;
     private BigDecimal profit;

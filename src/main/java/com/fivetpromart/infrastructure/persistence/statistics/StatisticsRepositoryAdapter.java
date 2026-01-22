@@ -110,7 +110,7 @@ public class StatisticsRepositoryAdapter implements IStatisticsPersistencePort {
             BigDecimal profit = revenue.subtract(cogs).subtract(expense);
 
             result.add(RevenueProfitData.builder()
-                    .date(currentDate.atStartOfDay(ZoneId.of("UTC")).toInstant())
+                    .date(currentDate)
                     .revenue(revenue)
                     .expense(expense)
                     .profit(profit)
@@ -136,7 +136,7 @@ public class StatisticsRepositoryAdapter implements IStatisticsPersistencePort {
             Integer completedOrders = orderRepository.countCompletedOrders(dayStart, dayEnd);
 
             result.add(OrderData.builder()
-                    .date(currentDate.atStartOfDay(ZoneId.of("UTC")).toInstant())
+                    .date(currentDate)
                     .completedOrders(completedOrders != null ? completedOrders : 0)
                     .build());
 
