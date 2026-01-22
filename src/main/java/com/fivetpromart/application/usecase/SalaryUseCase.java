@@ -252,25 +252,24 @@ public class SalaryUseCase {
     @Transactional(readOnly = true)
     public StaffSalaryDetail getStaffSalaryDetail(String userId, LocalDate startDate, LocalDate endDate) {
         log.info("Getting salary detail for staff {} from {} to {}", userId, startDate, endDate);
-        
+
         // Validation
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("Start date must before end date");
         }
-        
+
+        // Fetch staff info SAFELY
+        Staff staff = staffRepository.findByUserId(userId).orElse(null);
+        String fullName = (staff != null) ? staff.getFullName() : "Unknown Staff (" + userId + ")";
+
         // Get daily salaries for this staff
         List<DailySalary> dailySalaries = dailySalaryRepository.findByUserIdAndDateRange(userId, startDate, endDate);
-        
-        if (dailySalaries.isEmpty()) {
-            // TODO: Get staff info from repository
-            Staff staff = staffRepository.findById(userId)
-                    .orElse(null);
 
-            assert staff != null;
+        if (dailySalaries.isEmpty()) {
             return StaffSalaryDetail.builder()
                     .userId(userId)
-                    .fullName(staff.getFullName())
-                    .role("Unknown")
+                    .fullName(fullName) // Safe to use now
+                    .role(staff.getAccountType())
                     .startDate(startDate)
                     .endDate(endDate)
                     .totalSalary(BigDecimal.ZERO)
@@ -278,27 +277,23 @@ public class SalaryUseCase {
                     .dailyDetails(new ArrayList<>())
                     .build();
         }
-        
+
         // Aggregate totals
         BigDecimal totalSalary = dailySalaries.stream()
                 .map(DailySalary::getDailySalary)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
+
         double totalHours = dailySalaries.stream()
                 .mapToDouble(DailySalary::getWorkHours)
                 .sum();
-        
-        // Get staff info from latest record
+
+        // Get role from latest record
         DailySalary latestRecord = dailySalaries.stream()
                 .max(Comparator.comparing(DailySalary::getDate))
                 .orElse(dailySalaries.get(0));
-        
+
         String role = latestRecord.getRole();
-        Staff staff = staffRepository.findById(userId)
-                .orElse(null);
-        assert staff != null;
-        String fullName = staff.getFullName(); // TODO: Get from repository
-        
+
         // Build daily details
         List<StaffSalaryDetail.DailyDetail> dailyDetails = dailySalaries.stream()
                 .sorted(Comparator.comparing(DailySalary::getDate))
@@ -309,10 +304,10 @@ public class SalaryUseCase {
                         .dailyAmount(ds.getDailySalary())
                         .build())
                 .collect(Collectors.toList());
-        
+
         return StaffSalaryDetail.builder()
                 .userId(userId)
-                .fullName(fullName)
+                .fullName(fullName) // Safe to use now
                 .role(role)
                 .startDate(startDate)
                 .endDate(endDate)
