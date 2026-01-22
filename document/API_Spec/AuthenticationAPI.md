@@ -553,6 +553,251 @@ export default apiClient;
 
 ---
 
+## 4. Get Current User (Me)
+
+### Endpoint
+
+```http
+GET /api/v1/auth/me
+```
+
+### Request Headers
+
+```http
+Authorization: Bearer {access_token}
+```
+
+**Note**: Access token must be provided in Authorization header.
+
+### Success Response (200 OK)
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Get current user successfully",
+  "data": {
+    "userId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "username": "admin",
+    "email": "admin@fivetpromart.com",
+    "firstName": "Admin",
+    "lastName": "User",
+    "fullName": "Admin User",
+    "roles": ["Admin"],
+    "authenticated": true
+  }
+}
+```
+
+#### Response Fields
+
+| Field         | Type     | Description                                    |
+| ------------- | -------- | ---------------------------------------------- |
+| userId        | string   | Keycloak user UUID (subject claim)             |
+| username      | string   | Username (preferred_username claim)            |
+| email         | string   | User email address                             |
+| firstName     | string   | First name (given_name claim)                  |
+| lastName      | string   | Last name (family_name claim)                  |
+| fullName      | string   | Full name (name claim or firstName + lastName) |
+| roles         | string[] | List of user roles (from realm_access.roles)   |
+| authenticated | boolean  | Always true for successful response            |
+
+### Error Responses
+
+#### 401 Unauthorized (No Token)
+
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "message": "Not authenticated"
+}
+```
+
+#### 401 Unauthorized (Invalid/Expired Token)
+
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "message": "Full authentication is required to access this resource"
+}
+```
+
+### Frontend Implementation Example
+
+#### JavaScript (Fetch API)
+
+```javascript
+async function getCurrentUser() {
+  try {
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!accessToken) {
+      throw new Error("No access token found");
+    }
+
+    const response = await fetch("http://localhost:8080/api/v1/auth/me", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      console.log("Current user:", data.data);
+      return data.data;
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (error) {
+    console.error("Failed to get current user:", error);
+    // Redirect to login if unauthorized
+    if (error.message.includes("401")) {
+      localStorage.removeItem("accessToken");
+      window.location.href = "/login";
+    }
+    throw error;
+  }
+}
+```
+
+#### Axios
+
+```javascript
+import apiClient from "./apiClient"; // Configured with interceptors
+
+async function getCurrentUser() {
+  try {
+    const response = await apiClient.get("/auth/me");
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to get current user:", error);
+    throw error;
+  }
+}
+
+// Usage in React
+useEffect(() => {
+  getCurrentUser().then((user) => {
+    console.log("Logged in as:", user.username);
+    console.log("Roles:", user.roles);
+  });
+}, []);
+```
+
+### Use Cases
+
+1. **Display User Profile**
+
+   ```javascript
+   const user = await getCurrentUser();
+   document.getElementById("username").textContent = user.username;
+   document.getElementById("email").textContent = user.email;
+   ```
+
+2. **Role-Based UI Rendering**
+
+   ```javascript
+   const user = await getCurrentUser();
+
+   if (user.roles.includes("Admin")) {
+     // Show admin menu
+     document.getElementById("admin-panel").style.display = "block";
+   }
+
+   if (user.roles.includes("SalesStaff")) {
+     // Show POS interface
+     document.getElementById("pos-interface").style.display = "block";
+   }
+   ```
+
+3. **Protected Route Guard**
+
+   ```javascript
+   // React Router example
+   function ProtectedRoute({ children, requiredRoles }) {
+     const [user, setUser] = useState(null);
+     const [loading, setLoading] = useState(true);
+
+     useEffect(() => {
+       getCurrentUser()
+         .then(setUser)
+         .catch(() => navigate("/login"))
+         .finally(() => setLoading(false));
+     }, []);
+
+     if (loading) return <Spinner />;
+
+     if (!user) return <Navigate to="/login" />;
+
+     const hasRequiredRole = requiredRoles.some((role) =>
+       user.roles.includes(role)
+     );
+
+     if (!hasRequiredRole) {
+       return <Navigate to="/forbidden" />;
+     }
+
+     return children;
+   }
+
+   // Usage
+   <Route
+     path="/admin"
+     element={
+       <ProtectedRoute requiredRoles={["Admin"]}>
+         <AdminDashboard />
+       </ProtectedRoute>
+     }
+   />;
+   ```
+
+4. **Initial App Load**
+   ```javascript
+   // App.jsx
+   useEffect(() => {
+     const initializeApp = async () => {
+       try {
+         const user = await getCurrentUser();
+         setCurrentUser(user);
+         setIsAuthenticated(true);
+       } catch (error) {
+         setIsAuthenticated(false);
+         navigate("/login");
+       }
+     };
+     initializeApp();
+   }, []);
+   ```
+
+### Testing with cURL
+
+```bash
+# Get access token first
+curl -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}' \
+  | jq -r '.data.accessToken' > token.txt
+
+# Get current user
+curl -X GET http://localhost:8080/api/v1/auth/me \
+  -H "Authorization: Bearer $(cat token.txt)" \
+  | jq
+```
+
+### Security Notes
+
+- **No sensitive data exposed**: Only basic profile information returned
+- **Token validation**: Automatically validated by Spring Security
+- **Role extraction**: Roles come from JWT claims, not database
+- **Stateless**: No database query needed, all info from token
+- **Fast response**: Pure token parsing, no external API calls
+
+---
+
 ## 🔄 Complete Authentication Flow
 
 ### 1. Initial Login

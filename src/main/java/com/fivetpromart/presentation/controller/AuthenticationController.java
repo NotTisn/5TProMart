@@ -1,5 +1,6 @@
 package com.fivetpromart.presentation.controller;
 
+import com.fivetpromart.application.dto.CurrentUserDto;
 import com.fivetpromart.application.dto.command.LoginCommand;
 import com.fivetpromart.application.port.in.IAuthenticationUseCasePort;
 import com.fivetpromart.domain.model.AuthenticationTokens;
@@ -8,6 +9,7 @@ import com.fivetpromart.presentation.dto.request.LoginRequest;
 import com.fivetpromart.presentation.dto.request.LogoutRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
 import com.fivetpromart.presentation.dto.response.AuthenticationResponse;
+import com.fivetpromart.presentation.dto.response.CurrentUserResponse;
 import com.fivetpromart.presentation.dto.response.RefreshTokenResponse;
 import com.fivetpromart.presentation.mapper.AuthenticationPresentationMapper;
 import com.nimbusds.jose.JOSEException;
@@ -17,11 +19,18 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -103,5 +112,34 @@ public class AuthenticationController {
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED, "Session expired. Please log in again.");
         }
+    }
+
+    /**
+     * Get current authenticated user information
+     * Extracts userId from JWT token and fetches staff details from database
+     *
+     * @param authentication Spring Security authentication object (automatically injected)
+     * @return Current user information with staff details
+     */
+    @GetMapping("/me")
+    public ApiResponse<CurrentUserResponse> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+
+        // Extract userId (Keycloak subject) from JWT token
+        String userId = authentication.getName();
+        
+        // Delegate to use case to get full user details from database
+        CurrentUserDto currentUser = authenticationUseCase.getCurrentUser(userId);
+        
+        // Map to presentation response
+        CurrentUserResponse response = mapper.toCurrentUserResponse(currentUser);
+
+        return ApiResponse.<CurrentUserResponse>builder()
+                .success(true)
+                .message("Get current user successfully")
+                .data(response)
+                .build();
     }
 }
