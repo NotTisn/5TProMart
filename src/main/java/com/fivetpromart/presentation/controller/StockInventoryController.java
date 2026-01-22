@@ -1,16 +1,20 @@
 package com.fivetpromart.presentation.controller;
 
+import com.fivetpromart.application.dto.DisposalBatchResultDto;
 import com.fivetpromart.application.dto.DisposeLotResultDto;
 import com.fivetpromart.application.dto.StockInventoryDto;
+import com.fivetpromart.application.dto.command.DisposalBatchCommand;
 import com.fivetpromart.application.dto.command.DisposeLotCommand;
 import com.fivetpromart.application.dto.command.StockInventoryCreationCommand;
 import com.fivetpromart.application.dto.command.StockInventoryUpdateCommand;
 import com.fivetpromart.application.dto.query.StockInventorySearchQuery;
 import com.fivetpromart.application.port.in.IStockInventoryUseCasePort;
+import com.fivetpromart.presentation.dto.request.DisposalBatchRequest;
 import com.fivetpromart.presentation.dto.request.DisposeLotRequest;
 import com.fivetpromart.presentation.dto.request.StockInventoryRequest;
 import com.fivetpromart.presentation.dto.request.StockInventoryUpdateRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
+import com.fivetpromart.presentation.dto.response.DisposalBatchResponse;
 import com.fivetpromart.presentation.dto.response.DisposeLotResponse;
 import com.fivetpromart.presentation.dto.response.PaginationMeta;
 import com.fivetpromart.presentation.dto.response.StockInventoryResponse;
@@ -183,7 +187,37 @@ public class StockInventoryController {
     }
 
     /**
-     * 5.5 Dispose a lot of stock (expired/damaged)
+     * 5.5 Batch Disposal Stock Inventory (spec compliant)
+     * POST /api/v1/inventory/disposal
+     */
+    @PostMapping("/disposal")
+    @PreAuthorize("hasAnyRole('Admin', 'WarehouseStaff')")
+    public ApiResponse<DisposalBatchResponse> createDisposalBatch(
+            @Valid @RequestBody DisposalBatchRequest request
+    ) {
+        log.info("Creating disposal batch with {} items", request.getItems().size());
+
+        // Convert to command and call use case
+        DisposalBatchCommand command = mapper.toDisposalBatchCommand(request);
+        DisposalBatchResultDto resultDto = stockInventoryUseCase.createDisposalBatch(command);
+
+        // Map to response
+        DisposalBatchResponse response = DisposalBatchResponse.builder()
+                .disposalId(resultDto.getDisposalId())
+                .staffId(resultDto.getStaffId())
+                .date(resultDto.getDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")))
+                .totalItems(resultDto.getTotalItems())
+                .build();
+
+        return ApiResponse.<DisposalBatchResponse>builder()
+                .success(true)
+                .message("Disposal created successfully.")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * Single lot disposal (legacy endpoint, kept for backward compatibility)
      * POST /api/v1/stock_inventories/{lotId}/dispose
      */
     @PostMapping("/{lotId}/dispose")
