@@ -27,50 +27,57 @@ public class StatisticsRepositoryAdapter implements IStatisticsPersistencePort {
     private final ICustomerJpaRepository customerRepository;
 
     @Override
-    public DashboardSummary getDashboardSummary(LocalDate startDate, LocalDate endDate) {
+    public DashboardSummary getDashboardSummary(Instant startDate, Instant endDate) {
         log.info("Calculating dashboard summary from {} to {}", startDate, endDate);
-        
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
-        
-        // Total Revenue: Sum of totalAmount from completed orders
+
+        // Convert Instant to LocalDateTime using System Default Zone
+        LocalDateTime startDateTime = LocalDateTime.ofInstant(startDate, ZoneId.systemDefault());
+        LocalDateTime endDateTime = LocalDateTime.ofInstant(endDate, ZoneId.systemDefault());
+
+        // Total Revenue
         BigDecimal totalRevenue = orderRepository.calculateTotalRevenue(startDateTime, endDateTime);
         if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
-        
-        // Total Expenses: Sum of amount from expenses in date range
-        BigDecimal incurredStats = expenseRepository.calculateTotalExpenses(startDate, endDate);
+
+        // Total Expenses
+        // Note: expenseRepository might need LocalDate or LocalDateTime depending on your impl.
+        // Assuming it handles LocalDateTime or you might need to convert endDate to LocalDate.
+        // Keeping logic consistent with previous code (passing date range).
+        BigDecimal incurredStats = expenseRepository.calculateTotalExpenses(
+                startDate.atZone(ZoneId.systemDefault()).toLocalDate(),
+                endDate.atZone(ZoneId.systemDefault()).toLocalDate()
+        );
         if (incurredStats == null) incurredStats = BigDecimal.ZERO;
-        
-        // Cost of Goods Sold: Sum of (quantity * importPrice) for sold items
+
+        // Cost of Goods Sold
         BigDecimal costOfGoodsSold = orderItemRepository.calculateCostOfGoodsSold(startDateTime, endDateTime);
         if (costOfGoodsSold == null) costOfGoodsSold = BigDecimal.ZERO;
-        
-        // Net Profit = Revenue - COGS - Expenses
+
+        // Net Profit
         BigDecimal netProfit = totalRevenue.subtract(costOfGoodsSold).subtract(incurredStats);
-        
+
         // Total Orders
         Integer totalOrders = orderRepository.countCompletedOrders(startDateTime, endDateTime);
-        
+
         // Total Products Sold
         Integer totalProductsSold = orderItemRepository.sumQuantitySold(startDateTime, endDateTime);
         if (totalProductsSold == null) totalProductsSold = 0;
-        
+
         // Average Order Value
         BigDecimal averageOrderValue = BigDecimal.ZERO;
         if (totalOrders != null && totalOrders > 0) {
             averageOrderValue = totalRevenue.divide(
-                    BigDecimal.valueOf(totalOrders), 
-                    0, 
+                    BigDecimal.valueOf(totalOrders),
+                    0,
                     RoundingMode.HALF_UP
             );
         }
-        
-        // Total Customers who made purchases in period
+
+        // Total Customers
         Integer totalCustomers = orderRepository.countUniqueCustomers(startDateTime, endDateTime);
-        
-        // New Customers registered in period
+
+        // New Customers
         Integer newCustomers = customerRepository.countNewCustomers(startDateTime, endDateTime);
-        
+
         return DashboardSummary.builder()
                 .totalRevenue(totalRevenue)
                 .netProfit(netProfit)
@@ -84,77 +91,85 @@ public class StatisticsRepositoryAdapter implements IStatisticsPersistencePort {
     }
 
     @Override
-    public List<RevenueProfitData> getRevenueProfitData(LocalDate startDate, LocalDate endDate) {
+    public List<RevenueProfitData> getRevenueProfitData(Instant startDate, Instant endDate) {
         log.info("Getting revenue profit data from {} to {}", startDate, endDate);
-        
+
         List<RevenueProfitData> result = new ArrayList<>();
-        LocalDate currentDate = startDate;
-        
-        while (!currentDate.isAfter(endDate)) {
+
+        // Convert Instant to LocalDate to iterate by day
+        LocalDate currentDate = startDate.atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate endLocalDate = endDate.atZone(ZoneId.systemDefault()).toLocalDate();
+
+        while (!currentDate.isAfter(endLocalDate)) {
             LocalDateTime dayStart = currentDate.atStartOfDay();
             LocalDateTime dayEnd = currentDate.atTime(LocalTime.MAX);
-            
+
             // Revenue for the day
             BigDecimal revenue = orderRepository.calculateTotalRevenue(dayStart, dayEnd);
             if (revenue == null) revenue = BigDecimal.ZERO;
-            
+
             // Expenses for the day
             BigDecimal expense = expenseRepository.calculateTotalExpenses(currentDate, currentDate);
             if (expense == null) expense = BigDecimal.ZERO;
-            
+
             // COGS for the day
             BigDecimal cogs = orderItemRepository.calculateCostOfGoodsSold(dayStart, dayEnd);
             if (cogs == null) cogs = BigDecimal.ZERO;
-            
-            // Profit = Revenue - COGS - Expense
+
+            // Profit
             BigDecimal profit = revenue.subtract(cogs).subtract(expense);
-            
+
             result.add(RevenueProfitData.builder()
+                    // Returning Instant in UTC for the frontend chart consistency
                     .date(currentDate.atStartOfDay(ZoneId.of("UTC")).toInstant())
                     .revenue(revenue)
                     .expense(expense)
                     .profit(profit)
                     .build());
-            
+
             currentDate = currentDate.plusDays(1);
         }
-        
+
         return result;
     }
 
     @Override
-    public List<OrderData> getOrderData(LocalDate startDate, LocalDate endDate) {
+    public List<OrderData> getOrderData(Instant startDate, Instant endDate) {
         log.info("Getting order data from {} to {}", startDate, endDate);
-        
+
         List<OrderData> result = new ArrayList<>();
-        LocalDate currentDate = startDate;
-        
-        while (!currentDate.isAfter(endDate)) {
+
+        // FIXED: Convert Instant to LocalDate correctly
+        LocalDate currentDate = startDate.atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate endLocalDate = endDate.atZone(ZoneId.systemDefault()).toLocalDate();
+
+        while (!currentDate.isAfter(endLocalDate)) {
             LocalDateTime dayStart = currentDate.atStartOfDay();
             LocalDateTime dayEnd = currentDate.atTime(LocalTime.MAX);
-            
+
             Integer completedOrders = orderRepository.countCompletedOrders(dayStart, dayEnd);
-            
+
             result.add(OrderData.builder()
                     .date(currentDate.atStartOfDay(ZoneId.of("UTC")).toInstant())
                     .completedOrders(completedOrders != null ? completedOrders : 0)
                     .build());
-            
+
             currentDate = currentDate.plusDays(1);
         }
-        
+
         return result;
     }
 
     @Override
-    public List<CategoryRevenue> getCategoryRevenue(LocalDate startDate, LocalDate endDate, Integer limit) {
+    public List<CategoryRevenue> getCategoryRevenue(Instant startDate, Instant endDate, Integer limit) {
         log.info("Getting category revenue from {} to {} with limit {}", startDate, endDate, limit);
-        
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
-        
+
+        // Convert Instant to LocalDateTime
+        LocalDateTime startDateTime = LocalDateTime.ofInstant(startDate, ZoneId.systemDefault());
+        LocalDateTime endDateTime = LocalDateTime.ofInstant(endDate, ZoneId.systemDefault());
+
         List<Object[]> rawData = orderItemRepository.getCategoryRevenue(startDateTime, endDateTime);
-        
+
         List<CategoryRevenue> categoryList = rawData.stream()
                 .map(row -> CategoryRevenue.builder()
                         .categoryId((String) row[0])
@@ -165,25 +180,23 @@ public class StatisticsRepositoryAdapter implements IStatisticsPersistencePort {
                         .build())
                 .sorted(Comparator.comparing(CategoryRevenue::getTotalRevenue).reversed())
                 .collect(Collectors.toList());
-        
-        // If limit is set and we have more categories than limit
+
         if (limit != null && categoryList.size() > limit) {
             List<CategoryRevenue> topCategories = categoryList.subList(0, limit);
             List<CategoryRevenue> otherCategories = categoryList.subList(limit, categoryList.size());
-            
-            // Aggregate "Khác" category
+
             BigDecimal otherRevenue = otherCategories.stream()
                     .map(CategoryRevenue::getTotalRevenue)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            
+
             Integer otherQuantity = otherCategories.stream()
                     .map(CategoryRevenue::getTotalQuantitySold)
                     .reduce(0, Integer::sum);
-            
+
             Integer otherOrderCount = otherCategories.stream()
                     .map(CategoryRevenue::getOrderCount)
                     .reduce(0, Integer::sum);
-            
+
             CategoryRevenue otherCategory = CategoryRevenue.builder()
                     .categoryId("other")
                     .categoryName("Khác")
@@ -191,23 +204,24 @@ public class StatisticsRepositoryAdapter implements IStatisticsPersistencePort {
                     .totalQuantitySold(otherQuantity)
                     .orderCount(otherOrderCount)
                     .build();
-            
+
             topCategories.add(otherCategory);
             return topCategories;
         }
-        
+
         return categoryList;
     }
 
     @Override
-    public List<TopSellingProduct> getTopSellingProducts(LocalDate startDate, LocalDate endDate, Integer limit) {
+    public List<TopSellingProduct> getTopSellingProducts(Instant startDate, Instant endDate, Integer limit) {
         log.info("Getting top selling products from {} to {} with limit {}", startDate, endDate, limit);
-        
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
-        
+
+        // Convert Instant to LocalDateTime
+        LocalDateTime startDateTime = LocalDateTime.ofInstant(startDate, ZoneId.systemDefault());
+        LocalDateTime endDateTime = LocalDateTime.ofInstant(endDate, ZoneId.systemDefault());
+
         List<Object[]> rawData = orderItemRepository.getTopSellingProducts(startDateTime, endDateTime);
-        
+
         return rawData.stream()
                 .map(row -> TopSellingProduct.builder()
                         .productId((String) row[0])
