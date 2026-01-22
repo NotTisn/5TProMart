@@ -16,6 +16,8 @@ public interface IWorkScheduleRepository {
     
     Optional<WorkSchedule> findByWorkDateAndWorkShiftId(LocalDate workDate, String workShiftId);
     
+    List<WorkSchedule> findByWorkDate(LocalDate workDate);
+    
     List<WorkSchedule> findByWorkDateBetween(LocalDate startDate, LocalDate endDate);
     
     List<WorkSchedule> findByWorkDateBetweenAndWorkShiftId(LocalDate startDate, LocalDate endDate, String workShiftId);

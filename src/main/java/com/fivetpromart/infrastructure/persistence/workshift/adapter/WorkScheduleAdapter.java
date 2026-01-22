@@ -47,6 +47,13 @@ public class WorkScheduleAdapter implements IWorkScheduleRepository {
     }
     
     @Override
+    public List<WorkSchedule> findByWorkDate(LocalDate workDate) {
+        return jpaRepository.findByWorkDate(workDate).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
     public List<WorkSchedule> findByWorkDateBetween(LocalDate startDate, LocalDate endDate) {
         return jpaRepository.findByWorkDateBetween(startDate, endDate).stream()
                 .map(mapper::toDomain)

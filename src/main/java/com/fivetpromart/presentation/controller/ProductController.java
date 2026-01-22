@@ -86,7 +86,7 @@ public class ProductController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff', 'WarehouseStaff')")
+    //@PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff', 'WarehouseStaff')")
     public ApiResponse<List<ProductResponse>> getAllProducts(
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) String categoryId,

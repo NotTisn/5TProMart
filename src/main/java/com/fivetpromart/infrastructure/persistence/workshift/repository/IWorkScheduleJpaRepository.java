@@ -15,6 +15,8 @@ public interface IWorkScheduleJpaRepository extends JpaRepository<WorkScheduleDb
     
     Optional<WorkScheduleDbo> findByWorkDateAndWorkShiftId(LocalDate workDate, String workShiftId);
     
+    List<WorkScheduleDbo> findByWorkDate(LocalDate workDate);
+    
     List<WorkScheduleDbo> findByWorkDateBetween(LocalDate startDate, LocalDate endDate);
     
     List<WorkScheduleDbo> findByWorkDateBetweenAndWorkShiftId(LocalDate startDate, LocalDate endDate, String workShiftId);
