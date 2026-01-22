@@ -48,3 +48,4 @@ public interface JpaPromotionRepository extends JpaRepository<PromotionDbo, Stri
      */
     @Query("SELECT p FROM PromotionDbo p WHERE LOWER(p.promotionName) LIKE LOWER(CONCAT('%', :keyword, '%')) AND p.isActive = true")
     List<PromotionDbo> searchActivePromotions(@Param("keyword") String keyword);
+}
