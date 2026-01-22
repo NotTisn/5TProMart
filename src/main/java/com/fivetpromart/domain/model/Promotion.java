@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +33,8 @@ public class Promotion {
     private String status;
     private PromotionStrategy promotionStrategy;
     private Boolean isActive = true;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public static Promotion create(
             String promotionName,
@@ -117,6 +120,38 @@ public class Promotion {
 
     public void cancel() {
         this.status = "Cancelled";
+    }
+
+    public void update(String promotionName, String promotionDescription, 
+                      List<PromotionProduct> products, Integer discountPercent,
+                      LocalDate startDate, LocalDate endDate) {
+        if (promotionName != null && !promotionName.isBlank()) {
+            this.promotionName = promotionName;
+        }
+        if (promotionDescription != null) {
+            this.promotionDescription = promotionDescription;
+        }
+        if (products != null && !products.isEmpty()) {
+            this.products = products;
+        }
+        if (discountPercent != null) {
+            this.discountPercent = discountPercent;
+            // Update strategy if discount changed
+            if ("Discount".equals(this.promotionType)) {
+                this.promotionStrategy = new DiscountPromotionStrategy(discountPercent);
+            }
+        }
+        if (startDate != null) {
+            this.startDate = startDate;
+        }
+        if (endDate != null) {
+            this.endDate = endDate;
+        }
+        
+        // Recalculate status based on new dates
+        if (startDate != null || endDate != null) {
+            this.status = determineStatus(this.startDate, this.endDate);
+        }
     }
 
     private static String determineStatus(LocalDate startDate, LocalDate endDate) {
