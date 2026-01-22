@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -106,14 +107,22 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
             throw new NegativeValueException("Stock quantity must be greater than 0");
         }
         
+        String targetStatus = command.getStatus() != null ? command.getStatus() : inventory.getStatus();
+
+        // 3. ÁP DỤNG LOGIC ƯU TIÊN HẾT HÀNG
+        // Nếu newQuantity <= 0 thì finalStatus sẽ thành "OUT_OF_STOCK"
+        // Nếu newQuantity > 0 thì finalStatus sẽ là targetStatus
+        Long newQuantity = command.getStockQuantity() != null ? command.getStockQuantity() : inventory.getStockQuantity();
+        String finalStatus = resolveFinalStatus(newQuantity, targetStatus);
+
         // Update only stockQuantity and status (as per API spec)
         inventory.update(
                 null,  // productId - not updatable
                 null,  // manufactureDate - not updatable
                 null,  // expirationDate - not updatable
-                command.getStockQuantity() != null ? command.getStockQuantity() : inventory.getStockQuantity(),
+                newQuantity,
                 null,  // importPrice - not updatable
-                command.getStatus() != null ? command.getStatus() : inventory.getStatus()
+                finalStatus
         );
         
         // Save
@@ -151,14 +160,20 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
         if (command.getQuantity() > lot.getStockQuantity()) {
             throw new InsufficientStockException(lot.getStockQuantity(), command.getQuantity());
         }
-
+        
+        
         // 3. Get product info
         Product product = productRepository.findById(lot.getProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Product not found: " + lot.getProductId()));
 
-        // 4. Deduct quantity
+        // 1. Tính số lượng còn lại
         long remainingQuantity = lot.getStockQuantity() - command.getQuantity();
-        String newStatus = remainingQuantity == 0 ? "DISPOSED" : lot.getStatus();
+        
+        // 2. ÁP DỤNG LOGIC ƯU TIÊN HẾT HÀNG
+        // Status mong muốn là status hiện tại của lô (lot.getStatus())
+        // Nếu remainingQuantity về 0 -> Hàm này sẽ trả về "OUT_OF_STOCK"
+        // Nếu remainingQuantity > 0 -> Hàm này trả về lot.getStatus() (giữ nguyên)
+        String finalStatus = resolveFinalStatus(remainingQuantity, lot.getStatus());
         
         lot.update(
                 lot.getProductId(),
@@ -166,8 +181,10 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
                 lot.getExpirationDate(),
                 remainingQuantity,
                 lot.getImportPrice(),
-                newStatus
+                finalStatus
         );
+        
+        stockInventoryRepository.save(lot);
         
         stockInventoryRepository.save(lot);
 
@@ -213,15 +230,15 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
 
             // 3. Deduct quantity
             long remainingQuantity = lot.getStockQuantity() - item.getQuantity();
-            String newStatus = remainingQuantity == 0 ? "DISPOSED" : lot.getStatus();
-            
+            String finalStatus = resolveFinalStatus(remainingQuantity, lot.getStatus());
+
             lot.update(
                     lot.getProductId(),
                     lot.getManufactureDate(),
                     lot.getExpirationDate(),
                     remainingQuantity,
                     lot.getImportPrice(),
-                    newStatus
+                    finalStatus
             );
             
             stockInventoryRepository.save(lot);
@@ -249,4 +266,24 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
                 .totalItems(totalQuantity)
                 .build();
     }
+    /**
+     * Helper: Tính toán trạng thái (Logic ưu tiên Quantity <= 0)
+     * * Thứ tự ưu tiên (Tuyệt đối):
+     * 1. Hết hàng (Quantity <= 0) -> "OUT_OF_STOCK" (Bất chấp hạn sử dụng)
+     * 2. Đã hết hạn (Expiration < Now) -> "EXPIRED"
+     * 3. Sắp hết hạn (Expiration <= Now + 7 days) -> "EXPIRING_SOON"
+     * 4. Còn hàng -> "IN_STOCK"
+     */
+/**
+     * Logic chốt trạng thái:
+     * 1. Nếu quantity <= 0 -> BẮT BUỘC là "OUT_OF_STOCK"
+     * 2. Ngược lại -> Giữ nguyên status mong muốn (proposedStatus)
+     */
+    private String resolveFinalStatus(Long quantity, String proposedStatus) {
+        if (quantity != null && quantity <= 0) {
+            return "OUT_OF_STOCK";
+        }
+        return proposedStatus;
+    }
 }
+
