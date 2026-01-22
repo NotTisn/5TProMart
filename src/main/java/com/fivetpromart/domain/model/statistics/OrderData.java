@@ -4,10 +4,11 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Builder
 public class OrderData {
-    private Instant date;
+    private LocalDate date;
     private Integer completedOrders;
 }

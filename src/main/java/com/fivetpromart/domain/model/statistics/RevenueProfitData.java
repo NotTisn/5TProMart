@@ -5,11 +5,12 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Builder
 public class RevenueProfitData {
-    private Instant date;
+    private LocalDate date;
     private BigDecimal revenue;
     private BigDecimal expense;
     private BigDecimal profit;
