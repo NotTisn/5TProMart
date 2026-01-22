@@ -265,3 +265,87 @@
 > 2. Khi nhập hàng mới, đặt quantityStorage = stockQuantity, quantityShelf = 0
 
 > 3. Khi lấy hàng từ kho ra trưng bày, update quantityShelf += số lượng lấy ra, trừ quantityStorage
+
+---
+
+## 5.8 Stock reservations (POS)
+
+**Purpose:** Reserve stock during POS checkout to prevent overselling. Reservations auto-expire after 15 minutes.
+
+### 5.8.1 Reserve stock
+
+**Endpoint:** `POST /api/v1/stock-reservations`
+
+**Request**
+
+```json
+{
+  "lotId": "string",
+  "productId": "string",
+  "quantity": 1,
+  "reservedBy": "string"
+}
+```
+
+**Response 201**
+
+```json
+{
+  "success": true,
+  "message": "Stock reserved successfully",
+  "data": {
+    "reservationId": "string",
+    "lotId": "string",
+    "productId": "string",
+    "quantity": 1,
+    "reservedBy": "string",
+    "reservedAt": "yyyy-MM-dd'T'HH:mm:ss",
+    "expiresAt": "yyyy-MM-dd'T'HH:mm:ss",
+    "status": "ACTIVE"
+  }
+}
+```
+
+### 5.8.2 Release reservation
+
+**Endpoint:** `POST /api/v1/stock-reservations/release`
+
+**Request**
+
+```json
+{
+  "reservationId": "string",
+  "reason": "string"
+}
+```
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Reservation released successfully"
+}
+```
+
+### 5.8.3 Release reservations batch
+
+**Endpoint:** `POST /api/v1/stock-reservations/release-batch`
+
+**Request**
+
+```json
+{
+  "reservationIds": ["string"],
+  "reason": "string"
+}
+```
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Reservations released successfully"
+}
+```
