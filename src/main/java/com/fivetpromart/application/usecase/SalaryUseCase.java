@@ -2,7 +2,9 @@ package com.fivetpromart.application.usecase;
 
 import com.fivetpromart.application.port.out.IDailySalaryRepository;
 import com.fivetpromart.application.port.out.ISalaryRoleConfigRepository;
+import com.fivetpromart.application.port.out.IStaffRepository;
 import com.fivetpromart.application.port.out.IWorkScheduleRepository;
+import com.fivetpromart.domain.model.Staff;
 import com.fivetpromart.domain.model.WorkSchedule;
 import com.fivetpromart.domain.model.salary.DailySalary;
 import com.fivetpromart.domain.model.salary.SalaryReport;
@@ -28,6 +30,7 @@ public class SalaryUseCase {
     private final ISalaryRoleConfigRepository salaryRoleConfigRepository;
     private final IDailySalaryRepository dailySalaryRepository;
     private final IWorkScheduleRepository workScheduleRepository;
+    private final IStaffRepository staffRepository;
 
     /**
      * Get all salary configurations
@@ -260,9 +263,13 @@ public class SalaryUseCase {
         
         if (dailySalaries.isEmpty()) {
             // TODO: Get staff info from repository
+            Staff staff = staffRepository.findById(userId)
+                    .orElse(null);
+
+            assert staff != null;
             return StaffSalaryDetail.builder()
                     .userId(userId)
-                    .fullName("Staff " + userId)
+                    .fullName(staff.getFullName())
                     .role("Unknown")
                     .startDate(startDate)
                     .endDate(endDate)
@@ -287,7 +294,10 @@ public class SalaryUseCase {
                 .orElse(dailySalaries.get(0));
         
         String role = latestRecord.getRole();
-        String fullName = "Staff " + userId; // TODO: Get from repository
+        Staff staff = staffRepository.findById(userId)
+                .orElse(null);
+        assert staff != null;
+        String fullName = staff.getFullName(); // TODO: Get from repository
         
         // Build daily details
         List<StaffSalaryDetail.DailyDetail> dailyDetails = dailySalaries.stream()
