@@ -58,30 +58,40 @@ public class AuthenticationUseCase implements IAuthenticationUseCasePort {
     }
 
     @Override
-    public CurrentUserDto getCurrentUser(String userId) {
+    public CurrentUserDto getCurrentUser(String userId) { // 1. Đổi kiểu trả về
         log.info("Getting current user information for userId: {}", userId);
-        
+
         // Find staff by Keycloak userId
         Staff staff = staffRepository.findByUsername(userId)
                 .orElseThrow(() -> {
                     log.error("Staff not found for userId: {}", userId);
                     return new RuntimeException("Staff account not found");
                 });
-        
+
         log.info("Found staff: {} ({})", staff.getFullName(), staff.getAccountType());
-        
-        // Build response with staff information
+
+        // 2. Xử lý Date format (DD-MM-YYYY)
+        String formattedDob = null;
+        if (staff.getDateOfBirth() != null) {
+            // Giả sử staff.getDateOfBirth() trả về LocalDate.
+            // Nếu nó là String thì gán trực tiếp.
+            formattedDob = staff.getDateOfBirth()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        }
+
+        // 3. Build response theo DTO mới
         return CurrentUserDto.builder()
-                .userId(userId)
-                .staffId(staff.getUserId())
+                .profileId(staff.getProfileId())   // Map ID trong DB sang profileId
+                .userId(staff.getUserId())                 // ID từ Identity Provider (Keycloak/User param)
                 .username(staff.getUsername())
-                .email(staff.getEmail())
-                .birthDate(staff.getDateOfBirth())
-                .location(staff.getLocation())
                 .fullName(staff.getFullName())
+                .email(staff.getEmail())
                 .phoneNumber(staff.getPhoneNumber())
-                .roles(List.of(staff.getAccountType())) // Single role for now
-                .authenticated(true)
+                .dateOfBirth(formattedDob)      // Đã format thành String
+                .location(staff.getLocation())
+                .bio(staff.getBio())
+                .accountType(staff.getAccountType())
+                .avatarUrl(staff.getAvatarUrl()) // Giả sử Staff có field này
                 .build();
     }
 }
