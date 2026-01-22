@@ -161,10 +161,12 @@ public class StockInventoryController {
         // Call use case
         StockInventoryDto dto = stockInventoryUseCase.updateStockInventory(lotId, command);
 
-        // Map to response (only return updated fields as per spec)
+        // Map to response (return updated fields as per spec §5.4)
         StockInventoryResponse response = StockInventoryResponse.builder()
                 .lotId(dto.getLotId())
                 .stockQuantity(dto.getStockQuantity())
+                .quantityShelf(dto.getQuantityShelf())
+                .quantityStorage(dto.getQuantityStorage())
                 .status(dto.getStatus())
                 .build();
 

@@ -109,13 +109,13 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
         
         String targetStatus = command.getStatus() != null ? command.getStatus() : inventory.getStatus();
 
-        // 3. ÁP DỤNG LOGIC ƯU TIÊN HẾT HÀNG
-        // Nếu newQuantity <= 0 thì finalStatus sẽ thành "OUT_OF_STOCK"
-        // Nếu newQuantity > 0 thì finalStatus sẽ là targetStatus
+        // Apply OUT_OF_STOCK priority logic:
+        // If newQuantity <= 0 -> force status to "OUT_OF_STOCK"
+        // If newQuantity > 0 -> use targetStatus
         Long newQuantity = command.getStockQuantity() != null ? command.getStockQuantity() : inventory.getStockQuantity();
         String finalStatus = resolveFinalStatus(newQuantity, targetStatus);
 
-        // Update only stockQuantity and status (as per API spec)
+        // Update stockQuantity and status
         inventory.update(
                 null,  // productId - not updatable
                 null,  // manufactureDate - not updatable
@@ -124,6 +124,11 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
                 null,  // importPrice - not updatable
                 finalStatus
         );
+        
+        // Update shelf/storage quantities if provided (per API spec §5.4)
+        if (command.getQuantityShelf() != null || command.getQuantityStorage() != null) {
+            inventory.updateShelfStorage(command.getQuantityShelf(), command.getQuantityStorage());
+        }
         
         // Save
         StockInventory updatedInventory = stockInventoryRepository.save(inventory);
