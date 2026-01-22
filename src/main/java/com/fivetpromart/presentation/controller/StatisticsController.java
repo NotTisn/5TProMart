@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,8 +30,8 @@ public class StatisticsController {
      */
     @GetMapping("/summary")
     public ApiResponse<DashboardSummaryResponse> getDashboardSummary(
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate endDate
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate
     ) {
         log.info("Getting dashboard summary from {} to {}", startDate, endDate);
 
@@ -55,8 +56,8 @@ public class StatisticsController {
      */
     @GetMapping("/revenue-profit-chart")
     public ApiResponse<List<RevenueProfitDataResponse>> getRevenueProfitChart(
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate endDate
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate
     ) {
         log.info("Getting revenue profit chart from {} to {}", startDate, endDate);
 
@@ -83,8 +84,8 @@ public class StatisticsController {
      */
     @GetMapping("/orders-chart")
     public ApiResponse<List<OrderDataResponse>> getOrdersChart(
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate endDate
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate
     ) {
         log.info("Getting orders chart from {} to {}", startDate, endDate);
 
@@ -112,8 +113,8 @@ public class StatisticsController {
     @GetMapping("/category-revenue")
     public ApiResponse<List<CategoryRevenueResponse>> getCategoryRevenue(
             @RequestParam(required = false, defaultValue = "5") Integer limit,
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate endDate
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate
     ) {
         log.info("Getting category revenue with limit {} from {} to {}", limit, startDate, endDate);
 
@@ -142,8 +143,8 @@ public class StatisticsController {
     @GetMapping("/top-products")
     public ApiResponse<List<TopSellingProductResponse>> getTopSellingProducts(
             @RequestParam(required = false, defaultValue = "10") Integer limit,
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,
-            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate endDate
+            @RequestParam Instant startDate,
+            @RequestParam Instant endDate
     ) {
         log.info("Getting top selling products with limit {} from {} to {}", limit, startDate, endDate);
 

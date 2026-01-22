@@ -129,7 +129,8 @@ public class AuthenticationController {
 
         // Extract userId (Keycloak subject) from JWT token
         String userId = authentication.getName();
-        
+
+        System.out.println("userId = " + userId);
         // Delegate to use case to get full user details from database
         CurrentUserDto currentUser = authenticationUseCase.getCurrentUser(userId);
         

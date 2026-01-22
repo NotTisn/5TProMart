@@ -15,6 +15,7 @@ public interface PromotionPersistenceMapper {
     default PromotionDbo toDbo(Promotion domain) {
         if (domain == null) return null;
 
+        // 1. Tạo đối tượng CHA (PromotionDbo) trước
         PromotionDbo dbo = PromotionDbo.builder()
                 .promotionId(domain.getPromotionId())
                 .promotionName(domain.getPromotionName())
@@ -26,12 +27,17 @@ public interface PromotionPersistenceMapper {
                 .startDate(domain.getStartDate())
                 .endDate(domain.getEndDate())
                 .status(domain.getStatus())
+                .isActive(true) // Đảm bảo set giá trị này (hoặc lấy từ domain nếu có)
                 .build();
 
+        // 2. Map danh sách CON và truyền 'dbo' (CHA) vào để gán quan hệ
         if (domain.getProducts() != null) {
             List<PromotionProductDbo> productDbos = domain.getProducts().stream()
-                    .map(p -> mapProductToDbo(p, domain.getPromotionId()))
+                    .map(p -> mapProductToDbo(p, dbo)) // <--- QUAN TRỌNG: Truyền 'dbo' vào đây
                     .collect(Collectors.toList());
+
+            // Nếu bạn đã thêm helper method setProducts trong Entity thì dùng nó,
+            // còn không thì dùng setter thường (nhưng nhớ đảm bảo list không null)
             dbo.setProducts(productDbos);
         }
 
@@ -61,15 +67,20 @@ public interface PromotionPersistenceMapper {
         );
     }
 
-    default PromotionProductDbo mapProductToDbo(PromotionProduct product, String promotionId) {
+    // 3. Sửa tham số: Nhận 'PromotionDbo parent' thay vì String ID
+    default PromotionProductDbo mapProductToDbo(PromotionProduct domain, PromotionDbo parent) {
+        if (domain == null) return null;
+
         return PromotionProductDbo.builder()
-                .promotionId(promotionId)
-                .productId(product.getProductId())
-                .productName(product.getProductName())
+                .promotion(parent) // <--- QUAN TRỌNG: Hibernate cần object này để lấy ID cha
+                .productId(domain.getProductId())
+                .productName(domain.getProductName())
                 .build();
     }
 
     default PromotionProduct mapProductToDomain(PromotionProductDbo dbo) {
+        if (dbo == null) return null;
+
         return PromotionProduct.builder()
                 .productId(dbo.getProductId())
                 .productName(dbo.getProductName())

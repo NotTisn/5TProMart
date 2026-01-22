@@ -30,8 +30,12 @@ public class PromotionDbo {
     @Column(name = "promotion_description", columnDefinition = "TEXT")
     String promotionDescription;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "promotion_id")
+//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+//    @JoinColumn(name = "promotion_id")
+//    @Builder.Default
+//    List<PromotionProductDbo> products = new ArrayList<>();
+
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     List<PromotionProductDbo> products = new ArrayList<>();
 

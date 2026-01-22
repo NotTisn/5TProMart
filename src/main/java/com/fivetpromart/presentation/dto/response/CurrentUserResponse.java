@@ -5,22 +5,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CurrentUserResponse {
-    
+
+    private String profileId;
     private String userId;
-    private String staffId;
     private String username;
-    private String email;
-    private String firstName;
-    private String lastName;
     private String fullName;
+    private String email;
     private String phoneNumber;
-    private List<String> roles;
-    private Boolean authenticated;
+
+    // Lưu ý: Trong ảnh format là "DD-MM-YYYY", nên trả về String hoặc dùng @JsonFormat nếu là LocalDate
+    private String dateOfBirth;
+
+    private String location;
+    private String bio;
+    private String accountType;
+    private String avatarUrl;
 }

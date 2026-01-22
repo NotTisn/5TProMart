@@ -17,8 +17,9 @@ public class PromotionProductDbo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(name = "promotion_id", nullable = false)
-    String promotionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "promotion_id", nullable = false)
+    PromotionDbo promotion;
 
     @Column(name = "product_id", nullable = false)
     String productId;

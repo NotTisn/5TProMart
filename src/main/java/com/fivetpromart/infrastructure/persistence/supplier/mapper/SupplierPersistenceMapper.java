@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface SupplierPersistenceMapper {
-    
+
     default SupplierDbo toDbo(Supplier domain) {
         if (domain == null) return null;
 
@@ -25,16 +25,17 @@ public interface SupplierPersistenceMapper {
                 .representPhoneNumber(domain.getRepresentPhoneNumber())
                 .supplierType(domain.getSupplierType())
                 .currentDebt(domain.getCurrentDebt())
+                .suppliedProducts(new ArrayList<>()) // Initialize empty list
                 .build();
-        
-        // Map supplied products
+
+        // Map supplied products and set bidirectional relationship
         if (domain.getSuppliedProducts() != null) {
             List<SuppliedProductDbo> productDbos = domain.getSuppliedProducts().stream()
-                    .map(p -> mapSuppliedProductToDbo(p, domain.getSupplierId()))
+                    .map(p -> mapSuppliedProductToDbo(p, dbo)) // Pass the parent dbo
                     .collect(Collectors.toList());
             dbo.setSuppliedProducts(productDbos);
         }
-        
+
         return dbo;
     }
 
@@ -60,21 +61,24 @@ public interface SupplierPersistenceMapper {
                 dbo.getCurrentDebt()
         );
     }
-    
-    default SuppliedProductDbo mapSuppliedProductToDbo(SuppliedProduct domain, String supplierId) {
+
+    /**
+     * Maps domain SuppliedProduct to DBO and sets the bidirectional relationship
+     */
+    default SuppliedProductDbo mapSuppliedProductToDbo(SuppliedProduct domain, SupplierDbo supplierDbo) {
         if (domain == null) return null;
-        
+
         return SuppliedProductDbo.builder()
-                .supplierId(supplierId)
+                .supplier(supplierDbo) // Set the supplier reference (bidirectional)
                 .productId(domain.getProductId())
                 .lastImportPrice(domain.getLastImportPrice())
                 .lastImportDate(domain.getLastImportDate())
                 .build();
     }
-    
+
     default SuppliedProduct mapSuppliedProductToDomain(SuppliedProductDbo dbo) {
         if (dbo == null) return null;
-        
+
         return SuppliedProduct.builder()
                 .productId(dbo.getProductId())
                 .lastImportPrice(dbo.getLastImportPrice())

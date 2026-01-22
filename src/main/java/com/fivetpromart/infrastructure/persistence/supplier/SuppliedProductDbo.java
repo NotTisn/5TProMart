@@ -20,9 +20,12 @@ public class SuppliedProductDbo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    
-    @Column(name = "supplier_id", nullable = false)
-    String supplierId;
+
+//    @Column(name = "supplier_id", nullable = true)
+//    String supplierId;
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "supplier_id", nullable = false)
+SupplierDbo supplier;
     
     @Column(name = "product_id", nullable = false)
     String productId;

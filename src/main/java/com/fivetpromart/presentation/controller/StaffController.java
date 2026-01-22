@@ -82,7 +82,7 @@ public class StaffController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('Admin')")
+    //@PreAuthorize("hasRole('Admin')")
     public ApiResponse<StaffResponse> createStaff(
             @Valid @RequestBody StaffRequest request
     ) {
