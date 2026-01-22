@@ -17,4 +17,5 @@ public class UpdateWorkShiftCommand {
     LocalTime startTime;
     LocalTime endTime;
     String roleConfigId;
+    Boolean isActive;
 }
