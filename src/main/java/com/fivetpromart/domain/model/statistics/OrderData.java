@@ -3,11 +3,11 @@ package com.fivetpromart.domain.model.statistics;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Getter
 @Builder
 public class OrderData {
-    private LocalDate date;
+    private Instant date;
     private Integer completedOrders;
 }

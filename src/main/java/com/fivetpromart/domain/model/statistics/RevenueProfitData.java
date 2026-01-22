@@ -4,12 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Getter
 @Builder
 public class RevenueProfitData {
-    private LocalDate date;
+    private Instant date;
     private BigDecimal revenue;
     private BigDecimal expense;
     private BigDecimal profit;
