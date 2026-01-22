@@ -17,6 +17,8 @@ public class StockInventoryResponse {
     private LocalDate manufactureDate;
     private LocalDate expirationDate;
     private Long stockQuantity;
+    private Long quantityShelf;     // Display quantity (items on shelf)
+    private Long quantityStorage;   // Warehouse quantity (items in storage)
     private BigDecimal importPrice;
     private String status;
 }

@@ -106,7 +106,7 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
             throw new NegativeValueException("Stock quantity must be greater than 0");
         }
         
-        // Update only stockQuantity and status (as per API spec)
+        // Update stockQuantity and status
         inventory.update(
                 null,  // productId - not updatable
                 null,  // manufactureDate - not updatable
@@ -115,6 +115,11 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
                 null,  // importPrice - not updatable
                 command.getStatus() != null ? command.getStatus() : inventory.getStatus()
         );
+        
+        // Update shelf/storage quantities if provided (per API spec §5.4)
+        if (command.getQuantityShelf() != null || command.getQuantityStorage() != null) {
+            inventory.updateShelfStorage(command.getQuantityShelf(), command.getQuantityStorage());
+        }
         
         // Save
         StockInventory updatedInventory = stockInventoryRepository.save(inventory);

@@ -11,5 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StockInventoryUpdateCommand {
     private Long stockQuantity;
+    private Long quantityShelf;
+    private Long quantityStorage;
     private String status;
 }

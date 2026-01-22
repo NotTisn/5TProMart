@@ -18,7 +18,9 @@ public class StockInventory {
     private LocalDate manufactureDate;
     private LocalDate expirationDate;
     private Long stockQuantity;
-    private Long reservedQuantity; // NEW: Track how much is currently reserved
+    private Long reservedQuantity; // Track how much is currently reserved
+    private Long quantityShelf;    // Display quantity (items on shelf/display)
+    private Long quantityStorage;  // Warehouse quantity (items in storage)
     private BigDecimal importPrice;
     private String status;
 
@@ -42,7 +44,9 @@ public class StockInventory {
         stockInventory.manufactureDate = manufactureDate;
         stockInventory.expirationDate = expirationDate;
         stockInventory.stockQuantity = stockQuantity;
-        stockInventory.reservedQuantity = 0L; // NEW: Initialize reserved to 0
+        stockInventory.reservedQuantity = 0L;
+        stockInventory.quantityShelf = 0L;              // Per spec: starts at 0
+        stockInventory.quantityStorage = stockQuantity;  // Per spec: starts at stockQuantity
         stockInventory.importPrice = importPrice;
         stockInventory.status = "";
 
@@ -54,8 +58,10 @@ public class StockInventory {
             String productId,
             LocalDate manufactureDate,
             LocalDate expirationDate,
-            Long stockQuantity, // FIXED: Restore stockQuantity parameter
-            Long reservedQuantity, // NEW: Add reserved quantity
+            Long stockQuantity,
+            Long reservedQuantity,
+            Long quantityShelf,
+            Long quantityStorage,
             BigDecimal importPrice,
             String status
     ) {
@@ -65,7 +71,9 @@ public class StockInventory {
         stockInventory.manufactureDate = manufactureDate;
         stockInventory.expirationDate = expirationDate;
         stockInventory.stockQuantity = stockQuantity;
-        stockInventory.reservedQuantity = reservedQuantity != null ? reservedQuantity : 0L; // NEW: Default to 0
+        stockInventory.reservedQuantity = reservedQuantity != null ? reservedQuantity : 0L;
+        stockInventory.quantityShelf = quantityShelf != null ? quantityShelf : 0L;
+        stockInventory.quantityStorage = quantityStorage != null ? quantityStorage : stockQuantity;
         stockInventory.importPrice = importPrice;
         stockInventory.status = status;
         return stockInventory;
@@ -90,6 +98,48 @@ public class StockInventory {
             this.importPrice = importPrice;
 
         this.status = status;
+    }
+    
+    /**
+     * Update shelf and storage quantities
+     * Per API Spec: quantityStorage + quantityShelf = stockQuantity
+     */
+    public void updateShelfStorage(Long newQuantityShelf, Long newQuantityStorage) {
+        if (newQuantityShelf != null) {
+            this.quantityShelf = newQuantityShelf;
+        }
+        if (newQuantityStorage != null) {
+            this.quantityStorage = newQuantityStorage;
+        }
+    }
+    
+    /**
+     * Transfer stock from storage to shelf (display)
+     * Per API Spec: Khi lấy hàng từ kho ra trưng bày, update quantityShelf += số lượng, trừ quantityStorage
+     */
+    public void transferToShelf(Long quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Transfer quantity must be positive");
+        }
+        if (this.quantityStorage < quantity) {
+            throw new IllegalStateException("Insufficient storage quantity to transfer");
+        }
+        this.quantityStorage -= quantity;
+        this.quantityShelf += quantity;
+    }
+    
+    /**
+     * Transfer stock from shelf back to storage
+     */
+    public void transferToStorage(Long quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Transfer quantity must be positive");
+        }
+        if (this.quantityShelf < quantity) {
+            throw new IllegalStateException("Insufficient shelf quantity to transfer");
+        }
+        this.quantityShelf -= quantity;
+        this.quantityStorage += quantity;
     }
 
 

@@ -15,7 +15,9 @@ public interface StockInventoryPersistenceMapper {
                 .expirationDate(stockInventory.getExpirationDate())
                 .manufactureDate(stockInventory.getManufactureDate())
                 .stockQuantity(stockInventory.getStockQuantity())
-                .reservedQuantity(stockInventory.getReservedQuantity()) // NEW: Map reserved quantity
+                .reservedQuantity(stockInventory.getReservedQuantity())
+                .quantityShelf(stockInventory.getQuantityShelf())
+                .quantityStorage(stockInventory.getQuantityStorage())
                 .importPrice(stockInventory.getImportPrice())
                 .status(stockInventory.getStatus())
                 .build();
@@ -30,7 +32,9 @@ public interface StockInventoryPersistenceMapper {
                 stockInventoryDbo.getManufactureDate(),
                 stockInventoryDbo.getExpirationDate(),
                 stockInventoryDbo.getStockQuantity(),
-                stockInventoryDbo.getReservedQuantity(), // NEW: Map reserved quantity
+                stockInventoryDbo.getReservedQuantity(),
+                stockInventoryDbo.getQuantityShelf(),
+                stockInventoryDbo.getQuantityStorage(),
                 stockInventoryDbo.getImportPrice(),
                 stockInventoryDbo.getStatus()
         );

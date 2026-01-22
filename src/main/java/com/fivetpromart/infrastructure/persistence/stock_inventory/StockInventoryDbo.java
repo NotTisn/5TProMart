@@ -45,7 +45,13 @@ public class StockInventoryDbo {
     Long stockQuantity;
 
     @Column(name = "reserved_quantity")
-    Long reservedQuantity; // NEW: Track reserved stock
+    Long reservedQuantity;
+    
+    @Column(name = "quantity_shelf")
+    Long quantityShelf;
+    
+    @Column(name = "quantity_storage")
+    Long quantityStorage;
 
     @Column(name = "import_price")
     BigDecimal importPrice;
