@@ -81,4 +81,17 @@ public class SupplierUseCase implements ISupplierUseCasePort {
         // Map sang Page DTO
         return supplierPage.map(mapper::toDto);
     }
+
+    @Override
+    public SupplierDto restoreSupplier(String supplierId) {
+        Supplier supplier = supplierRepository.findByIdIncludingDeleted(supplierId)
+                .orElseThrow(() -> new SupplierNotFoundException(supplierId));
+        
+        if (supplier.isActive()) {
+            log.warn("Supplier {} is already active", supplierId);
+        }
+        
+        supplier.activate();
+        return mapper.toDto(supplierRepository.save(supplier));
+    }
 }

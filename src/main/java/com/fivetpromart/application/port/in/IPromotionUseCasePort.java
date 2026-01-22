@@ -10,5 +10,8 @@ public interface IPromotionUseCasePort {
     Page<PromotionDto> searchPromotions(PromotionSearchQuery query, Pageable pageable);
     PromotionDto getPromotionById(String promotionId);
     PromotionDto createPromotion(PromotionCreationCommand command);
+    PromotionDto updatePromotion(String promotionId, PromotionCreationCommand command);
     PromotionDto cancelPromotion(String promotionId);
+    PromotionDto deletePromotion(String promotionId);
+    PromotionDto restorePromotion(String promotionId);
 }

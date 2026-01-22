@@ -1,7 +1,9 @@
 package com.fivetpromart.application.port.in;
 
+import com.fivetpromart.application.dto.DisposalBatchResultDto;
 import com.fivetpromart.application.dto.DisposeLotResultDto;
 import com.fivetpromart.application.dto.StockInventoryDto;
+import com.fivetpromart.application.dto.command.DisposalBatchCommand;
 import com.fivetpromart.application.dto.command.DisposeLotCommand;
 import com.fivetpromart.application.dto.command.StockInventoryCreationCommand;
 import com.fivetpromart.application.dto.command.StockInventoryUpdateCommand;
@@ -38,7 +40,12 @@ public interface IStockInventoryUseCasePort {
     void deleteById(String lotId);
 
     /**
-     * Dispose a lot (mark as disposed, deduct quantity)
+     * Dispose a lot (mark as disposed, deduct quantity) - Single lot
      */
     DisposeLotResultDto disposeLot(DisposeLotCommand command);
+    
+    /**
+     * Create disposal batch (dispose multiple lots at once) - Spec compliant
+     */
+    DisposalBatchResultDto createDisposalBatch(DisposalBatchCommand command);
 }

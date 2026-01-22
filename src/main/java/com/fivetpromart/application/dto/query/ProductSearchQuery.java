@@ -17,4 +17,7 @@ public class ProductSearchQuery {
      * "expiring-soon" (within 7 days), "expired" (past expiry)
      */
     private String stockLevel;
+    
+    // Soft delete filter
+    private Boolean includeDeleted; // null or false = only active, true = include deleted
 }

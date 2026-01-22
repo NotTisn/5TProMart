@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,9 @@ public class Promotion {
     private LocalDate endDate;
     private String status;
     private PromotionStrategy promotionStrategy;
+    private Boolean isActive = true;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public static Promotion create(
             String promotionName,
@@ -118,6 +122,38 @@ public class Promotion {
         this.status = "Cancelled";
     }
 
+    public void update(String promotionName, String promotionDescription, 
+                      List<PromotionProduct> products, Integer discountPercent,
+                      LocalDate startDate, LocalDate endDate) {
+        if (promotionName != null && !promotionName.isBlank()) {
+            this.promotionName = promotionName;
+        }
+        if (promotionDescription != null) {
+            this.promotionDescription = promotionDescription;
+        }
+        if (products != null && !products.isEmpty()) {
+            this.products = products;
+        }
+        if (discountPercent != null) {
+            this.discountPercent = discountPercent;
+            // Update strategy if discount changed
+            if ("Discount".equals(this.promotionType)) {
+                this.promotionStrategy = new DiscountPromotionStrategy(discountPercent);
+            }
+        }
+        if (startDate != null) {
+            this.startDate = startDate;
+        }
+        if (endDate != null) {
+            this.endDate = endDate;
+        }
+        
+        // Recalculate status based on new dates
+        if (startDate != null || endDate != null) {
+            this.status = determineStatus(this.startDate, this.endDate);
+        }
+    }
+
     private static String determineStatus(LocalDate startDate, LocalDate endDate) {
         LocalDate now = LocalDate.now();
         if (now.isBefore(startDate)) {
@@ -153,5 +189,18 @@ public class Promotion {
             }
             default -> throw new InvalidPromotionException("Unknown promotion type: " + promotionType);
         };
+    }
+
+    // Soft delete methods
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public boolean isActive() {
+        return this.isActive != null && this.isActive;
     }
 }

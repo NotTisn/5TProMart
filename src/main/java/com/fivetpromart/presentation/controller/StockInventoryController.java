@@ -1,16 +1,20 @@
 package com.fivetpromart.presentation.controller;
 
+import com.fivetpromart.application.dto.DisposalBatchResultDto;
 import com.fivetpromart.application.dto.DisposeLotResultDto;
 import com.fivetpromart.application.dto.StockInventoryDto;
+import com.fivetpromart.application.dto.command.DisposalBatchCommand;
 import com.fivetpromart.application.dto.command.DisposeLotCommand;
 import com.fivetpromart.application.dto.command.StockInventoryCreationCommand;
 import com.fivetpromart.application.dto.command.StockInventoryUpdateCommand;
 import com.fivetpromart.application.dto.query.StockInventorySearchQuery;
 import com.fivetpromart.application.port.in.IStockInventoryUseCasePort;
+import com.fivetpromart.presentation.dto.request.DisposalBatchRequest;
 import com.fivetpromart.presentation.dto.request.DisposeLotRequest;
 import com.fivetpromart.presentation.dto.request.StockInventoryRequest;
 import com.fivetpromart.presentation.dto.request.StockInventoryUpdateRequest;
 import com.fivetpromart.presentation.dto.response.ApiResponse;
+import com.fivetpromart.presentation.dto.response.DisposalBatchResponse;
 import com.fivetpromart.presentation.dto.response.DisposeLotResponse;
 import com.fivetpromart.presentation.dto.response.PaginationMeta;
 import com.fivetpromart.presentation.dto.response.StockInventoryResponse;
@@ -44,8 +48,7 @@ public class StockInventoryController {
      * GET /api/stock-inventories
      */
     @GetMapping
-    // Temporarily allow all authenticated users for testing
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'WarehouseStaff')")
     public ApiResponse<List<StockInventoryResponse>> searchStockInventories(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String productId,
@@ -94,7 +97,7 @@ public class StockInventoryController {
      * GET /api/stock-inventories/{id}
      */
     @GetMapping("/{id}")
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'WarehouseStaff')")
     public ApiResponse<StockInventoryResponse> getStockInventoryById(@PathVariable String id) {
         log.info("Getting stock inventory by ID: {}", id);
 
@@ -116,7 +119,7 @@ public class StockInventoryController {
      * POST /api/stock-inventories
      */
     @PostMapping
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'WarehouseStaff')")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<StockInventoryResponse> createStockInventory(
             @Valid @RequestBody StockInventoryRequest request
@@ -144,7 +147,7 @@ public class StockInventoryController {
      * PUT /api/stock-inventories/{lot_id}
      */
     @PutMapping("/{lot_id}")
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'WarehouseStaff')")
     public ApiResponse<StockInventoryResponse> updateStockInventory(
             @PathVariable("lot_id") String lotId,
             @Valid @RequestBody StockInventoryUpdateRequest request
@@ -176,7 +179,7 @@ public class StockInventoryController {
      * DELETE /api/stock-inventories/{id}
      */
     @DeleteMapping("/{id}")
-    // @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Admin')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteStockInventory(@PathVariable String id) {
         log.info("Deleting stock inventory: {}", id);
@@ -184,11 +187,41 @@ public class StockInventoryController {
     }
 
     /**
-     * 5.5 Dispose a lot of stock (expired/damaged)
+     * 5.5 Batch Disposal Stock Inventory (spec compliant)
+     * POST /api/v1/inventory/disposal
+     */
+    @PostMapping("/disposal")
+    @PreAuthorize("hasAnyRole('Admin', 'WarehouseStaff')")
+    public ApiResponse<DisposalBatchResponse> createDisposalBatch(
+            @Valid @RequestBody DisposalBatchRequest request
+    ) {
+        log.info("Creating disposal batch with {} items", request.getItems().size());
+
+        // Convert to command and call use case
+        DisposalBatchCommand command = mapper.toDisposalBatchCommand(request);
+        DisposalBatchResultDto resultDto = stockInventoryUseCase.createDisposalBatch(command);
+
+        // Map to response
+        DisposalBatchResponse response = DisposalBatchResponse.builder()
+                .disposalId(resultDto.getDisposalId())
+                .staffId(resultDto.getStaffId())
+                .date(resultDto.getDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")))
+                .totalItems(resultDto.getTotalItems())
+                .build();
+
+        return ApiResponse.<DisposalBatchResponse>builder()
+                .success(true)
+                .message("Disposal created successfully.")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * Single lot disposal (legacy endpoint, kept for backward compatibility)
      * POST /api/v1/stock_inventories/{lotId}/dispose
      */
     @PostMapping("/{lotId}/dispose")
-    // @PreAuthorize("hasRole('Admin') or hasRole('WarehouseStaff')")
+    @PreAuthorize("hasAnyRole('Admin', 'WarehouseStaff')")
     public ApiResponse<DisposeLotResponse> disposeLot(
             @PathVariable String lotId,
             @Valid @RequestBody DisposeLotRequest request

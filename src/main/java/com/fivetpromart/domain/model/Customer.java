@@ -22,6 +22,7 @@ public class Customer {
     private String phoneNumber;
     private LocalDate registrationDate;
     private long loyaltyPoints;
+    private Boolean isActive = true;
 
     // =================================================================
     // 1. FACTORY METHOD: TẠO MỚI (Business Logic)
@@ -131,5 +132,18 @@ public class Customer {
             throw new InsufficientLoyaltyPointsException(this.loyaltyPoints, amount);
         }
         this.loyaltyPoints -= amount;
+    }
+
+    // Soft delete methods
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public boolean isActive() {
+        return this.isActive != null && this.isActive;
     }
 }

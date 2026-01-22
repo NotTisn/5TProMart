@@ -102,4 +102,74 @@ public class PromotionUseCase implements IPromotionUseCasePort {
         Promotion saved = promotionRepository.save(promotion);
         return mapper.toDto(saved);
     }
+
+    @Override
+    @Transactional
+    public PromotionDto updatePromotion(String promotionId, PromotionCreationCommand command) {
+        Promotion promotion = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new EntityNotFoundException("Promotion not found with ID: " + promotionId));
+
+        // Validate and fetch product details
+        List<PromotionProduct> promotionProducts = new ArrayList<>();
+        for (String productId : command.getProducts()) {
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + productId));
+
+            promotionProducts.add(PromotionProduct.builder()
+                    .productId(product.getProductId())
+                    .productName(product.getProductName())
+                    .build());
+        }
+
+        // Validate promotion type specific fields
+        if ("Discount".equals(command.getPromotionType())) {
+            if (command.getDiscountPercent() == null || command.getDiscountPercent() < 1 || command.getDiscountPercent() > 100) {
+                throw new IllegalArgumentException("Discount percent must be between 1 and 100.");
+            }
+        } else if ("Buy X Get Y".equals(command.getPromotionType())) {
+            if (command.getBuyQuantity() == null || command.getBuyQuantity() <= 0) {
+                throw new IllegalArgumentException("Buy quantity must be greater than 0");
+            }
+            if (command.getGetQuantity() == null || command.getGetQuantity() <= 0) {
+                throw new IllegalArgumentException("Get quantity must be greater than 0");
+            }
+        }
+
+        // Update promotion fields
+        promotion.update(
+                command.getPromotionName(),
+                command.getPromotionDescription(),
+                promotionProducts,
+                command.getDiscountPercent(),
+                command.getStartDate(),
+                command.getEndDate()
+        );
+
+        Promotion saved = promotionRepository.save(promotion);
+        return mapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public PromotionDto deletePromotion(String promotionId) {
+        Promotion promotion = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new EntityNotFoundException("Promotion not found with ID: " + promotionId));
+        
+        promotion.deactivate();
+        return mapper.toDto(promotionRepository.save(promotion));
+    }
+
+    @Override
+    @Transactional
+    public PromotionDto restorePromotion(String promotionId) {
+        Promotion promotion = promotionRepository.findByIdIncludingDeleted(promotionId)
+                .orElseThrow(() -> new EntityNotFoundException("Promotion not found with ID: " + promotionId));
+        
+        if (promotion.isActive()) {
+            log.warn("Promotion {} is already active", promotionId);
+        }
+        
+        promotion.activate();
+        return mapper.toDto(promotionRepository.save(promotion));
+    }
 }

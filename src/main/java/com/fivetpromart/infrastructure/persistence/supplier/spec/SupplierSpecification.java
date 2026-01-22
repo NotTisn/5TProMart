@@ -15,6 +15,12 @@ public class SupplierSpecification {
         return (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // 0. Filter by isActive status (default: only active suppliers)
+            Boolean includeDeleted = query.getIncludeDeleted();
+            if (includeDeleted == null || !includeDeleted) {
+                predicates.add(criteriaBuilder.equal(root.get("isActive"), true));
+            }
+
             // SEARCH: Tìm kiếm trong supplierName HOẶC supplierId (OR logic)
             if (query.getSearch() != null && !query.getSearch().isBlank()) {
                 String searchTerm = query.getSearch().trim();

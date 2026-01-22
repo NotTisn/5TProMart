@@ -48,8 +48,10 @@ public class CategoryController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<List<CategoryResponse>> getAllCategories() {
-        List<CategoryDto> dtos = categoryUseCase.findAllCategories();
+    public ApiResponse<List<CategoryResponse>> getAllCategories(
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted
+    ) {
+        List<CategoryDto> dtos = categoryUseCase.findAllCategories(includeDeleted);
 
         List<CategoryResponse> responses = dtos.stream()
                 .map(mapper::toResponse)
@@ -84,6 +86,19 @@ public class CategoryController {
         return ApiResponse.builder()
                 .success(true)
                 .message("Category deleted successfully")
+                .build();
+    }
+
+    @PostMapping("/{categoryId}/restore")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<CategoryResponse> restoreCategory(@PathVariable String categoryId) {
+        CategoryDto dto = categoryUseCase.restoreCategory(categoryId);
+        
+        return ApiResponse.<CategoryResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully restored category")
+                .data(mapper.toResponse(dto))
                 .build();
     }
 }

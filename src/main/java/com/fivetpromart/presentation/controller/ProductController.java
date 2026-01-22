@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<ProductResponse> createProduct(
             @Valid @RequestBody ProductRequest request
     ) {
@@ -48,6 +50,7 @@ public class ProductController {
 
     @PutMapping("/{productId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse<ProductResponse> updateProduct(
             @PathVariable String productId,
             @Valid @RequestBody ProductRequest request
@@ -69,6 +72,7 @@ public class ProductController {
 
     @DeleteMapping("/{productId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
     public ApiResponse deleteProduct(
             @PathVariable String productId
     ) {
@@ -82,11 +86,13 @@ public class ProductController {
     }
 
     @GetMapping
+    //@PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff', 'WarehouseStaff')")
     public ApiResponse<List<ProductResponse>> getAllProducts(
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) String categoryId,
             @RequestParam(required = false) String productId,
             @RequestParam(required = false) String stockLevel,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         // 1. Gọi UseCase (Nhận về Page của Spring)
@@ -95,6 +101,7 @@ public class ProductController {
                 .categoryId(categoryId)
                 .productId(productId)
                 .stockLevel(stockLevel)
+                .includeDeleted(includeDeleted)
                 .build();
         Page<ProductDto> pageResult = productUseCase.getAllProducts(query, pageable);
 
@@ -124,6 +131,7 @@ public class ProductController {
 
     @GetMapping("/{productId}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'SalesStaff', 'WarehouseStaff')")
     public ApiResponse<ProductResponse> getProductById(
             @PathVariable String productId
     ) {
@@ -143,6 +151,7 @@ public class ProductController {
      */
     @GetMapping("/stats")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
     public ApiResponse<ProductStatsResponse> getProductStats() {
         ProductStatsDto statsDto = productUseCase.getProductStats();
 
@@ -162,6 +171,20 @@ public class ProductController {
                 .statusCode(200)
                 .message("Get product statistics successfully")
                 .data(response)
+                .build();
+    }
+
+    @PostMapping("/{productId}/restore")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<ProductResponse> restoreProduct(@PathVariable String productId) {
+        ProductDto dto = productUseCase.restoreProduct(productId);
+        
+        return ApiResponse.<ProductResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully restored product")
+                .data(mapper.toProductResponse(dto))
                 .build();
     }
 }

@@ -78,3 +78,17 @@ payment:
 inventory:
   low-stock-threshold: 10      # Products with stock < 10 are "low stock"
   expiry-warning-days: 30      # Flag lots expiring within 30 days
+
+# --- DEVELOPMENT SECURITY BYPASS ---
+# Set to true to grant all roles to authenticated users (disables role-based authorization)
+# Useful for endpoint testing without role restrictions
+# WARNING: Never enable in production environments
+security:
+  bypass-enabled: ${SECURITY_BYPASS:false}
+
+# --- AI ANALYTICS SERVICE ---
+# Python microservice for demand forecasting, bundle insights, margin optimization
+analytics:
+  service:
+    url: ${ANALYTICS_SERVICE_URL:http://localhost:8090}
+    enabled: ${ANALYTICS_ENABLED:true}

@@ -35,11 +35,13 @@ public class StaffController {
     public ApiResponse<List<StaffResponse>> getAllStaff(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String accountType,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 10, sort = "fullName") Pageable pageable
     ) {
         StaffSearchQuery query = StaffSearchQuery.builder()
                 .search(search)
                 .accountType(accountType)
+                .includeDeleted(includeDeleted)
                 .build();
 
         Page<StaffAccountDto> pageResult = staffUseCase.getAllStaff(query, pageable);
@@ -123,6 +125,22 @@ public class StaffController {
                 .success(true)
                 .statusCode(204)
                 .message("Staff deleted successfully.")
+                .build();
+    }
+
+    @PostMapping("/{staffId}/restore")
+    @PreAuthorize("hasRole('Admin')")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<StaffResponse> restoreStaff(
+            @PathVariable String staffId
+    ) {
+        StaffAccountDto dto = staffUseCase.restoreStaff(staffId);
+
+        return ApiResponse.<StaffResponse>builder()
+                .success(true)
+                .statusCode(HttpStatus.OK.value())
+                .message("Successfully restored staff")
+                .data(mapper.toResponse(dto))
                 .build();
     }
 }

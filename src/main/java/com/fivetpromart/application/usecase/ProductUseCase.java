@@ -104,6 +104,24 @@ public class ProductUseCase implements IProductUseCasePort {
     }
 
     @Override
+    @Transactional
+    public ProductDto restoreProduct(String productId) {
+        // Find including deleted records
+        Product product = productRepository.findByIdIncludingDeleted(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+        
+        if (product.isActive()) {
+            log.warn("Product {} is already active", productId);
+        }
+        
+        product.activate(); // Domain method
+        Product restored = productRepository.save(product);
+        
+        log.info("Restored product: {}", productId);
+        return mapper.toDto(restored);
+    }
+
+    @Override
     public List<ProductDto> getAllProducts() {
         List<Product> products = productRepository.findAll();
 
@@ -143,7 +161,7 @@ public class ProductUseCase implements IProductUseCasePort {
         // Inventory stats from stock inventory
         Long lowStockCount = stockInventoryRepository.countByStockQuantityLessThan(LOW_STOCK_THRESHOLD);
         Long outOfStockCount = stockInventoryRepository.countByStockQuantityEquals(0L);
-        
+
         // Expiry stats
         LocalDate today = LocalDate.now();
         LocalDate expiryWarningDate = today.plusDays(EXPIRY_WARNING_DAYS);
@@ -163,5 +181,20 @@ public class ProductUseCase implements IProductUseCasePort {
                 .expiringSoonCount(expiringSoonCount != null ? expiringSoonCount : 0L)
                 .expiredCount(expiredCount != null ? expiredCount : 0L)
                 .build();
+    }
+
+    /**
+     * Update product's total stock quantity by summing all lot quantities
+     */
+    @Transactional
+    public void updateTotalStockQuantity(String productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        // Calculate total stock from all lots for this product
+        Integer totalStock = productRepository.calculateTotalStockQuantity(productId);
+
+        product.updateTotalStockQuantity(totalStock);
+        productRepository.save(product);
     }
 }

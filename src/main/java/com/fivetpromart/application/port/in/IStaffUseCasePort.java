@@ -13,4 +13,5 @@ public interface IStaffUseCasePort {
     StaffAccountDto getStaffById(String staffId);
     void deleteStaffById(String staffId);
     Page<StaffAccountDto> getAllStaff(StaffSearchQuery query, Pageable pageable);
+    StaffAccountDto restoreStaff(String staffId);
 }

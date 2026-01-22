@@ -16,6 +16,15 @@ dev
 
 That's it. Docker starts PostgreSQL + Keycloak, waits for health, launches Spring Boot with hot reload.
 
+### ⚙️ First-Time Setup
+
+```bash
+cd 5TProMart_be
+cp .env.example .env
+```
+
+That's it. The example has the correct Keycloak client secret from the shared realm.
+
 ---
 
 ## 📁 Directory Structure
@@ -89,10 +98,14 @@ All commands run from project root:
 
 ## 👤 Test Users (Keycloak)
 
-| Username | Password | Roles |
-|----------|----------|-------|
-| admin | admin123 | ADMIN, USER |
-| testuser | test123 | USER |
+| Username | Password | Role | Description |
+|----------|----------|------|-------------|
+| `admin` | `admin123` | Admin | Full system access |
+| `manager` | `manager123` | Manager | Read access, reports |
+| `salesstaff` | `sales123` | SalesStaff | Orders, customers, POS |
+| `warehousestaff` | `warehouse123` | WarehouseStaff | Stock, inventory, suppliers |
+
+**⚠️ Important**: Role names are **PascalCase** and **case-sensitive** (`Admin` not `ADMIN`).
 
 ---
 
@@ -155,7 +168,7 @@ The realm `fivetpro` is auto-imported on first start from `keycloak-config/fivet
 **Configuration:**
 - Realm: `fivetpro`
 - Client ID: `fivetpro`
-- Client Secret: `Vg11QgfmK4I4Di1Kf8i52ZeYcCifeKZK`
+- Client Secret: `WtaR8BLWkwL6OTWKRZjoGu12yk888onl`
 - Direct Access Grants: Enabled (for password auth)
 - Service Accounts: Enabled (for admin operations)
 

@@ -35,17 +35,26 @@ public class SupplierAdapter implements ISupplierRepository {
 
     @Override
     public Optional<Supplier> findById(String supplierId) {
+        return supplierRepository.findBySupplierIdAndIsActiveTrue(supplierId).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Supplier> findByIdIncludingDeleted(String supplierId) {
         return supplierRepository.findById(supplierId).map(mapper::toDomain);
     }
 
     @Override
     public List<Supplier> findAll() {
-        return List.of();
+        return supplierRepository.findAllActive().stream().map(mapper::toDomain).toList();
     }
 
     @Override
     public void deleteById(String supplierId) {
-        supplierRepository.deleteById(supplierId);
+        // SOFT DELETE: Set isActive to false
+        SupplierDbo dbo = supplierRepository.findById(supplierId)
+                .orElseThrow();
+        dbo.setIsActive(false);
+        supplierRepository.save(dbo);
     }
 
     @Override

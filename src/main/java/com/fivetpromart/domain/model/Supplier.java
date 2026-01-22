@@ -23,6 +23,7 @@ public class Supplier {
     private String supplierType;
     private List<SuppliedProduct> suppliedProducts;
     private BigDecimal currentDebt;
+    private Boolean isActive = true;
 
     // =================================================================
     // 1. FACTORY: TẠO MỚI
@@ -160,5 +161,18 @@ public class Supplier {
         }
         // Có thể cho phép nợ âm (trả dư) hoặc không, tùy logic
         this.currentDebt = this.currentDebt.subtract(amount);
+    }
+
+    // Soft delete methods
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public boolean isActive() {
+        return this.isActive != null && this.isActive;
     }
 }

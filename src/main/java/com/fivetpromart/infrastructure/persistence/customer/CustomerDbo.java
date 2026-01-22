@@ -3,6 +3,8 @@ package com.fivetpromart.infrastructure.persistence.customer;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -41,6 +43,15 @@ public class CustomerDbo {
     @Column(name = "loyalty_points", nullable = false)
     long loyaltyPoints;
 
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    Boolean isActive = true;
+
+    @UpdateTimestamp
     @Column(name = "updated_at")
     Instant updatedAt;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    Instant createdAt;
 }

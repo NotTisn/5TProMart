@@ -15,5 +15,5 @@ public interface ISupplierUseCasePort {
     SupplierDto getSupplierById(String supplierId);
     void deleteSupplierById(String supplierId);
     Page<SupplierDto> getAllSuppliers(SupplierSearchQuery query, Pageable pageable);
-
+    SupplierDto restoreSupplier(String supplierId);
 }

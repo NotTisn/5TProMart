@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface IPromotionRepository {
     Promotion save(Promotion promotion);
     Optional<Promotion> findById(String promotionId);
+    Optional<Promotion> findByIdIncludingDeleted(String promotionId);
     Page<Promotion> searchPromotions(PromotionSearchQuery query, Pageable pageable);
     void deleteById(String promotionId);
     boolean existsById(String promotionId);

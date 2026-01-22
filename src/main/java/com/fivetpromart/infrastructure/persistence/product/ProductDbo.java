@@ -63,14 +63,12 @@ public class ProductDbo {
     LocalDateTime updatedAt;
 
     // ============================================================================
-    // SOFT DELETE FIELDS (NEW)
+    // SOFT DELETE FIELD (UPDATED)
     // ============================================================================
     
-    @Column(name = "deleted_at")
-    LocalDateTime deletedAt;
-    
-    @Column(name = "deleted_by")
-    String deletedBy;
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    Boolean isActive = true;
 
 //    @Transient
 //    @Builder.Default

@@ -15,6 +15,7 @@ public interface IProductUseCasePort {
     ProductDto addNewProduct(ProductCreationCommand command);
     ProductDto updateProduct(ProductUpdateCommand command);
     void deleteProduct(String productId);
+    ProductDto restoreProduct(String productId);
     List<ProductDto> getAllProducts();
 
     Page<ProductDto> getAllProducts(ProductSearchQuery query, Pageable pageable);

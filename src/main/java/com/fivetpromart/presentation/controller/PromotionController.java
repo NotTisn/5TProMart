@@ -39,13 +39,14 @@ public class PromotionController {
      * GET /api/v1/promotions
      */
     @GetMapping
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
     public ApiResponse<List<PromotionResponse>> searchPromotions(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @RequestParam(defaultValue = "startDate") String sortBy,
             @RequestParam(defaultValue = "asc") String order,
             @RequestParam(defaultValue = "0") int page,
@@ -55,6 +56,7 @@ public class PromotionController {
                 .search(search)
                 .type(type)
                 .status(status)
+                .includeDeleted(includeDeleted)
                 .sortBy(sortBy)
                 .order(order)
                 .build();
@@ -88,7 +90,7 @@ public class PromotionController {
      * GET /api/v1/promotions/{id}
      */
     @GetMapping("/{id}")
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
     public ApiResponse<PromotionDetailResponse> getPromotionById(@PathVariable String id) {
         PromotionDto promotion = promotionUseCase.getPromotionById(id);
 
@@ -147,7 +149,7 @@ public class PromotionController {
      * POST /api/v1/promotions
      */
     @PostMapping
-    //@PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Admin')")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<PromotionResponse> createPromotion(
             @Valid @RequestBody PromotionRequest request
@@ -178,6 +180,7 @@ public class PromotionController {
      * PUT /api/v1/promotions/{id}/cancel
      */
     @PutMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
     public ApiResponse<PromotionResponse> cancelPromotion(@PathVariable String id) {
         PromotionDto dto = promotionUseCase.cancelPromotion(id);
 
@@ -189,6 +192,78 @@ public class PromotionController {
         return ApiResponse.<PromotionResponse>builder()
                 .success(true)
                 .message("Promotion cancelled.")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * 1.5 Update promotion
+     * PUT /api/v1/promotions/{id}
+     */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
+    public ApiResponse<PromotionResponse> updatePromotion(
+            @PathVariable String id,
+            @Valid @RequestBody PromotionRequest request
+    ) {
+        PromotionCreationCommand command = mapper.toCommand(request);
+        PromotionDto dto = promotionUseCase.updatePromotion(id, command);
+
+        PromotionResponse response = PromotionResponse.builder()
+                .promotionId(dto.getPromotionId())
+                .status(dto.getStatus())
+                .updatedAt(dto.getUpdatedAt())
+                .build();
+
+        return ApiResponse.<PromotionResponse>builder()
+                .success(true)
+                .message("Promotion updated successfully.")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * 1.6 Delete promotion (Soft Delete)
+     * DELETE /api/v1/promotions/{id}
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<PromotionResponse> deletePromotion(@PathVariable String id) {
+        PromotionDto dto = promotionUseCase.deletePromotion(id);
+
+        PromotionResponse response = PromotionResponse.builder()
+                .promotionId(dto.getPromotionId())
+                .isActive(dto.getIsActive())
+                .updatedAt(dto.getUpdatedAt())
+                .build();
+
+        return ApiResponse.<PromotionResponse>builder()
+                .success(true)
+                .message("Promotion deleted successfully.")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * 1.7 Restore promotion
+     * POST /api/v1/promotions/{id}/restore
+     */
+    @PostMapping("/{id}/restore")
+    @PreAuthorize("hasRole('Admin')")
+    public ApiResponse<PromotionResponse> restorePromotion(@PathVariable String id) {
+        PromotionDto dto = promotionUseCase.restorePromotion(id);
+
+        PromotionResponse response = PromotionResponse.builder()
+                .promotionId(dto.getPromotionId())
+                .promotionName(dto.getPromotionName())
+                .isActive(dto.getIsActive())
+                .status(dto.getStatus())
+                .updatedAt(dto.getUpdatedAt())
+                .build();
+
+        return ApiResponse.<PromotionResponse>builder()
+                .success(true)
+                .message("Promotion restored successfully.")
                 .data(response)
                 .build();
     }

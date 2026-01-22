@@ -16,8 +16,11 @@ public class ProductSpecification {
         return (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // 0. ALWAYS exclude soft-deleted products (NEW)
-            predicates.add(criteriaBuilder.isNull(root.get("deletedAt")));
+            // 0. Filter by isActive status (default: only active products)
+            Boolean includeDeleted = query.getIncludeDeleted();
+            if (includeDeleted == null || !includeDeleted) {
+                predicates.add(criteriaBuilder.equal(root.get("isActive"), true));
+            }
 
             // 1. Lọc theo ID (Exact match)
             if (query.getProductId() != null && !query.getProductId().isBlank()) {

@@ -14,6 +14,12 @@ public class StaffSpecification {
         return (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // 0. Filter by isActive status (default: only active staff)
+            Boolean includeDeleted = query.getIncludeDeleted();
+            if (includeDeleted == null || !includeDeleted) {
+                predicates.add(criteriaBuilder.equal(root.get("isActive"), true));
+            }
+
             // Search in fullName, phoneNumber, userId
             if (query.getSearch() != null && !query.getSearch().isBlank()) {
                 String searchPattern = "%" + query.getSearch().toLowerCase() + "%";

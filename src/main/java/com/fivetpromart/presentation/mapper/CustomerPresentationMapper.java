@@ -6,8 +6,9 @@ import com.fivetpromart.application.dto.command.CustomerUpdateCommand;
 import com.fivetpromart.presentation.dto.request.CustomerRequest;
 import com.fivetpromart.presentation.dto.response.CustomerResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CustomerPresentationMapper {
     CustomerCreationCommand toCommand(CustomerRequest domain);
     CustomerResponse toResponse(CustomerDto dto);

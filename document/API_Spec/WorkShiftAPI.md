@@ -97,6 +97,95 @@
 
 ---
 
+---
+
+## 2.1.3 Update role config
+
+**Endpoint:** `PUT /api/v1/shift-role-configs/{id}`
+
+**Request Body**
+
+```json
+{
+  "configName": "String",
+  "requirements": [
+    {
+      "accountType": "SalesStaff",
+      "quantity": 3
+    },
+    {
+      "accountType": "WarehouseStaff",
+      "quantity": 3
+    }
+  ],
+  "isActive": "true" || "false"
+}
+```
+
+**Response 201**
+
+```json
+{
+  "success": true,
+  "message": "Role config updated successfully.",
+  "data": {
+    "id": "String",
+    "configName": "Ca sáng",
+    "requirements": [
+      {
+        "accountType": "SalesStaff",
+        "quantity": 3
+      },
+      {
+        "accountType": "WarehouseStaff",
+        "quantity": 2
+      }
+    ],
+    "isActive": true
+  }
+}
+```
+
+## 2.1.4 Delete role config
+
+**Endpoint:** `DELETE /api/v1/shift-role-configs/{id}`
+
+**Request Body**
+
+```json
+{
+  "success": true,
+  "message": "Role config deleted successfully.", //  Xoá mềm, set isActive = falsé
+  "data": null
+}
+```
+
+**Response 201**
+
+```json
+{
+  "success": true,
+  "message": "Role config updated successfully.",
+  "data": {
+    "id": "String",
+    "configName": "Ca sáng",
+    "requirements": [
+      {
+        "accountType": "SalesStaff",
+        "quantity": 3
+      },
+      {
+        "accountType": "WarehouseStaff",
+        "quantity": 2
+      }
+    ],
+    "isActive": true
+  }
+}
+```
+
+---
+
 ## 2.2. Work Shift
 
 ---
@@ -160,6 +249,51 @@
     "id": "String",
     "shiftName": "Ca Sáng",
     "isActive": true
+  }
+}
+```
+
+**Response 400**
+
+```json
+{
+  "success": false,
+  "message": "Validation failed.",
+  "errors": {
+    "endTime": "End time must be after start time.",
+    "roleConfigId": "Role config not found."
+  }
+}
+```
+
+---
+
+## 2.2.3 Update shift template
+
+**Endpoint:** `PUT /api/v1/work-shift-templates/{id}`
+
+**Request body**
+
+```json
+{
+  "shiftName": "String",
+  "startTime": "HH:mm",
+  "endTime": "HH:mm",
+  "roleConfigId": "ConfigId_01" //ref WorkShift_Config
+}
+```
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Work shifts updated successfully.",
+  "data": {
+    "shiftName": "String",
+    "startTime": "HH:mm",
+    "endTime": "HH:mm",
+    "roleConfigId": "ConfigId_01" //ref WorkShift_Config
   }
 }
 ```

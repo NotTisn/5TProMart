@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface ISupplierRepository {
     Supplier save(Supplier supplier);
     Optional<Supplier> findById(String supplierId);
+    Optional<Supplier> findByIdIncludingDeleted(String supplierId);
     List<Supplier> findAll();
     void deleteById(String supplierId);
     boolean existsById(String supplierId);

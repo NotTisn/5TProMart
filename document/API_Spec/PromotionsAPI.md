@@ -24,12 +24,15 @@
   "search": "string", // Filter promotionId, promotionName, productName
   "type": "string", // Filter: "Discount", "Buy X Get Y"
   "status": "string", // Filter: "Active", "Expired", "Upcoming", "Canceled"
+  "includeDeleted": false, // true: Show deleted promotions, false: Only active (default)
   "startDate": "dd-MM-yyyy",
   "endDate": "dd-MM-yyyy",
   "sortBy": "startDate" || "endDate",
   "order": "asc" || "desc"
 }
 ```
+
+**⚠️ Note:** By default, API only returns promotions with `isActive = true`. Set `includeDeleted=true` to view soft-deleted promotions.
 
 **Response 200**
 
@@ -63,12 +66,10 @@
       "promotionType": "Buy X Get Y",
       "products": [
         {
-          "productId": "productId_01",
-          "productName": "Coca"
-        },
-        {
-          "productId": "productId_02",
-          "productName": "Pepsi"
+          "productBuy": "productId_01",
+          "productName": "Coca",
+          "productGet": "productId_02",
+          "productName": "Kho Ga"
         }
       ],
       "buyQuantity": 1,
@@ -158,11 +159,20 @@
   "promotionName": "String",
   "promotionDescription": "String",
 
-  "products": ["productId_01", "productId_02",...],
+  "products": [
+    {
+      "productBuy": "productId_01",
+      "productGet": "productId_02"
+    },
+    {
+      "productBuy": "productId_03",
+      "productGet": "productId_04"
+    }
+  ],
 
-  "promotionType": "Buy X Get Y",      // Required
-  "buyQuantity": 1,        // Required
-  "getQuantity": 1,        // Required
+  "promotionType": "Buy X Get Y", // Required
+  "buyQuantity": 1, // Required
+  "getQuantity": 1, // Required
 
   "startDate": "Date",
   "endDate": "Date"
@@ -221,6 +231,157 @@
 }
 ```
 
+---
+
+## 1.5 Update promtions
+
+**Endpoint**: `PUT /api/v1/promotions/{id}/cancel`
+
+**Request Body**
+
+```json
+{
+  "promotionName": "String",
+  "promotionDescription": "Stringz",
+  "products": ["productId_01", "productId_03"],
+  "discountPercent": 15,
+  "startDate": "dd-MM-yyyy",
+  "endDate": "dd-MM-yyyy"
+}
+```
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Promotion updated successfully.",
+  "data": {
+    "promotionId": "promotionId_01",
+    "status": "Active", // BE tính và set lại
+    "updatedAt": "2026-01-20T..."
+  }
+}
+```
+
+---
+
+## 1.6 Delete Promotion (Soft Delete)
+
+**Endpoint**: `DELETE /api/v1/promotions/{id}`
+
+**Authorization**: Admin only
+
+**Description**: Soft delete a promotion by setting `isActive = false`. The promotion is not physically removed from the database.
+
+**Path Parameters**:
+- `id` (string, required): Promotion ID to soft delete
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Promotion deleted successfully.",
+  "data": {
+    "promotionId": "promotionId_01",
+    "isActive": false,
+    "updatedAt": "2026-01-20T10:30:00Z"
+  }
+}
+```
+
+**Response 404**
+
+```json
+{
+  "success": false,
+  "message": "Promotion not found.",
+  "errors": {
+    "promotionId": "Promotion with ID 'promotionId_01' does not exist."
+  }
+}
+```
+
+**Response 403**
+
+```json
+{
+  "success": false,
+  "message": "Access denied.",
+  "errors": {
+    "authorization": "Only Admin users can delete promotions."
+  }
+}
+```
+
+---
+
+## 1.7 Restore Promotion
+
+**Endpoint**: `POST /api/v1/promotions/{id}/restore`
+
+**Authorization**: Admin only
+
+**Description**: Restore a soft-deleted promotion by setting `isActive = true`.
+
+**Path Parameters**:
+- `id` (string, required): Promotion ID to restore
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Promotion restored successfully.",
+  "data": {
+    "promotionId": "promotionId_01",
+    "promotionName": "Tet 2026 Discount",
+    "isActive": true,
+    "status": "Active",
+    "updatedAt": "2026-01-20T11:00:00Z"
+  }
+}
+```
+
+**Response 404**
+
+```json
+{
+  "success": false,
+  "message": "Promotion not found.",
+  "errors": {
+    "promotionId": "Promotion with ID 'promotionId_01' does not exist."
+  }
+}
+```
+
+**Response 400**
+
+```json
+{
+  "success": false,
+  "message": "Promotion is already active.",
+  "errors": {
+    "promotionId": "Promotion 'promotionId_01' is not deleted."
+  }
+}
+```
+
+**Response 403**
+
+```json
+{
+  "success": false,
+  "message": "Access denied.",
+  "errors": {
+    "authorization": "Only Admin users can restore promotions."
+  }
+}
+```
+
+---
+
 > **NOTE LUỒNG:**
 >
 > **GHI CHÚ**
@@ -235,12 +396,13 @@
 > **NOTE FOR BACKEND:**
 >
 > 1. Khi thêm khuyến mãi mới, BE phải kiểm tra trong khoảng startDate -> endDate các sản phẩm trong danh sách đã có khuyến mãi nào Active chưa, nếu có thì response conflict
+> 2. Chỉ được update khuyến mãi có trạng thái khác "Active"
 
 > **NOTE CHO TÍNH NĂNG BÁN HÀNG (ORDERS)**
 >
 > 1. Khi gọi API **1.3 Check product (scan product code)**, hệ thống phải:
 > 2. Query để xem Promotion đang có status "Active" của sản phẩm đó
-> 3. Xử lý giá với "Discount" và tự thêm sản phẩm giá 0đ với "Buy X Get Y" khi khách mua >= X
+> 3. Xử lý giá với "Discount" và tự thêm sản phẩm "getProduct" số lượng "getQuantity" với giá 0đ khi khi khách mua "getProduct" >= "buyQuantity"
 
 > **PROMOTION COLLECTION**
 

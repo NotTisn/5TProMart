@@ -10,4 +10,7 @@ import lombok.Setter;
 public class StaffSearchQuery {
     private String search;        // Search in fullName, phoneNumber, userId
     private String accountType;   // Filter by account type: "SalesStaff", "WarehouseStaff"
+    
+    // Soft delete filter
+    private Boolean includeDeleted; // null or false = only active, true = include deleted
 }

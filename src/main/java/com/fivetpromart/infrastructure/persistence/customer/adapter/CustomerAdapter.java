@@ -35,11 +35,16 @@ public class CustomerAdapter implements ICustomerRepository {
 
     @Override
     public Optional<Customer> findByPhoneNumber(String phoneNumber) {
-        return customerJpaRepository.findByPhoneNumber(phoneNumber).map(mapper::toDomain);
+        return customerJpaRepository.findByPhoneNumberAndIsActiveTrue(phoneNumber).map(mapper::toDomain);
     }
 
     @Override
     public Optional<Customer> findById(String customerId) {
+        return customerJpaRepository.findByCustomerIdAndIsActiveTrue(customerId).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Customer> findByIdIncludingDeleted(String customerId) {
         return customerJpaRepository.findById(customerId).map(mapper::toDomain);
     }
 
@@ -50,13 +55,16 @@ public class CustomerAdapter implements ICustomerRepository {
 
     @Override
     public void delete(Customer customer) {
-        CustomerDbo dbo = mapper.toDbo(customer);
-        customerJpaRepository.delete(dbo);
+        // SOFT DELETE: Set isActive to false
+        CustomerDbo dbo = customerJpaRepository.findById(customer.getCustomerId())
+                .orElseThrow();
+        dbo.setIsActive(false);
+        customerJpaRepository.save(dbo);
     }
 
     @Override
     public List<Customer> findAll() {
-        List<CustomerDbo> dbos = customerJpaRepository.findAll();
+        List<CustomerDbo> dbos = customerJpaRepository.findAllActive();
         return dbos.stream()
                 .map(mapper::toDomain)
                 .toList();

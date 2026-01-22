@@ -15,4 +15,7 @@ public class PromotionSearchQuery {
     private LocalDate endDate;
     private String sortBy;
     private String order;
+    
+    // Soft delete filter
+    private Boolean includeDeleted; // null or false = only active, true = include deleted
 }
