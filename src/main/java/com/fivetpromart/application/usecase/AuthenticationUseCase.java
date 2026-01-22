@@ -62,7 +62,7 @@ public class AuthenticationUseCase implements IAuthenticationUseCasePort {
         log.info("Getting current user information for userId: {}", userId);
         
         // Find staff by Keycloak userId
-        Staff staff = staffRepository.findByUserId(userId)
+        Staff staff = staffRepository.findByUsername(userId)
                 .orElseThrow(() -> {
                     log.error("Staff not found for userId: {}", userId);
                     return new RuntimeException("Staff account not found");
