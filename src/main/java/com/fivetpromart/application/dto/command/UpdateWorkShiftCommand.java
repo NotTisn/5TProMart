@@ -18,3 +18,4 @@ public class UpdateWorkShiftCommand {
     LocalTime endTime;
     String roleConfigId;
     Boolean isActive;
+}

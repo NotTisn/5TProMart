@@ -36,3 +36,4 @@ public class UpdateWorkShiftRequest {
 
     @JsonProperty("isActive")
     Boolean isActive;
+}
