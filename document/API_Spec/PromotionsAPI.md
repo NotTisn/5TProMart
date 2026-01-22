@@ -24,12 +24,15 @@
   "search": "string", // Filter promotionId, promotionName, productName
   "type": "string", // Filter: "Discount", "Buy X Get Y"
   "status": "string", // Filter: "Active", "Expired", "Upcoming", "Canceled"
+  "includeDeleted": false, // true: Show deleted promotions, false: Only active (default)
   "startDate": "dd-MM-yyyy",
   "endDate": "dd-MM-yyyy",
   "sortBy": "startDate" || "endDate",
   "order": "asc" || "desc"
 }
 ```
+
+**⚠️ Note:** By default, API only returns promotions with `isActive = true`. Set `includeDeleted=true` to view soft-deleted promotions.
 
 **Response 200**
 
@@ -260,6 +263,124 @@
   }
 }
 ```
+
+---
+
+## 1.6 Delete Promotion (Soft Delete)
+
+**Endpoint**: `DELETE /api/v1/promotions/{id}`
+
+**Authorization**: Admin only
+
+**Description**: Soft delete a promotion by setting `isActive = false`. The promotion is not physically removed from the database.
+
+**Path Parameters**:
+- `id` (string, required): Promotion ID to soft delete
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Promotion deleted successfully.",
+  "data": {
+    "promotionId": "promotionId_01",
+    "isActive": false,
+    "updatedAt": "2026-01-20T10:30:00Z"
+  }
+}
+```
+
+**Response 404**
+
+```json
+{
+  "success": false,
+  "message": "Promotion not found.",
+  "errors": {
+    "promotionId": "Promotion with ID 'promotionId_01' does not exist."
+  }
+}
+```
+
+**Response 403**
+
+```json
+{
+  "success": false,
+  "message": "Access denied.",
+  "errors": {
+    "authorization": "Only Admin users can delete promotions."
+  }
+}
+```
+
+---
+
+## 1.7 Restore Promotion
+
+**Endpoint**: `POST /api/v1/promotions/{id}/restore`
+
+**Authorization**: Admin only
+
+**Description**: Restore a soft-deleted promotion by setting `isActive = true`.
+
+**Path Parameters**:
+- `id` (string, required): Promotion ID to restore
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Promotion restored successfully.",
+  "data": {
+    "promotionId": "promotionId_01",
+    "promotionName": "Tet 2026 Discount",
+    "isActive": true,
+    "status": "Active",
+    "updatedAt": "2026-01-20T11:00:00Z"
+  }
+}
+```
+
+**Response 404**
+
+```json
+{
+  "success": false,
+  "message": "Promotion not found.",
+  "errors": {
+    "promotionId": "Promotion with ID 'promotionId_01' does not exist."
+  }
+}
+```
+
+**Response 400**
+
+```json
+{
+  "success": false,
+  "message": "Promotion is already active.",
+  "errors": {
+    "promotionId": "Promotion 'promotionId_01' is not deleted."
+  }
+}
+```
+
+**Response 403**
+
+```json
+{
+  "success": false,
+  "message": "Access denied.",
+  "errors": {
+    "authorization": "Only Admin users can restore promotions."
+  }
+}
+```
+
+---
 
 > **NOTE LUỒNG:**
 >
