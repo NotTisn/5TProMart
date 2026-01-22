@@ -266,6 +266,51 @@
 }
 ```
 
+---
+
+## 2.2.3 Update shift template
+
+**Endpoint:** `PUT /api/v1/work-shift-templates/{id}`
+
+**Request body**
+
+```json
+{
+  "shiftName": "String",
+  "startTime": "HH:mm",
+  "endTime": "HH:mm",
+  "roleConfigId": "ConfigId_01" //ref WorkShift_Config
+}
+```
+
+**Response 200**
+
+```json
+{
+  "success": true,
+  "message": "Work shifts updated successfully.",
+  "data": {
+    "shiftName": "String",
+    "startTime": "HH:mm",
+    "endTime": "HH:mm",
+    "roleConfigId": "ConfigId_01" //ref WorkShift_Config
+  }
+}
+```
+
+**Response 400**
+
+```json
+{
+  "success": false,
+  "message": "Validation failed.",
+  "errors": {
+    "endTime": "End time must be after start time.",
+    "roleConfigId": "Role config not found."
+  }
+}
+```
+
 ## 2.3 Work Schedules
 
 ## 2.3.1 Get schedules
