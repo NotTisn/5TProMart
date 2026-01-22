@@ -33,4 +33,6 @@ public class UpdateWorkShiftRequest {
     @NotBlank(message = "Role config ID is required")
     @JsonProperty("roleConfigId")
     String roleConfigId;
-}
+
+    @JsonProperty("isActive")
+    Boolean isActive;

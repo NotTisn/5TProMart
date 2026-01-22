@@ -112,17 +112,22 @@ public class WorkShiftUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Work shift not found with id: " + id));
 
         // 3. Update using Builder (toBuilder)
-        // Nó sẽ copy toàn bộ dữ liệu cũ, sau đó ghi đè các trường bạn khai báo dưới đây
-        WorkShift workShiftToUpdate = existingWorkShift.toBuilder()
+        // Copy all existing data and override the provided fields
+        WorkShift.WorkShiftBuilder builder = existingWorkShift.toBuilder()
                 .shiftName(command.getShiftName())
                 .startTime(command.getStartTime())
                 .endTime(command.getEndTime())
                 .roleConfigId(roleConfig.getId())
-                .roleConfigName(roleConfig.getConfigName())
-                .build();
+                .roleConfigName(roleConfig.getConfigName());
+        
+        // Update isActive if provided (Optional field)
+        if (command.getIsActive() != null) {
+            builder.isActive(command.getIsActive());
+        }
+        
+        WorkShift workShiftToUpdate = builder.build();
 
         // 4. Save
-        // Vì toBuilder tạo ra một object mới (detached), hàm save sẽ thực hiện merge
         WorkShift saved = workShiftRepository.save(workShiftToUpdate);
 
         return mapper.toDto(saved);

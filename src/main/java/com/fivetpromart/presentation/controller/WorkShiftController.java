@@ -67,7 +67,7 @@ public class WorkShiftController {
         var response = mapper.toResponse(dto);
         return ApiResponse.<WorkShiftResponse>builder()
                 .success(true)
-                .message("Work shifts updated successfully.")
+                .message("Work shift template updated successfully.")
                 .data(response)
                 .build();
     }

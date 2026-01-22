@@ -279,7 +279,8 @@
   "shiftName": "String",
   "startTime": "HH:mm",
   "endTime": "HH:mm",
-  "roleConfigId": "ConfigId_01" //ref WorkShift_Config
+  "roleConfigId": "ConfigId_01", //ref WorkShift_Config
+  "isActive": true // Optional: true/false
 }
 ```
 
@@ -288,12 +289,14 @@
 ```json
 {
   "success": true,
-  "message": "Work shifts updated successfully.",
+  "message": "Work shift template updated successfully.",
   "data": {
+    "id": "String",
     "shiftName": "String",
     "startTime": "HH:mm",
     "endTime": "HH:mm",
-    "roleConfigId": "ConfigId_01" //ref WorkShift_Config
+    "roleConfigId": "ConfigId_01",
+    "isActive": true
   }
 }
 ```
