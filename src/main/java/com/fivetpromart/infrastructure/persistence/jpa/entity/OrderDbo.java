@@ -23,7 +23,7 @@ public class OrderDbo {
     @Column(name = "order_id", length = 50)
     private String orderId;
 
-    @Column(name = "order_date", nullable = false)
+    @Column(name = "order_date", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime orderDate;
 
     @Column(name = "staff_id", length = 50, nullable = false)

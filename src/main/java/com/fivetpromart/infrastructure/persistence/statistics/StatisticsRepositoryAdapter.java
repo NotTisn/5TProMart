@@ -68,8 +68,10 @@ public class StatisticsRepositoryAdapter implements IStatisticsPersistencePort {
         // Total Customers who made purchases in period
         Integer totalCustomers = orderRepository.countUniqueCustomers(startDateTime, endDateTime);
 
-        // New Customers registered in period
-        Integer newCustomers = customerRepository.countNewCustomers(startDateTime, endDateTime);
+        // New Customers registered in period - Convert LocalDate to Instant for createdAt field
+        Instant startInstant = startDate.atStartOfDay(ZoneId.of("UTC")).toInstant();
+        Instant endInstant = endDate.atTime(LocalTime.MAX).atZone(ZoneId.of("UTC")).toInstant();
+        Integer newCustomers = customerRepository.countNewCustomers(startInstant, endInstant);
 
         return DashboardSummary.builder()
                 .totalRevenue(totalRevenue)
