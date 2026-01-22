@@ -97,26 +97,34 @@ public class WorkShiftUseCase {
         return mapper.toDto(workShiftRepository.save(shift));
     }
 
-//    @Transactional
-//    public WorkShiftDto updateWorkShift(String id, UpdateWorkShiftCommand command) {
-//        // Validate role config exists
-//        ShiftRoleConfig roleConfig = roleConfigRepository.findById(command.getRoleConfigId())
-//                .orElseThrow(() -> new IllegalArgumentException("Role config not found with id: " + command.getRoleConfigId()));
-//        if (!roleConfig.isActive()) {
-//            throw new IllegalArgumentException("Role config is not active");
-//        }
-//        // Find existing work shift
-//        WorkShift workShift = workShiftRepository.findById(id)
-//                .orElseThrow(() -> new IllegalArgumentException("Work shift not found with id: " + id));
-//        // Update fields
-//
-//        workShift.setShiftName(command.getShiftName());
-//        workShift.setStartTime(command.getStartTime());
-//        workShift.setEndTime(command.getEndTime());
-//        workShift.setRoleConfigId(roleConfig.getId());
-//        workShift.setRoleConfigName(roleConfig.getConfigName());
-//        // Save
-//        WorkShift saved = workShiftRepository.save(workShift);
-//        return mapper.toDto(saved);
-//    }
+    @Transactional
+    public WorkShiftDto updateWorkShift(String id, UpdateWorkShiftCommand command) {
+        // 1. Validate role config
+        ShiftRoleConfig roleConfig = roleConfigRepository.findById(command.getRoleConfigId())
+                .orElseThrow(() -> new IllegalArgumentException("Role config not found with id: " + command.getRoleConfigId()));
+
+        if (!roleConfig.isActive()) {
+            throw new IllegalArgumentException("Role config is not active");
+        }
+
+        // 2. Find existing work shift
+        WorkShift existingWorkShift = workShiftRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Work shift not found with id: " + id));
+
+        // 3. Update using Builder (toBuilder)
+        // Nó sẽ copy toàn bộ dữ liệu cũ, sau đó ghi đè các trường bạn khai báo dưới đây
+        WorkShift workShiftToUpdate = existingWorkShift.toBuilder()
+                .shiftName(command.getShiftName())
+                .startTime(command.getStartTime())
+                .endTime(command.getEndTime())
+                .roleConfigId(roleConfig.getId())
+                .roleConfigName(roleConfig.getConfigName())
+                .build();
+
+        // 4. Save
+        // Vì toBuilder tạo ra một object mới (detached), hàm save sẽ thực hiện merge
+        WorkShift saved = workShiftRepository.save(workShiftToUpdate);
+
+        return mapper.toDto(saved);
+    }
 }

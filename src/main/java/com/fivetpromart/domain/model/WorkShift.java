@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalTime;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WorkShift {
