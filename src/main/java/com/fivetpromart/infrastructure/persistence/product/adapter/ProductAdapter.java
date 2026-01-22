@@ -3,6 +3,7 @@ package com.fivetpromart.infrastructure.persistence.product.adapter;
 import com.fivetpromart.application.dto.query.ProductSearchQuery;
 import com.fivetpromart.application.port.out.IProductRepository;
 import com.fivetpromart.domain.model.Product;
+import com.fivetpromart.infrastructure.config.InventoryProperties;
 import com.fivetpromart.infrastructure.persistence.product.ProductDbo;
 import com.fivetpromart.infrastructure.persistence.product.mapper.ProductPersistenceMapper;
 import com.fivetpromart.infrastructure.persistence.product.repository.IProductJpaRepository;
@@ -25,6 +26,7 @@ public class ProductAdapter implements IProductRepository {
 
     private final ProductPersistenceMapper mapper;
     private final IProductJpaRepository productRepository;
+    private final InventoryProperties inventoryProperties;
 
     @Override
     public Product addProduct(Product product) {
@@ -96,11 +98,13 @@ public class ProductAdapter implements IProductRepository {
 
     @Override
     public Page<Product> searchProducts(ProductSearchQuery query, Pageable pageable) {
-        // 1. Tạo Specification từ DTO Filter
-        Specification<ProductDbo> spec = ProductSpecification.getSpec(query);
+        // Build specification with configurable expiry threshold
+        Specification<ProductDbo> spec = ProductSpecification.getSpec(
+                query, 
+                inventoryProperties.getExpiryWarningDays()
+        );
 
-        // 2. Truyền thẳng Pageable vào JPA
-        // JPA tự động xử lý LIMIT, OFFSET, ORDER BY dựa trên Pageable
+        // JPA handles LIMIT, OFFSET, ORDER BY from Pageable
         Page<ProductDbo> dboPage = productRepository.findAll(spec, pageable);
 
         return dboPage.map(mapper::toDomain);

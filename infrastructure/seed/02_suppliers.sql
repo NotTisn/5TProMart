@@ -14,7 +14,8 @@ INSERT INTO suppliers (
     represent_name, 
     represent_phone_number, 
     supplier_type,
-    current_debt
+    current_debt,
+    is_active
 ) VALUES
     (
         'sup-001', 
@@ -24,7 +25,8 @@ INSERT INTO suppliers (
         'Nguyen Van A',
         '0901234567',
         'ELECTRONICS',
-        0.00
+        0.00,
+        true
     ),
     (
         'sup-002', 
@@ -34,7 +36,8 @@ INSERT INTO suppliers (
         'Tran Thi B',
         '0907654321',
         'FOOD',
-        0.00
+        0.00,
+        true
     ),
     (
         'sup-003', 
@@ -44,7 +47,8 @@ INSERT INTO suppliers (
         'Le Van C',
         '0909876543',
         'DAIRY',
-        0.00
+        0.00,
+        true
     ),
     (
         'sup-004', 
@@ -54,7 +58,8 @@ INSERT INTO suppliers (
         'Pham Thi D',
         '0903334455',
         'BEVERAGES',
-        0.00
+        0.00,
+        true
     ),
     (
         'sup-005', 
@@ -64,7 +69,8 @@ INSERT INTO suppliers (
         'Hoang Van E',
         '0906677889',
         'PERSONAL_CARE',
-        0.00
+        0.00,
+        true
     )
 ON CONFLICT (supplier_id) DO NOTHING;
 

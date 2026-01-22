@@ -12,12 +12,16 @@ import com.fivetpromart.application.port.in.IOrderUseCasePort;
 import com.fivetpromart.application.port.out.ICustomerRepository;
 import com.fivetpromart.application.port.out.IOrderRepository;
 import com.fivetpromart.application.port.out.IProductRepository;
+import com.fivetpromart.application.port.out.IPromotionRepository;
 import com.fivetpromart.application.port.out.IStockInventoryRepository;
+import com.fivetpromart.application.port.out.IStockReservationRepository;
 import com.fivetpromart.domain.exception.*;
 import com.fivetpromart.domain.model.Customer;
 import com.fivetpromart.domain.model.Order;
 import com.fivetpromart.domain.model.Product;
+import com.fivetpromart.domain.model.Promotion;
 import com.fivetpromart.domain.model.StockInventory;
+import com.fivetpromart.domain.model.StockReservation;
 import com.fivetpromart.domain.model.strategy.discount.*;
 import com.fivetpromart.domain.model.strategy.notification.*;
 //import com.fivetpromart.domain.specification.OrderSpecification;
@@ -30,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,8 +48,10 @@ public class OrderUseCase implements IOrderUseCasePort {
 
     private final IOrderRepository orderRepository;
     private final IStockInventoryRepository stockInventoryRepository;
+    private final IStockReservationRepository reservationRepository;
     private final IProductRepository productRepository;
     private final ICustomerRepository customerRepository;
+    private final IPromotionRepository promotionRepository;
     private final OrderDataMapper mapper;
 
     @Override
@@ -85,10 +92,11 @@ public class OrderUseCase implements IOrderUseCasePort {
             throw new ExpiredLotException(command.getLotId());
         }
 
-        // 3. Check if sufficient stock
+        // 3. Check if sufficient AVAILABLE stock (total - reserved)
         Long requestedQuantity = command.getQuantity() != null ? command.getQuantity() : 1L;
-        if (lot.getStockQuantity() < requestedQuantity) {
-            throw new InsufficientStockException(lot.getStockQuantity(), requestedQuantity);
+        Long availableStock = lot.getAvailableQuantity();
+        if (availableStock < requestedQuantity) {
+            throw new InsufficientStockException(availableStock, requestedQuantity);
         }
 
         // 4. Get product information
@@ -98,8 +106,42 @@ public class OrderUseCase implements IOrderUseCasePort {
         // 5. Calculate subtotal
         BigDecimal unitPrice = product.getSellingPrice();
         BigDecimal subTotal = unitPrice.multiply(BigDecimal.valueOf(requestedQuantity));
+        
+        // 6. Check for active promotions on this product
+        CheckProductResultDto.PromotionInfo promotionInfo = null;
+        List<Promotion> activePromotions = promotionRepository.findActivePromotionsByProductId(product.getProductId());
+        
+        if (!activePromotions.isEmpty()) {
+            // Use the first active promotion (could be enhanced to pick "best" promotion)
+            Promotion promo = activePromotions.get(0);
+            
+            BigDecimal promotionalPrice = unitPrice;
+            BigDecimal savings = BigDecimal.ZERO;
+            
+            // Calculate promotional price based on promotion type
+            if ("Discount".equalsIgnoreCase(promo.getPromotionType()) && promo.getDiscountPercent() != null) {
+                // Percentage discount: e.g., 20% off
+                BigDecimal discountRate = BigDecimal.valueOf(promo.getDiscountPercent()).divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+                savings = unitPrice.multiply(discountRate).setScale(0, RoundingMode.HALF_UP);
+                promotionalPrice = unitPrice.subtract(savings);
+            }
+            // For "Buy X Get Y", we don't change unit price - frontend handles quantity-based logic
+            
+            promotionInfo = CheckProductResultDto.PromotionInfo.builder()
+                    .promotionId(promo.getPromotionId())
+                    .promotionName(promo.getPromotionName())
+                    .promotionType(promo.getPromotionType())
+                    .discountPercent(promo.getDiscountPercent())
+                    .buyQuantity(promo.getBuyQuantity())
+                    .getQuantity(promo.getGetQuantity())
+                    .promotionalPrice(promotionalPrice)
+                    .savings(savings)
+                    .build();
+            
+            log.info("Found active promotion '{}' for product '{}'", promo.getPromotionName(), product.getProductName());
+        }
 
-        // 6. Build result DTO
+        // 7. Build result DTO
         return CheckProductResultDto.builder()
                 .lotId(lot.getLotId())
                 .productId(product.getProductId())
@@ -108,8 +150,9 @@ public class OrderUseCase implements IOrderUseCasePort {
                 .unitPrice(unitPrice)
                 .quantity(requestedQuantity)
                 .subTotal(subTotal)
-                .currentStock(lot.getStockQuantity())
+                .currentStock(lot.getAvailableQuantity()) // Available = total - reserved
                 .status(lot.getStatus())
+                .promotion(promotionInfo)
                 .build();
     }
 
@@ -133,7 +176,9 @@ public class OrderUseCase implements IOrderUseCasePort {
                     throw new ExpiredLotException(itemCmd.getLotId());
                 }
                 
-                // Check stock
+                // Check stock availability
+                // Note: Uses stockQuantity (not available) because if reserved,
+                // that stock is already earmarked for this transaction
                 if (lot.getStockQuantity() < itemCmd.getQuantity()) {
                     throw new InsufficientStockException(lot.getStockQuantity(), itemCmd.getQuantity());
                 }
@@ -175,20 +220,49 @@ public class OrderUseCase implements IOrderUseCasePort {
             order.getItems().forEach(item -> item.setOrderId(order.getOrderId()));
             
             // 5. Update stock quantities (deduct from inventory)
+            // PROPER FLOW: Check for active reservations and commit them
             for (OrderCreationCommand.OrderItemCommand itemCmd : command.getItems()) {
                 StockInventory lot = stockInventoryRepository.findById(itemCmd.getLotId())
                         .orElseThrow(() -> new LotNotFoundException(itemCmd.getLotId()));
                 
-                // Deduct quantity
-                long newQuantity = lot.getStockQuantity() - itemCmd.getQuantity();
-                lot.update(
-                        lot.getProductId(),
-                        lot.getManufactureDate(),
-                        lot.getExpirationDate(),
-                        newQuantity,
-                        lot.getImportPrice(),
-                        lot.getStatus()
-                );
+                // Check if there are active reservations for this lot
+                List<StockReservation> activeReservations = 
+                        reservationRepository.findActiveByLotId(itemCmd.getLotId());
+                
+                long remainingToDeduct = itemCmd.getQuantity();
+                
+                // First, commit any matching reservations
+                for (StockReservation reservation : activeReservations) {
+                    if (remainingToDeduct <= 0) break;
+                    
+                    long toCommit = Math.min(reservation.getQuantity(), remainingToDeduct);
+                    
+                    // Commit reservation (reduces both reserved and stock)
+                    lot.commitReservedStock(toCommit);
+                    
+                    // Mark reservation as committed
+                    reservation.commit(order.getOrderId());
+                    reservationRepository.save(reservation);
+                    
+                    remainingToDeduct -= toCommit;
+                    log.info("Committed {} units from reservation {} for order {}", 
+                            toCommit, reservation.getReservationId(), order.getOrderId());
+                }
+                
+                // If any quantity remains (not covered by reservations), deduct directly
+                if (remainingToDeduct > 0) {
+                    long newQuantity = lot.getStockQuantity() - remainingToDeduct;
+                    lot.update(
+                            lot.getProductId(),
+                            lot.getManufactureDate(),
+                            lot.getExpirationDate(),
+                            newQuantity,
+                            lot.getImportPrice(),
+                            lot.getStatus()
+                    );
+                    log.info("Direct deduction of {} units from lot {} (no reservation)", 
+                            remainingToDeduct, itemCmd.getLotId());
+                }
                 
                 stockInventoryRepository.save(lot);
             }

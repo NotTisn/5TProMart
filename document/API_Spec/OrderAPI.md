@@ -137,7 +137,19 @@
     "quantity": 2,
     "subTotal": 20000, // unitPrice * quantity
     "currentStock": 50, // StockInventory.stockQuantity
-    "status": "string" // StockInventory.status
+    "status": "string", // StockInventory.status
+    
+    // NEW: Promotion info (auto-applied when available)
+    "promotion": {
+      "promotionId": "string", // null if no active promotion
+      "promotionName": "string",
+      "promotionType": "Discount" | "Buy X Get Y",
+      "discountPercent": 20, // for Discount type
+      "buyQuantity": 2, // for Buy X Get Y
+      "getQuantity": 1, // for Buy X Get Y
+      "promotionalPrice": 8000, // unitPrice after discount
+      "savings": 2000 // unitPrice - promotionalPrice
+    } // null if no promotion
   }
 }
 ```
@@ -165,16 +177,22 @@
 
 ```json
 {
-{
-  "staffId": "string",
-  "customerId": "string", // Nullable
-  "paymentMethod": "CASH",
+  "customerId": "string", // Nullable - null = walk-in customer
+  "paymentMethod": "CASH", // "CASH" | "BANK_TRANSFER"
   "amountGiven": 360000,
   "items": [
     { "lotId": "lotId_1", "quantity": 3 },
     { "lotId": "lotId_2", "quantity": 6 }
-  ]
-}
+  ],
+  
+  // NEW: Optional discount (supports loyalty points, percentage, fixed amount)
+  "discount": {
+    "type": "LOYALTY_POINTS", // "NONE" | "PERCENTAGE" | "FIXED_AMOUNT" | "LOYALTY_POINTS"
+    "pointsToUse": 5000, // For LOYALTY_POINTS: 1 point = 1 VND discount
+    "percentage": null, // For PERCENTAGE: e.g., 10 = 10% off
+    "maxAmount": null, // For PERCENTAGE: cap the discount at this amount
+    "amount": null // For FIXED_AMOUNT: exact VND discount
+  } // Optional - omit for no discount
 }
 ```
 
@@ -186,10 +204,16 @@
   "message": "Order created",
   "data": {
     "orderId": "string",
-    "orderDate": "dd-MM-yyyy hh-mm-ss", //now
-    "totalAmount": 300000,
-    "changeReturned": 60000, // amount given - total amount
-    "pointsEarned": 100, //1% total amount, customer.loyaltyPoint += pointsEarned
+    "orderDate": "dd-MM-yyyy hh-mm-ss", // now
+    "subTotal": 360000, // Sum of all items before discount
+    "discountAmount": 5000, // Amount deducted (from loyalty or other discount)
+    "totalAmount": 355000, // subTotal - discountAmount (rounded for cash)
+    "originalAmount": 355000, // Before cash rounding
+    "roundingAdjustment": 0, // +/- for cash rounding to 1000đ
+    "amountGiven": 360000,
+    "changeReturned": 5000, // amountGiven - totalAmount
+    "pointsEarned": 3550, // 1% of totalAmount, added to customer.loyaltyPoints
+    "pointsRedeemed": 5000, // If LOYALTY_POINTS discount used
     "items": [
       {
         "productId": "productId_01",

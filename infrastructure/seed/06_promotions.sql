@@ -17,7 +17,8 @@ INSERT INTO promotions (
     get_quantity,
     start_date,
     end_date,
-    status
+    status,
+    is_active
 ) VALUES
     (
         'promo-001',
@@ -29,7 +30,8 @@ INSERT INTO promotions (
         NULL,
         CURRENT_DATE - INTERVAL '2 days',
         CURRENT_DATE + INTERVAL '1 day',
-        'ACTIVE'
+        'ACTIVE',
+        true
     ),
     (
         'promo-002',
@@ -41,7 +43,8 @@ INSERT INTO promotions (
         1,
         CURRENT_DATE - INTERVAL '5 days',
         CURRENT_DATE + INTERVAL '16 days',
-        'ACTIVE'
+        'ACTIVE',
+        true
     ),
     (
         'promo-003',
@@ -53,7 +56,8 @@ INSERT INTO promotions (
         NULL,
         CURRENT_DATE - INTERVAL '5 days',
         CURRENT_DATE + INTERVAL '11 days',
-        'ACTIVE'
+        'ACTIVE',
+        true
     )
 ON CONFLICT (promotion_id) DO NOTHING;
 
