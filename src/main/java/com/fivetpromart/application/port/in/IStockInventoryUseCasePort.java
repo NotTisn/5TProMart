@@ -48,4 +48,11 @@ public interface IStockInventoryUseCasePort {
      * Create disposal batch (dispose multiple lots at once) - Spec compliant
      */
     DisposalBatchResultDto createDisposalBatch(DisposalBatchCommand command);
+
+    /**
+     * Mark expired lots as EXPIRED status.
+     * Called by the scheduler daily.
+     * @return number of lots marked as expired
+     */
+    int markExpiredLots();
 }

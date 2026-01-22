@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface IStockInventoryJpaRepository extends
@@ -37,4 +38,14 @@ public interface IStockInventoryJpaRepository extends
 
     @Query("SELECT COALESCE(SUM(s.stockQuantity * s.importPrice), 0) FROM StockInventoryDbo s")
     BigDecimal calculateTotalInventoryValue();
+
+    /**
+     * Find lots where expiration date is before given date AND status matches.
+     * Used by auto-expire scheduler.
+     */
+    @Query("SELECT s FROM StockInventoryDbo s WHERE s.expirationDate < :today AND s.status = :status")
+    List<StockInventoryDbo> findByExpirationDateBeforeAndStatus(
+            @Param("today") LocalDate today, 
+            @Param("status") String status
+    );
 }

@@ -17,6 +17,7 @@ import com.fivetpromart.domain.exception.InsufficientStockException;
 import com.fivetpromart.domain.exception.LotNotFoundException;
 import com.fivetpromart.domain.exception.NegativeValueException;
 import com.fivetpromart.domain.model.Product;
+import com.fivetpromart.domain.enums.BatchStatus;
 import com.fivetpromart.domain.model.StockInventory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -107,13 +108,13 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
             throw new NegativeValueException("Stock quantity must be greater than 0");
         }
         
-        String targetStatus = command.getStatus() != null ? command.getStatus() : inventory.getStatus();
+        BatchStatus targetStatus = command.getStatus() != null ? BatchStatus.fromString(command.getStatus()) : inventory.getStatus();
 
         // Apply OUT_OF_STOCK priority logic:
-        // If newQuantity <= 0 -> force status to "OUT_OF_STOCK"
+        // If newQuantity <= 0 -> force status to OUT_OF_STOCK
         // If newQuantity > 0 -> use targetStatus
         Long newQuantity = command.getStockQuantity() != null ? command.getStockQuantity() : inventory.getStockQuantity();
-        String finalStatus = resolveFinalStatus(newQuantity, targetStatus);
+        BatchStatus finalStatus = resolveFinalStatus(newQuantity, targetStatus);
 
         // Update stockQuantity and status
         inventory.update(
@@ -178,7 +179,7 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
         // Status mong muốn là status hiện tại của lô (lot.getStatus())
         // Nếu remainingQuantity về 0 -> Hàm này sẽ trả về "OUT_OF_STOCK"
         // Nếu remainingQuantity > 0 -> Hàm này trả về lot.getStatus() (giữ nguyên)
-        String finalStatus = resolveFinalStatus(remainingQuantity, lot.getStatus());
+        BatchStatus finalStatus = resolveFinalStatus(remainingQuantity, lot.getStatus());
         
         lot.update(
                 lot.getProductId(),
@@ -235,7 +236,7 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
 
             // 3. Deduct quantity
             long remainingQuantity = lot.getStockQuantity() - item.getQuantity();
-            String finalStatus = resolveFinalStatus(remainingQuantity, lot.getStatus());
+            BatchStatus finalStatus = resolveFinalStatus(remainingQuantity, lot.getStatus());
 
             lot.update(
                     lot.getProductId(),
@@ -271,6 +272,25 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
                 .totalItems(totalQuantity)
                 .build();
     }
+
+    /**
+     * Mark expired lots as EXPIRED. Runs from scheduler.
+     */
+    @Override
+    @Transactional
+    public int markExpiredLots() {
+        LocalDate today = LocalDate.now();
+        List<StockInventory> expired = stockInventoryRepository.findExpiredButNotMarked(today);
+        if (expired == null || expired.isEmpty()) return 0;
+
+        for (StockInventory lot : expired) {
+            lot.updateStatus(BatchStatus.EXPIRED.getValue());
+        }
+
+        stockInventoryRepository.saveAll(expired);
+        log.info("Marked {} lots as EXPIRED", expired.size());
+        return expired.size();
+    }
     /**
      * Helper: Tính toán trạng thái (Logic ưu tiên Quantity <= 0)
      * * Thứ tự ưu tiên (Tuyệt đối):
@@ -284,11 +304,11 @@ public class StockInventoryUseCase implements IStockInventoryUseCasePort {
      * 1. Nếu quantity <= 0 -> BẮT BUỘC là "OUT_OF_STOCK"
      * 2. Ngược lại -> Giữ nguyên status mong muốn (proposedStatus)
      */
-    private String resolveFinalStatus(Long quantity, String proposedStatus) {
+    private BatchStatus resolveFinalStatus(Long quantity, BatchStatus proposedStatus) {
         if (quantity != null && quantity <= 0) {
-            return "OUT_OF_STOCK";
+            return BatchStatus.OUT_OF_STOCK;
         }
-        return proposedStatus;
+        return proposedStatus != null ? proposedStatus : BatchStatus.AVAILABLE;
     }
 }
 

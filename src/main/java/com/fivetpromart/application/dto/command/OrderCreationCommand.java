@@ -41,5 +41,17 @@ public class OrderCreationCommand {
     public static class OrderItemCommand {
         private String lotId;
         private Long quantity;
+        
+        // Optional price override (for promotional prices)
+        private BigDecimal unitPrice;
+        
+        // Optional: Original price before promotion (for tracking)
+        private BigDecimal originalUnitPrice;
+        
+        // Optional: ID of the applied promotion
+        private String promotionId;
+        
+        // Optional: Flag for free items (Buy X Get Y)
+        private Boolean isFreeItem;
     }
 }

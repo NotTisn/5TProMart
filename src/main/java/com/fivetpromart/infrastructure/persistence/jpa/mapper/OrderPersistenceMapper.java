@@ -99,6 +99,9 @@ public interface OrderPersistenceMapper {
                 .quantity(item.getQuantity())
                 .unitPrice(item.getUnitPrice())
                 .subTotal(item.getSubTotal())
+                .originalUnitPrice(item.getOriginalUnitPrice())
+                .promotionId(item.getPromotionId())
+                .isFreeItem(item.getIsFreeItem())
                 .build();
     }
 
@@ -118,7 +121,10 @@ public interface OrderPersistenceMapper {
                 dbo.getProductName(),
                 dbo.getQuantity(),
                 dbo.getUnitPrice(),
-                dbo.getSubTotal()
+                dbo.getSubTotal(),
+                dbo.getOriginalUnitPrice(),
+                dbo.getPromotionId(),
+                dbo.getIsFreeItem()
         );
     }
 }

@@ -43,5 +43,10 @@ public class OrderDto {
         private Long quantity;
         private BigDecimal unitPrice;
         private BigDecimal subTotal;
+        
+        // Promotion tracking fields
+        private BigDecimal originalUnitPrice;  // Original price before promotion
+        private String promotionId;            // Applied promotion ID
+        private Boolean isFreeItem;            // True if free item from Buy X Get Y
     }
 }

@@ -1,5 +1,6 @@
 package com.fivetpromart.domain.model;
 
+import com.fivetpromart.domain.enums.BatchStatus;
 import com.fivetpromart.domain.exception.EmptyFieldException;
 import com.fivetpromart.domain.exception.InvalidDateRangeException;
 import lombok.AccessLevel;
@@ -22,7 +23,7 @@ public class StockInventory {
     private Long quantityShelf;    // Display quantity (items on shelf/display)
     private Long quantityStorage;  // Warehouse quantity (items in storage)
     private BigDecimal importPrice;
-    private String status;
+    private BatchStatus status;
 
     public static StockInventory create(String productId, LocalDate manufactureDate, LocalDate expirationDate, Long stockQuantity, BigDecimal importPrice) {
         if(productId == null || productId.isBlank())
@@ -48,7 +49,7 @@ public class StockInventory {
         stockInventory.quantityShelf = 0L;              // Per spec: starts at 0
         stockInventory.quantityStorage = stockQuantity;  // Per spec: starts at stockQuantity
         stockInventory.importPrice = importPrice;
-        stockInventory.status = "";
+        stockInventory.status = BatchStatus.AVAILABLE;
 
         return stockInventory;
     }
@@ -63,7 +64,7 @@ public class StockInventory {
             Long quantityShelf,
             Long quantityStorage,
             BigDecimal importPrice,
-            String status
+            String statusString
     ) {
         StockInventory stockInventory = new StockInventory();
         stockInventory.lotId = lotId;
@@ -75,7 +76,7 @@ public class StockInventory {
         stockInventory.quantityShelf = quantityShelf != null ? quantityShelf : 0L;
         stockInventory.quantityStorage = quantityStorage != null ? quantityStorage : stockQuantity;
         stockInventory.importPrice = importPrice;
-        stockInventory.status = status;
+        stockInventory.status = BatchStatus.fromString(statusString);
         return stockInventory;
     }
 
@@ -85,7 +86,7 @@ public class StockInventory {
             LocalDate expirationDate,
             Long stockQuantity,
             BigDecimal importPrice,
-            String status) {
+            BatchStatus status) {
         if(productId != null && !productId.isBlank())
             this.productId = productId;
         if(dateValidation(manufactureDate, expirationDate)) {
@@ -96,8 +97,8 @@ public class StockInventory {
             this.stockQuantity = stockQuantity;
         if(importPrice != null)
             this.importPrice = importPrice;
-
-        this.status = status;
+        if(status != null)
+            this.status = status;
     }
     
     /**
@@ -210,5 +211,21 @@ public class StockInventory {
         }
         this.reservedQuantity = currentReserved - quantity;
         this.stockQuantity = stockQuantity - quantity;
+    }
+
+    /**
+     * Update status using string value (for API compatibility)
+     */
+    public void updateStatus(String statusString) {
+        if (statusString != null) {
+            this.status = BatchStatus.fromString(statusString);
+        }
+    }
+
+    /**
+     * Get status as string (for API responses)
+     */
+    public String getStatusValue() {
+        return status != null ? status.getValue() : BatchStatus.AVAILABLE.getValue();
     }
 }

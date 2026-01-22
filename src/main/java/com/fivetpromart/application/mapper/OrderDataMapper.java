@@ -41,6 +41,9 @@ public class OrderDataMapper {
                 .quantity(item.getQuantity())
                 .unitPrice(item.getUnitPrice())
                 .subTotal(item.getSubTotal())
+                .originalUnitPrice(item.getOriginalUnitPrice())
+                .promotionId(item.getPromotionId())
+                .isFreeItem(item.getIsFreeItem())
                 .build();
     }
 }

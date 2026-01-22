@@ -26,6 +26,9 @@ public abstract class StockInventoryDataMapper {
                     .orElse(null);
         }
         
+        // Convert enum to string for API response
+        String statusValue = domain.getStatus() != null ? domain.getStatus().getValue() : "AVAILABLE";
+
         return StockInventoryDto.builder()
                 .lotId(domain.getLotId())
                 .productId(domain.getProductId())
@@ -36,7 +39,7 @@ public abstract class StockInventoryDataMapper {
                 .quantityShelf(domain.getQuantityShelf())
                 .quantityStorage(domain.getQuantityStorage())
                 .importPrice(domain.getImportPrice())
-                .status(domain.getStatus())
+                .status(statusValue)
                 .build();
     }
 }

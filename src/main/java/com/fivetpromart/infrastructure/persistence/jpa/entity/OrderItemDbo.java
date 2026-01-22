@@ -41,4 +41,14 @@ public class OrderItemDbo {
 
     @Column(name = "sub_total", nullable = false, precision = 15, scale = 2)
     BigDecimal subTotal;
+    
+    // Promotion tracking fields (P0: Promo Price Persistence)
+    @Column(name = "original_unit_price", precision = 15, scale = 2)
+    BigDecimal originalUnitPrice;  // Original selling price before promotion
+    
+    @Column(name = "promotion_id", length = 36)
+    String promotionId;  // Applied promotion ID (nullable)
+    
+    @Column(name = "is_free_item")
+    Boolean isFreeItem;  // True if this is a free item from Buy X Get Y
 }

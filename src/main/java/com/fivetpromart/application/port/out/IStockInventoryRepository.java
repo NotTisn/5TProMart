@@ -32,4 +32,15 @@ public interface IStockInventoryRepository {
     Long countByExpirationDateBefore(LocalDate date);
     Long countByExpirationDateBetween(LocalDate startDate, LocalDate endDate);
     BigDecimal calculateTotalInventoryValue();
+    
+    /**
+     * Find lots where expiration date has passed but status is still AVAILABLE.
+     * Used by the auto-expire scheduler to mark them as EXPIRED.
+     */
+    List<StockInventory> findExpiredButNotMarked(LocalDate today);
+    
+    /**
+     * Batch save multiple stock inventories.
+     */
+    void saveAll(List<StockInventory> inventories);
 }

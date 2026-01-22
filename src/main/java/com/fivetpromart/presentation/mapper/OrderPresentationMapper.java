@@ -197,6 +197,10 @@ public class OrderPresentationMapper {
                 .map(item -> OrderCreationCommand.OrderItemCommand.builder()
                         .lotId(item.getLotId())
                         .quantity(item.getQuantity())
+                        .unitPrice(item.getUnitPrice())
+                        .originalUnitPrice(item.getOriginalUnitPrice())
+                        .promotionId(item.getPromotionId())
+                        .isFreeItem(item.getIsFreeItem())
                         .build())
                 .collect(Collectors.toList());
 

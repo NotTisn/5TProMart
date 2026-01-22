@@ -10,7 +10,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller for AI-powered analytics endpoints.
@@ -173,26 +172,21 @@ public class AnalyticsController {
 
     /**
      * Check if the analytics AI service is available.
+     * Returns the health response from the Python AI service.
      */
     @GetMapping("/health")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<Map<String, Object>> getAnalyticsHealth() {
-        boolean healthy = analyticsService.isHealthy();
+    public ApiResponse<AnalyticsHealthResponse> getAnalyticsHealth() {
+        log.debug("Checking analytics service health");
         
-        Map<String, Object> healthData = Map.of(
-                "analytics_service", healthy ? "available" : "unavailable",
-                "features", Map.of(
-                        "margin_optimizer", healthy,
-                        "demand_intelligence", healthy,
-                        "bundle_insights", healthy
-                )
-        );
+        AnalyticsHealthResponse health = analyticsService.getHealthResponse();
+        boolean isHealthy = "healthy".equals(health.getStatus());
         
-        return ApiResponse.<Map<String, Object>>builder()
+        return ApiResponse.<AnalyticsHealthResponse>builder()
                 .success(true)
                 .statusCode(HttpStatus.OK.value())
-                .message(healthy ? "Analytics service is healthy" : "Analytics service is unavailable")
-                .data(healthData)
+                .message(isHealthy ? "Analytics service is healthy" : "Analytics service is unavailable")
+                .data(health)
                 .build();
     }
 }

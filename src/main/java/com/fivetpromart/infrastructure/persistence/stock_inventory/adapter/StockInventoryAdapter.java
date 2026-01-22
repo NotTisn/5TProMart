@@ -2,6 +2,7 @@ package com.fivetpromart.infrastructure.persistence.stock_inventory.adapter;
 
 import com.fivetpromart.application.dto.query.StockInventorySearchQuery;
 import com.fivetpromart.application.port.out.IStockInventoryRepository;
+import com.fivetpromart.domain.enums.BatchStatus;
 import com.fivetpromart.domain.model.StockInventory;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.spec.StockInventorySpecification;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.StockInventoryDbo;
@@ -74,7 +75,8 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
             existingDbo.setStockQuantity(model.getStockQuantity());
             existingDbo.setReservedQuantity(model.getReservedQuantity());
             existingDbo.setImportPrice(model.getImportPrice());
-            existingDbo.setStatus(model.getStatus());
+            // Convert enum to string for persistence
+            existingDbo.setStatus(model.getStatus() != null ? model.getStatus().getValue() : BatchStatus.AVAILABLE.getValue());
             // No need to call save() - entity is managed, changes are auto-flushed
             return mapper.toDomain(existingDbo);
         } else {
@@ -159,5 +161,24 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
     @Override
     public BigDecimal calculateTotalInventoryValue() {
         return jpaRepository.calculateTotalInventoryValue();
+    }
+
+    @Override
+    public List<StockInventory> findExpiredButNotMarked(LocalDate today) {
+        // Find lots where expirationDate < today AND status is still AVAILABLE
+        List<StockInventoryDbo> dbos = jpaRepository.findByExpirationDateBeforeAndStatus(
+                today, 
+                BatchStatus.AVAILABLE.getValue()
+        );
+        return dbos.stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveAll(List<StockInventory> inventories) {
+        for (StockInventory inventory : inventories) {
+            save(inventory);
+        }
     }
 }

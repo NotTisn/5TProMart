@@ -323,8 +323,13 @@ public class Order {
         private String productId;
         private String productName;
         private Long quantity;
-        private BigDecimal unitPrice;
+        private BigDecimal unitPrice;       // Final price used (may be promotional)
         private BigDecimal subTotal;
+        
+        // Promotion tracking fields (P0: Promo Price Persistence)
+        private BigDecimal originalUnitPrice;  // Original selling price before promotion
+        private String promotionId;            // Applied promotion ID (nullable)
+        private Boolean isFreeItem;            // True if this is a free item from Buy X Get Y
 
         public static OrderItem create(
                 String lotId,
@@ -332,6 +337,22 @@ public class Order {
                 String productName,
                 Long quantity,
                 BigDecimal unitPrice
+        ) {
+            return create(lotId, productId, productName, quantity, unitPrice, null, null, false);
+        }
+        
+        /**
+         * Create OrderItem with promotion tracking
+         */
+        public static OrderItem create(
+                String lotId,
+                String productId,
+                String productName,
+                Long quantity,
+                BigDecimal unitPrice,
+                BigDecimal originalUnitPrice,
+                String promotionId,
+                Boolean isFreeItem
         ) {
             if (lotId == null || lotId.isBlank()) {
                 throw new EmptyFieldException("Lot ID");
@@ -357,6 +378,11 @@ public class Order {
             item.quantity = quantity;
             item.unitPrice = unitPrice;
             item.subTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+            
+            // Promotion fields
+            item.originalUnitPrice = originalUnitPrice != null ? originalUnitPrice : unitPrice;
+            item.promotionId = promotionId;
+            item.isFreeItem = isFreeItem != null ? isFreeItem : false;
 
             return item;
         }
@@ -371,6 +397,23 @@ public class Order {
                 BigDecimal unitPrice,
                 BigDecimal subTotal
         ) {
+            return reconstitute(orderItemId, orderId, lotId, productId, productName, 
+                    quantity, unitPrice, subTotal, null, null, false);
+        }
+        
+        public static OrderItem reconstitute(
+                String orderItemId,
+                String orderId,
+                String lotId,
+                String productId,
+                String productName,
+                Long quantity,
+                BigDecimal unitPrice,
+                BigDecimal subTotal,
+                BigDecimal originalUnitPrice,
+                String promotionId,
+                Boolean isFreeItem
+        ) {
             OrderItem item = new OrderItem();
             item.orderItemId = orderItemId;
             item.orderId = orderId;
@@ -380,11 +423,30 @@ public class Order {
             item.quantity = quantity;
             item.unitPrice = unitPrice;
             item.subTotal = subTotal;
+            item.originalUnitPrice = originalUnitPrice != null ? originalUnitPrice : unitPrice;
+            item.promotionId = promotionId;
+            item.isFreeItem = isFreeItem != null ? isFreeItem : false;
             return item;
         }
 
         public void setOrderId(String orderId) {
             this.orderId = orderId;
+        }
+        
+        /**
+         * Calculate discount amount (difference between original and applied price)
+         */
+        public BigDecimal getDiscountAmount() {
+            if (originalUnitPrice == null || unitPrice == null) return BigDecimal.ZERO;
+            return originalUnitPrice.subtract(unitPrice).multiply(BigDecimal.valueOf(quantity));
+        }
+        
+        /**
+         * Check if this item has a promotion applied
+         */
+        public boolean hasPromotion() {
+            return promotionId != null || (originalUnitPrice != null && 
+                    originalUnitPrice.compareTo(unitPrice) > 0);
         }
     }
 }

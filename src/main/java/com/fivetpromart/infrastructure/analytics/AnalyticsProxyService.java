@@ -204,11 +204,25 @@ public class AnalyticsProxyService {
     // ========================================================================
 
     /**
-     * Check if the analytics service is healthy.
+     * Check if the analytics service is healthy (boolean).
      */
     public boolean isHealthy() {
+        AnalyticsHealthResponse health = getHealthResponse();
+        return "healthy".equals(health.getStatus());
+    }
+
+    /**
+     * Get the full health response from the analytics service.
+     * Returns a fallback response if service is unavailable.
+     */
+    public AnalyticsHealthResponse getHealthResponse() {
         if (!analyticsEnabled) {
-            return false;
+            return AnalyticsHealthResponse.builder()
+                    .status("down")
+                    .service("promart-ai-service")
+                    .version("unknown")
+                    .timestamp(LocalDateTime.now())
+                    .build();
         }
 
         try {
@@ -216,12 +230,24 @@ public class AnalyticsProxyService {
             ResponseEntity<AnalyticsHealthResponse> response = restTemplate.getForEntity(
                     url, AnalyticsHealthResponse.class);
 
-            return response.getStatusCode().is2xxSuccessful() &&
-                   response.getBody() != null &&
-                   "healthy".equals(response.getBody().getStatus());
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                return response.getBody();
+            }
+            
+            return AnalyticsHealthResponse.builder()
+                    .status("down")
+                    .service("promart-ai-service")
+                    .version("unknown")
+                    .timestamp(LocalDateTime.now())
+                    .build();
         } catch (RestClientException e) {
             log.warn("Analytics service health check failed: {}", e.getMessage());
-            return false;
+            return AnalyticsHealthResponse.builder()
+                    .status("down")
+                    .service("promart-ai-service")
+                    .version("unknown")
+                    .timestamp(LocalDateTime.now())
+                    .build();
         }
     }
 

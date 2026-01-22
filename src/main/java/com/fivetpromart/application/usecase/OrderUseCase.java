@@ -151,7 +151,7 @@ public class OrderUseCase implements IOrderUseCasePort {
                 .quantity(requestedQuantity)
                 .subTotal(subTotal)
                 .currentStock(lot.getAvailableQuantity()) // Available = total - reserved
-                .status(lot.getStatus())
+                .status(lot.getStatusValue())
                 .promotion(promotionInfo)
                 .build();
     }
@@ -187,13 +187,26 @@ public class OrderUseCase implements IOrderUseCasePort {
                 Product product = productRepository.findById(lot.getProductId())
                         .orElseThrow(() -> new ProductNotFoundException("Product not found: " + lot.getProductId()));
                 
-                // Create order item
+                // Determine unit price: use FE-provided price if available, else product's sellingPrice
+                BigDecimal unitPrice = itemCmd.getUnitPrice() != null 
+                        ? itemCmd.getUnitPrice() 
+                        : product.getSellingPrice();
+                
+                // Determine original unit price for tracking
+                BigDecimal originalUnitPrice = itemCmd.getOriginalUnitPrice() != null 
+                        ? itemCmd.getOriginalUnitPrice() 
+                        : product.getSellingPrice();
+                
+                // Create order item with promotion tracking
                 Order.OrderItem orderItem = Order.OrderItem.create(
                         lot.getLotId(),
                         product.getProductId(),
                         product.getProductName(),
                         itemCmd.getQuantity(),
-                        product.getSellingPrice()
+                        unitPrice,
+                        originalUnitPrice,
+                        itemCmd.getPromotionId(),
+                        itemCmd.getIsFreeItem()
                 );
                 
                 orderItems.add(orderItem);

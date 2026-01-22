@@ -73,5 +73,18 @@ public class OrderRequest {
         @NotNull(message = "Quantity is required")
         @Positive(message = "Quantity must be positive")
         private Long quantity;
+        
+        // Optional price override (for promotional prices)
+        // If not provided, backend will use product's sellingPrice
+        private BigDecimal unitPrice;
+        
+        // Optional: Original price before promotion (for tracking)
+        private BigDecimal originalUnitPrice;
+        
+        // Optional: ID of the applied promotion
+        private String promotionId;
+        
+        // Optional: Flag for free items (Buy X Get Y)
+        private Boolean isFreeItem;
     }
 }

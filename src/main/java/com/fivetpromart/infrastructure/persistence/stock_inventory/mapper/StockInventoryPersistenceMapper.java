@@ -9,6 +9,9 @@ public interface StockInventoryPersistenceMapper {
     default StockInventoryDbo toDbo(StockInventory stockInventory) {
         if (stockInventory == null) return null;
 
+        // Convert enum to string for persistence
+        String statusValue = stockInventory.getStatus() != null ? stockInventory.getStatus().getValue() : "AVAILABLE";
+
         return StockInventoryDbo.builder()
                 .lotId(stockInventory.getLotId())
                 .productId(stockInventory.getProductId())
@@ -19,7 +22,7 @@ public interface StockInventoryPersistenceMapper {
                 .quantityShelf(stockInventory.getQuantityShelf())
                 .quantityStorage(stockInventory.getQuantityStorage())
                 .importPrice(stockInventory.getImportPrice())
-                .status(stockInventory.getStatus())
+                .status(statusValue)
                 .build();
     }
 
