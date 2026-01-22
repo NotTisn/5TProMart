@@ -32,8 +32,6 @@
 }
 ```
 
-**⚠️ Note:** By default, API only returns promotions with `isActive = true`. Set `includeDeleted=true` to view soft-deleted promotions.
-
 **Response 200**
 
 ```json
@@ -96,6 +94,8 @@
 
 **Response 200**
 
+**Discount Percent**
+
 ```json
 {
   "success": true,
@@ -109,6 +109,47 @@
     "discountPercent": 20,
     "buyQuantity": null,
     "getQuantity": null,
+
+    "status": "Active",
+    "startDate": "01-01-2026",
+    "endDate": "31-01-2026",
+
+    "products": [
+      {
+        "productId": "productId_01",
+        "productName": "Coca",
+        "unitOfMeasure": "Lon",
+        "sellingPrice": 10000,
+        "promotionPrice": 8000 //null neu la khuyen mai dang buy x get y, khong can show
+      }
+    ]
+  }
+}
+```
+
+**Buy X Get Y**
+
+```json
+{
+  "success": true,
+  "message": "Get promotions detail successfully.",
+  "data": {
+    "promotionId": "promotionId_02",
+    "promotionName": "Khuyen mai Tet",
+    "promotionDescription": "Giam gia nuoc ngot cuc soc, mua ve don Tet",
+    "promotionType": "Discount",
+
+    "products": [
+      {
+        "productBuy": "productId_01",
+        "productName": "Coca",
+        "productGet": "productId_02",
+        "productName": "Kho Ga"
+      }
+    ],
+    "discountPercent": 0,
+    "buyQuantity": 1,
+    "getQuantity": 1,
 
     "status": "Active",
     "startDate": "01-01-2026",
@@ -275,6 +316,7 @@
 **Description**: Soft delete a promotion by setting `isActive = false`. The promotion is not physically removed from the database.
 
 **Path Parameters**:
+
 - `id` (string, required): Promotion ID to soft delete
 
 **Response 200**
@@ -326,6 +368,7 @@
 **Description**: Restore a soft-deleted promotion by setting `isActive = true`.
 
 **Path Parameters**:
+
 - `id` (string, required): Promotion ID to restore
 
 **Response 200**
