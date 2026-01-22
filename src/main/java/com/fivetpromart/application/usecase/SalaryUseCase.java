@@ -218,8 +218,11 @@ public class SalaryUseCase {
             
             String role = latestRecord.getRole();
             
-            // TODO: Get full name from Staff/Profile repository
-            String fullName = "Staff " + userId; // Placeholder
+            // Get full name from Staff/Profile repository
+            Staff staff = staffRepository.findByUserId(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Staff not found for id: " + userId));
+
+            String fullName = staff.getFullName(); // Placeholder
             
             staffDetails.add(SalaryReport.StaffSalaryDetail.builder()
                     .userId(userId)
