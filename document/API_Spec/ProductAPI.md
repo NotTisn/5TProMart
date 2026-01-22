@@ -2,17 +2,18 @@
 
 ## 3.1 Get all products query
 
-**Endpoint:** `GET /api/products`
+**Endpoint:** `GET /api/v1/products`
 
 **Query Parameters**
 
 ```json
 {
-  "search": "string",     // productId or productName contains search string
-  "categoryId": "string",  //category id = category id, filter category
-  "product name": "string",   //contains
-  "sortBy": "productName" "unitOfMeasure" "sellingPrice" , // Sort by...
-  "order": "asc" "desc"
+  "productId": "string",     // exact productId (UUID)
+  "productName": "string",   // contains match
+  "categoryId": "string",    // filter by categoryId
+  "stockLevel": "low|out|expiring-soon|expired",
+  "isActive": true,           // true = active, false = inactive
+  "includeDeleted": false     // true = include inactive products
 }
 ```
 

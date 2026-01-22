@@ -87,8 +87,8 @@ public class OrderUseCase implements IOrderUseCasePort {
         StockInventory lot = stockInventoryRepository.findById(command.getLotId())
                 .orElseThrow(() -> new LotNotFoundException(command.getLotId()));
 
-        // 2. Check if lot is expired
-        if (lot.getExpirationDate().isBefore(LocalDate.now())) {
+        // 2. Check if lot is expired (null expirationDate means non-perishable, never expires)
+        if (lot.getExpirationDate() != null && lot.getExpirationDate().isBefore(LocalDate.now())) {
             throw new ExpiredLotException(command.getLotId());
         }
 
@@ -171,8 +171,8 @@ public class OrderUseCase implements IOrderUseCasePort {
                 StockInventory lot = stockInventoryRepository.findById(itemCmd.getLotId())
                         .orElseThrow(() -> new LotNotFoundException(itemCmd.getLotId()));
                 
-                // Check expiration
-                if (lot.getExpirationDate().isBefore(LocalDate.now())) {
+                // Check expiration (null expirationDate means non-perishable, never expires)
+                if (lot.getExpirationDate() != null && lot.getExpirationDate().isBefore(LocalDate.now())) {
                     throw new ExpiredLotException(itemCmd.getLotId());
                 }
                 

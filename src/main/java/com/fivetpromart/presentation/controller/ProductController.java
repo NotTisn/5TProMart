@@ -92,6 +92,7 @@ public class ProductController {
             @RequestParam(required = false) String categoryId,
             @RequestParam(required = false) String productId,
             @RequestParam(required = false) String stockLevel,
+            @RequestParam(required = false) Boolean isActive,
             @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 10) Pageable pageable
     ) {
@@ -101,6 +102,7 @@ public class ProductController {
                 .categoryId(categoryId)
                 .productId(productId)
                 .stockLevel(stockLevel)
+                .isActive(isActive)
                 .includeDeleted(includeDeleted)
                 .build();
         Page<ProductDto> pageResult = productUseCase.getAllProducts(query, pageable);

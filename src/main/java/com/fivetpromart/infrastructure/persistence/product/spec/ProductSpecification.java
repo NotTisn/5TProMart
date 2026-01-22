@@ -31,9 +31,13 @@ public class ProductSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             // 0. Filter by isActive status (default: only active products)
-            Boolean includeDeleted = query.getIncludeDeleted();
-            if (includeDeleted == null || !includeDeleted) {
-                predicates.add(criteriaBuilder.equal(root.get("isActive"), true));
+            if (query.getIsActive() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("isActive"), query.getIsActive()));
+            } else {
+                Boolean includeDeleted = query.getIncludeDeleted();
+                if (includeDeleted == null || !includeDeleted) {
+                    predicates.add(criteriaBuilder.equal(root.get("isActive"), true));
+                }
             }
 
             // 1. Filter by ID (Exact match)

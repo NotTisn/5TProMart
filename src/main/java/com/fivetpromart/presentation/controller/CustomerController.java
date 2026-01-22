@@ -140,12 +140,14 @@ public class CustomerController {
     public ApiResponse<List<CustomerResponse>> getAllCustomersByPage(
         @RequestParam(required = false) String customerName,
         @RequestParam(required = false) String customerId,
+        @RequestParam(required = false) String phoneNumber,
         @RequestParam(required = false, defaultValue = "false") Boolean includeDeleted,
         @PageableDefault(size = 10) Pageable pageable
     ) {
         CustomerSearchQuery query =  CustomerSearchQuery.builder()
                 .customerName(customerName)
                 .customerId(customerId)
+                .phoneNumber(phoneNumber)
                 .includeDeleted(includeDeleted)
                 .build();
         Page<CustomerDto> pageResult = customerUseCase.getAllCustomers(query, pageable);

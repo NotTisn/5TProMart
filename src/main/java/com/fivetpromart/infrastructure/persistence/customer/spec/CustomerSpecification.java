@@ -33,6 +33,11 @@ public class CustomerSpecification {
                 ));
             }
 
+            // 3. Lọc theo phone number (exact match for POS lookup)
+            if (query.getPhoneNumber() != null && !query.getPhoneNumber().isBlank()) {
+                predicates.add(criteriaBuilder.equal(root.get("phoneNumber"), query.getPhoneNumber()));
+            }
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
     }

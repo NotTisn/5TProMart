@@ -183,13 +183,14 @@ public class OrderController {
             @PathVariable String id,
             @Valid @RequestBody CancelOrderRequest request
     ) {
-        log.info("Cancelling order: {} by staff: {}", id, request.getStaffId());
+        String currentStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("Cancelling order: {} by staff: {}", id, currentStaffId);
 
         // Build command
         CancelOrderCommand command = CancelOrderCommand.builder()
                 .orderId(id)
                 .reason(request.getReason())
-                .staffId(request.getStaffId())
+                .staffId(currentStaffId)
                 .build();
 
         // Call use case

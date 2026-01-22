@@ -28,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
@@ -197,8 +198,11 @@ public class StockInventoryController {
     ) {
         log.info("Creating disposal batch with {} items", request.getItems().size());
 
+        String currentStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
+
         // Convert to command and call use case
         DisposalBatchCommand command = mapper.toDisposalBatchCommand(request);
+        command.setStaffId(currentStaffId);
         DisposalBatchResultDto resultDto = stockInventoryUseCase.createDisposalBatch(command);
 
         // Map to response
@@ -228,13 +232,15 @@ public class StockInventoryController {
     ) {
         log.info("Disposing lot: {} with quantity: {}", lotId, request.getQuantity());
 
+        String currentStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
+
         // Build command
         DisposeLotCommand command = DisposeLotCommand.builder()
                 .lotId(lotId)
                 .quantity(request.getQuantity())
                 .reason(request.getReason())
                 .notes(request.getNotes())
-                .staffId(request.getStaffId())
+                .staffId(currentStaffId)
                 .build();
 
         // Call use case

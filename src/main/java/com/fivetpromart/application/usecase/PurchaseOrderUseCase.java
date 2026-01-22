@@ -267,9 +267,9 @@ public class PurchaseOrderUseCase implements IPurchaseOrderUseCasePort {
                         .build()
         );
 
-        // Find matching lot
+        // Find matching lot (handle null expirationDate for non-perishable items)
         Optional<StockInventory> matchingLot = existingLots.stream()
-                .filter(lot -> lot.getExpirationDate().equals(expirationDate))
+                .filter(lot -> java.util.Objects.equals(lot.getExpirationDate(), expirationDate))
                 .findFirst();
 
         if (matchingLot.isPresent()) {
