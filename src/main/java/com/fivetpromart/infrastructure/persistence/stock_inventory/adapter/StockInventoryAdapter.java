@@ -7,6 +7,8 @@ import com.fivetpromart.infrastructure.persistence.stock_inventory.spec.StockInv
 import com.fivetpromart.infrastructure.persistence.stock_inventory.StockInventoryDbo;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.mapper.StockInventoryPersistenceMapper;
 import com.fivetpromart.infrastructure.persistence.stock_inventory.repository.IStockInventoryJpaRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,9 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
 
     private final IStockInventoryJpaRepository jpaRepository;
     private final StockInventoryPersistenceMapper mapper;
+    
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public boolean existsById(String lotId) {
@@ -37,11 +42,47 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
         jpaRepository.deleteById(lotId);
     }
 
+    /**
+     * Saves a StockInventory domain model to the database.
+     * 
+     * This method handles the case where an entity may already exist in the Hibernate session
+     * (e.g., after findById or findByIdForUpdate). To prevent NonUniqueObjectException and
+     * StaleObjectStateException with @Version fields, we:
+     * 
+     * 1. For EXISTING entities: Load the managed entity and copy fields to it
+     * 2. For NEW entities: Create and persist a new DBO
+     * 
+     * This approach:
+     * - Respects optimistic locking (@Version)
+     * - Preserves audit fields (createdAt, updatedBy, etc.)
+     * - Avoids session conflicts with detached entities
+     * - Keeps the domain model free from infrastructure concerns
+     */
     @Override
     public StockInventory save(StockInventory model) {
-        StockInventoryDbo dbo = mapper.toDbo(model);
-        StockInventoryDbo savedDbo = jpaRepository.save(dbo);
-        return mapper.toDomain(savedDbo);
+        String lotId = model.getLotId();
+        
+        // Check if entity already exists (either in session or DB)
+        StockInventoryDbo existingDbo = jpaRepository.findById(lotId).orElse(null);
+        
+        if (existingDbo != null) {
+            // UPDATE: Copy fields from domain model to the managed entity
+            // This preserves version, audit fields, and session state
+            existingDbo.setProductId(model.getProductId());
+            existingDbo.setManufactureDate(model.getManufactureDate());
+            existingDbo.setExpirationDate(model.getExpirationDate());
+            existingDbo.setStockQuantity(model.getStockQuantity());
+            existingDbo.setReservedQuantity(model.getReservedQuantity());
+            existingDbo.setImportPrice(model.getImportPrice());
+            existingDbo.setStatus(model.getStatus());
+            // No need to call save() - entity is managed, changes are auto-flushed
+            return mapper.toDomain(existingDbo);
+        } else {
+            // CREATE: New entity - create fresh DBO
+            StockInventoryDbo newDbo = mapper.toDbo(model);
+            StockInventoryDbo savedDbo = jpaRepository.save(newDbo);
+            return mapper.toDomain(savedDbo);
+        }
     }
 
     @Override
