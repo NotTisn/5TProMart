@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -43,5 +44,5 @@ public interface ICustomerJpaRepository extends JpaRepository<CustomerDbo,String
      * Count new customers in date range (only active)
      */
     @Query("SELECT COUNT(c) FROM CustomerDbo c WHERE c.createdAt BETWEEN :startDate AND :endDate AND c.isActive = true")
-    Integer countNewCustomers(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    Integer countNewCustomers(@Param("startDate") Instant startDate, @Param("endDate") Instant endDate);
 }
