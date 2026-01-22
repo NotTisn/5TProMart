@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Getter
 @Builder
 public class OrderDataResponse {
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    private LocalDate date;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Instant date;
     private Integer completedOrders;
 }
