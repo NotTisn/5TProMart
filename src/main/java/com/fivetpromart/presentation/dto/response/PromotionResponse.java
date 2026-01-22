@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -24,4 +25,6 @@ public class PromotionResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private String status;
+    private Boolean isActive;
+    private LocalDateTime updatedAt;
 }
