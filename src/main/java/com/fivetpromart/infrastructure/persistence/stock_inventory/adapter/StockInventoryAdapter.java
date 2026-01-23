@@ -74,6 +74,8 @@ public class StockInventoryAdapter implements IStockInventoryRepository {
             existingDbo.setExpirationDate(model.getExpirationDate());
             existingDbo.setStockQuantity(model.getStockQuantity());
             existingDbo.setReservedQuantity(model.getReservedQuantity());
+            existingDbo.setQuantityShelf(model.getQuantityShelf());
+            existingDbo.setQuantityStorage(model.getQuantityStorage());
             existingDbo.setImportPrice(model.getImportPrice());
             // Convert enum to string for persistence
             existingDbo.setStatus(model.getStatus() != null ? model.getStatus().getValue() : BatchStatus.AVAILABLE.getValue());
