@@ -376,13 +376,16 @@ public class Order {
             item.productId = productId;
             item.productName = productName;
             item.quantity = quantity;
-            item.unitPrice = unitPrice;
-            item.subTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+            
+            // Business rule: Free items (Buy X Get Y) must have unitPrice = 0
+            boolean isFree = isFreeItem != null && isFreeItem;
+            item.isFreeItem = isFree;
+            item.unitPrice = isFree ? BigDecimal.ZERO : unitPrice;
+            item.subTotal = item.unitPrice.multiply(BigDecimal.valueOf(quantity));
             
             // Promotion fields
             item.originalUnitPrice = originalUnitPrice != null ? originalUnitPrice : unitPrice;
             item.promotionId = promotionId;
-            item.isFreeItem = isFreeItem != null ? isFreeItem : false;
 
             return item;
         }

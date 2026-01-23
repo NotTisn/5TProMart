@@ -167,6 +167,11 @@ public class OrderUseCase implements IOrderUseCasePort {
             List<Order.OrderItem> orderItems = new ArrayList<>();
             
             for (OrderCreationCommand.OrderItemCommand itemCmd : command.getItems()) {
+                // Skip if already marked as free item (already processed)
+                if (itemCmd.getIsFreeItem() != null && itemCmd.getIsFreeItem()) {
+                    continue;
+                }
+                
                 // Get lot and product information
                 StockInventory lot = stockInventoryRepository.findById(itemCmd.getLotId())
                         .orElseThrow(() -> new LotNotFoundException(itemCmd.getLotId()));
@@ -187,6 +192,54 @@ public class OrderUseCase implements IOrderUseCasePort {
                 Product product = productRepository.findById(lot.getProductId())
                         .orElseThrow(() -> new ProductNotFoundException("Product not found: " + lot.getProductId()));
                 
+                // Check for active promotions on this product
+                List<Promotion> activePromotions = promotionRepository.findActivePromotionsByProductId(product.getProductId());
+                Promotion appliedPromotion = null;
+                
+                // Use promotion from command if provided and valid
+                if (itemCmd.getPromotionId() != null && !itemCmd.getPromotionId().isBlank()) {
+                    appliedPromotion = promotionRepository.findById(itemCmd.getPromotionId())
+                            .orElseThrow(() -> new RuntimeException("Promotion not found: " + itemCmd.getPromotionId()));
+                    
+                    // Check if promotion is active
+                    if (!"Active".equals(appliedPromotion.getStatus())) {
+                        throw new RuntimeException("Promotion is not active: " + itemCmd.getPromotionId());
+                    }
+                    
+                    // Check if promotion is within date range
+                    LocalDate today = LocalDate.now();
+                    if (today.isBefore(appliedPromotion.getStartDate()) || today.isAfter(appliedPromotion.getEndDate())) {
+                        throw new RuntimeException("Promotion is not valid for today: " + itemCmd.getPromotionId());
+                    }
+                } else if (!activePromotions.isEmpty()) {
+                    // Use first active promotion if not specified
+                    appliedPromotion = activePromotions.get(0);
+                }
+                
+                // Calculate total quantity needed (purchase + free items)
+                long totalQuantityNeeded = itemCmd.getQuantity();
+                long freeItemsCount = 0;
+                
+                if (appliedPromotion != null && "Buy X Get Y".equals(appliedPromotion.getPromotionType())) {
+                    Integer buyQty = appliedPromotion.getBuyQuantity();
+                    Integer getQty = appliedPromotion.getGetQuantity();
+                    
+                    if (buyQty != null && getQty != null && itemCmd.getQuantity() >= buyQty) {
+                        freeItemsCount = (itemCmd.getQuantity() / buyQty) * getQty;
+                        totalQuantityNeeded = itemCmd.getQuantity() + freeItemsCount;
+                    }
+                }
+                
+                // Check stock availability (including free items)
+                if (lot.getStockQuantity() < totalQuantityNeeded) {
+                    throw new InsufficientStockException(
+                            lot.getStockQuantity(), 
+                            totalQuantityNeeded,
+                            String.format("Need %d items (%d purchase + %d free) but only %d available", 
+                                    totalQuantityNeeded, itemCmd.getQuantity(), freeItemsCount, lot.getStockQuantity())
+                    );
+                }
+                
                 // Determine unit price: use FE-provided price if available, else product's sellingPrice
                 BigDecimal unitPrice = itemCmd.getUnitPrice() != null 
                         ? itemCmd.getUnitPrice() 
@@ -197,6 +250,16 @@ public class OrderUseCase implements IOrderUseCasePort {
                         ? itemCmd.getOriginalUnitPrice() 
                         : product.getSellingPrice();
                 
+                // Apply discount if promotion type is "Discount"
+                if (appliedPromotion != null && "Discount".equals(appliedPromotion.getPromotionType())) {
+                    if (appliedPromotion.getDiscountPercent() != null) {
+                        BigDecimal discountRate = BigDecimal.valueOf(appliedPromotion.getDiscountPercent())
+                                .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+                        BigDecimal discount = unitPrice.multiply(discountRate);
+                        unitPrice = unitPrice.subtract(discount).setScale(0, RoundingMode.HALF_UP);
+                    }
+                }
+                
                 // Create order item with promotion tracking
                 Order.OrderItem orderItem = Order.OrderItem.create(
                         lot.getLotId(),
@@ -205,11 +268,31 @@ public class OrderUseCase implements IOrderUseCasePort {
                         itemCmd.getQuantity(),
                         unitPrice,
                         originalUnitPrice,
-                        itemCmd.getPromotionId(),
-                        itemCmd.getIsFreeItem()
+                        appliedPromotion != null ? appliedPromotion.getPromotionId() : null,
+                        false  // This is the purchased item, not free
                 );
                 
                 orderItems.add(orderItem);
+                
+                // AUTO-ADD FREE ITEMS for Buy X Get Y promotions
+                if (freeItemsCount > 0 && appliedPromotion != null) {
+                    // Create free item (unitPrice will be auto-set to 0 by domain model)
+                    Order.OrderItem freeItem = Order.OrderItem.create(
+                            lot.getLotId(),
+                            product.getProductId(),
+                            product.getProductName(),
+                            freeItemsCount,
+                            BigDecimal.ZERO,  // Will be enforced to 0 by domain model
+                            product.getSellingPrice(),
+                            appliedPromotion.getPromotionId(),
+                            true  // This is a FREE item
+                    );
+                    
+                    orderItems.add(freeItem);
+                    log.info("Auto-added {} free items for Buy X Get Y promotion: {} (Buy {} Get {})", 
+                            freeItemsCount, appliedPromotion.getPromotionName(),
+                            appliedPromotion.getBuyQuantity(), appliedPromotion.getGetQuantity());
+                }
             }
             
             // 2. Create discount strategy (Polymorphism!)
@@ -233,41 +316,43 @@ public class OrderUseCase implements IOrderUseCasePort {
             order.getItems().forEach(item -> item.setOrderId(order.getOrderId()));
             
             // 5. Update stock quantities (deduct from inventory)
-            // PROPER FLOW: Check for active reservations and commit them
-            for (OrderCreationCommand.OrderItemCommand itemCmd : command.getItems()) {
-                StockInventory lot = stockInventoryRepository.findById(itemCmd.getLotId())
-                        .orElseThrow(() -> new LotNotFoundException(itemCmd.getLotId()));
+            // Loop through ALL order items (including auto-added free items)
+            for (Order.OrderItem orderItem : order.getItems()) {
+                StockInventory lot = stockInventoryRepository.findById(orderItem.getLotId())
+                        .orElseThrow(() -> new LotNotFoundException(orderItem.getLotId()));
                 
                 // Check if there are active reservations for this lot
                 List<StockReservation> activeReservations = 
-                        reservationRepository.findActiveByLotId(itemCmd.getLotId());
+                        reservationRepository.findActiveByLotId(orderItem.getLotId());
                 
-                long remainingToDeduct = itemCmd.getQuantity();
+                long remainingToDeduct = orderItem.getQuantity();
                 
-                // First, commit any matching reservations
-                for (StockReservation reservation : activeReservations) {
-                    if (remainingToDeduct <= 0) break;
-                    
-                    long toCommit = Math.min(reservation.getQuantity(), remainingToDeduct);
-                    
-                    // Commit reservation (reduces both reserved and stock)
-                    lot.commitReservedStock(toCommit);
-                    
-                    // Mark reservation as committed
-                    reservation.commit(order.getOrderId());
-                    reservationRepository.save(reservation);
-                    
-                    remainingToDeduct -= toCommit;
-                    log.info("Committed {} units from reservation {} for order {}", 
-                            toCommit, reservation.getReservationId(), order.getOrderId());
+                // First, commit any matching reservations (only for non-free items)
+                if (!orderItem.getIsFreeItem()) {
+                    for (StockReservation reservation : activeReservations) {
+                        if (remainingToDeduct <= 0) break;
+                        
+                        long toCommit = Math.min(reservation.getQuantity(), remainingToDeduct);
+                        
+                        // Commit reservation (reduces both reserved and stock)
+                        lot.commitReservedStock(toCommit);
+                        
+                        // Mark reservation as committed
+                        reservation.commit(order.getOrderId());
+                        reservationRepository.save(reservation);
+                        
+                        remainingToDeduct -= toCommit;
+                        log.info("Committed {} units from reservation {} for order {}", 
+                                toCommit, reservation.getReservationId(), order.getOrderId());
+                    }
                 }
                 
                 // If any quantity remains (not covered by reservations), deduct directly
                 if (remainingToDeduct > 0) {
                     // Use deductForSale to properly reduce shelf quantity (customers buy from shelf)
                     lot.deductForSale(remainingToDeduct);
-                    log.info("Direct deduction of {} units from lot {} (no reservation)", 
-                            remainingToDeduct, itemCmd.getLotId());
+                    log.info("Direct deduction of {} units from lot {} (isFreeItem: {})", 
+                            remainingToDeduct, orderItem.getLotId(), orderItem.getIsFreeItem());
                 }
                 
                 stockInventoryRepository.save(lot);
