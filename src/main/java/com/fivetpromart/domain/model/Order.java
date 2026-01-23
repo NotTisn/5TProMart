@@ -48,6 +48,7 @@ public class Order {
     private BigDecimal amountGiven;
     private BigDecimal changeReturned;
     private Long pointsEarned;
+    private Long pointsUsed;  // Track points used for cancellation reversal
     private List<OrderItem> items;
     
     // Cash rounding fields (Vietnam retail standard)
@@ -301,6 +302,13 @@ public class Order {
      */
     public void setNotificationStrategy(NotificationStrategy notificationStrategy) {
         this.notificationStrategy = notificationStrategy;
+    }
+    
+    /**
+     * Set points used (for loyalty point discount tracking)
+     */
+    public void setPointsUsed(Long pointsUsed) {
+        this.pointsUsed = pointsUsed;
     }
     
     /**

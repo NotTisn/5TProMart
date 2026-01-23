@@ -368,6 +368,7 @@ public class OrderUseCase implements IOrderUseCasePort {
                     if (discountStrategy instanceof LoyaltyPointsDiscountStrategy loyaltyDiscount) {
                         Long pointsUsed = loyaltyDiscount.getPointsToUse();
                         customer.redeemPoints(pointsUsed);
+                        order.setPointsUsed(pointsUsed);  // Track for cancellation reversal
                         log.info("Customer {} redeemed {} loyalty points", 
                                 command.getCustomerId(), pointsUsed);
                     }
@@ -465,16 +466,8 @@ public class OrderUseCase implements IOrderUseCasePort {
                         .orElse(null);
                 
                 if (lot != null) {
-                    // Restore quantity
-                    long restoredQuantity = lot.getStockQuantity() + item.getQuantity();
-                    lot.update(
-                            lot.getProductId(),
-                            lot.getManufactureDate(),
-                            lot.getExpirationDate(),
-                            restoredQuantity,
-                            lot.getImportPrice(),
-                            lot.getStatus()
-                    );
+                    // Use restoreForCancellation to properly restore shelf quantity
+                    lot.restoreForCancellation(item.getQuantity());
                     stockInventoryRepository.save(lot);
                 }
             }
@@ -484,13 +477,42 @@ public class OrderUseCase implements IOrderUseCasePort {
                     command.getOrderId(), e.getMessage());
         }
 
-        // 4. Save cancelled order
+        // 4. Restore loyalty points if customer exists
+        if (order.getCustomerId() != null && !order.getCustomerId().isBlank()) {
+            try {
+                Customer customer = customerRepository.findById(order.getCustomerId())
+                        .orElse(null);
+                if (customer != null) {
+                    // Return used points
+                    if (order.getPointsUsed() != null && order.getPointsUsed() > 0) {
+                        customer.earnPoints(order.getPointsUsed());
+                        log.info("Restored {} used loyalty points to customer {}", 
+                                order.getPointsUsed(), order.getCustomerId());
+                    }
+                    // Take back earned points
+                    if (order.getPointsEarned() != null && order.getPointsEarned() > 0) {
+                        long toDeduct = Math.min(order.getPointsEarned(), customer.getLoyaltyPoints());
+                        if (toDeduct > 0) {
+                            customer.redeemPoints(toDeduct);
+                            log.info("Deducted {} earned loyalty points from customer {}", 
+                                    toDeduct, order.getCustomerId());
+                        }
+                    }
+                    customerRepository.save(customer);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to restore loyalty points for cancelled order {}: {}", 
+                        command.getOrderId(), e.getMessage());
+            }
+        }
+
+        // 5. Save cancelled order
         Order savedOrder = orderRepository.save(order);
 
         log.info("Order {} cancelled successfully, stock restored: {}", 
                 command.getOrderId(), stockRestored);
 
-        // 5. Return result
+        // 6. Return result
         return CancelOrderResultDto.builder()
                 .orderId(savedOrder.getOrderId())
                 .status(savedOrder.getStatus())
