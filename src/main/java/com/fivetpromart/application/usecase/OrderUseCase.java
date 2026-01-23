@@ -264,15 +264,8 @@ public class OrderUseCase implements IOrderUseCasePort {
                 
                 // If any quantity remains (not covered by reservations), deduct directly
                 if (remainingToDeduct > 0) {
-                    long newQuantity = lot.getStockQuantity() - remainingToDeduct;
-                    lot.update(
-                            lot.getProductId(),
-                            lot.getManufactureDate(),
-                            lot.getExpirationDate(),
-                            newQuantity,
-                            lot.getImportPrice(),
-                            lot.getStatus()
-                    );
+                    // Use deductForSale to properly reduce shelf quantity (customers buy from shelf)
+                    lot.deductForSale(remainingToDeduct);
                     log.info("Direct deduction of {} units from lot {} (no reservation)", 
                             remainingToDeduct, itemCmd.getLotId());
                 }

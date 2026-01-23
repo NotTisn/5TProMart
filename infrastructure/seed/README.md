@@ -29,6 +29,7 @@ check-status.bat
 04_stock_inventory.sql     Stock batches with expiry (30)
 05_customers.sql           Customers with loyalty points (15)
 06_promotions.sql          Active promotions (3)
+07_staff_profiles.sql      Staff profiles matching Keycloak users (4)
 master_seed.sql            Runs all modules in order
 ```
 
@@ -41,8 +42,9 @@ master_seed.sql            Runs all modules in order
 - **5 Suppliers**: ELECTRONICS, FOOD, DAIRY, BEVERAGES, PERSONAL_CARE types
 - **3 Promotions**: Active promotions with relative dates (CURRENT_DATE ± days)
 - **12 Promotion-Product Links**: Junction table entries
+- **4 Staff Profiles**: Linked to Keycloak test users (admin, manager, salesstaff, warehousestaff)
 
-**Total: 105 rows** across 7 tables (10+5+30+30+15+3+12)
+**Total: 109 rows** across 8 tables (10+5+30+30+15+3+12+4)
 
 ## Test Users (Keycloak)
 

@@ -36,6 +36,7 @@ public abstract class StockInventoryDataMapper {
                 .manufactureDate(domain.getManufactureDate())
                 .expirationDate(domain.getExpirationDate())
                 .stockQuantity(domain.getStockQuantity())
+                .reservedQuantity(domain.getReservedQuantity())
                 .quantityShelf(domain.getQuantityShelf())
                 .quantityStorage(domain.getQuantityStorage())
                 .importPrice(domain.getImportPrice())

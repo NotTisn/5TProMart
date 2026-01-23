@@ -38,8 +38,12 @@ BEGIN;
 \ir 05_customers.sql
 
 \echo ''
-\echo '[Phase 6/6] Promotions'
+\echo '[Phase 6/7] Promotions'
 \ir 06_promotions.sql
+
+\echo ''
+\echo '[Phase 7/7] Staff Profiles'
+\ir 07_staff_profiles.sql
 
 -- Commit transaction
 COMMIT;

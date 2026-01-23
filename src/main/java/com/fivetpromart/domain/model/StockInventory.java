@@ -102,16 +102,57 @@ public class StockInventory {
     }
     
     /**
+     * Deduct stock for a direct sale (no reservation)
+     * Business rule: Customers buy from shelf first, then storage
+     */
+    public void deductForSale(Long quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Deduction quantity must be positive");
+        }
+        if (stockQuantity < quantity) {
+            throw new IllegalStateException("Insufficient stock to deduct");
+        }
+        
+        long shelfQty = quantityShelf != null ? quantityShelf : 0L;
+        long storageQty = quantityStorage != null ? quantityStorage : 0L;
+        
+        if (shelfQty >= quantity) {
+            // All from shelf
+            this.quantityShelf = shelfQty - quantity;
+        } else {
+            // Take all shelf, remainder from storage
+            long fromStorage = quantity - shelfQty;
+            this.quantityShelf = 0L;
+            this.quantityStorage = storageQty - fromStorage;
+        }
+        
+        this.stockQuantity = stockQuantity - quantity;
+    }
+    
+    /**
      * Update shelf and storage quantities
-     * Per API Spec: quantityStorage + quantityShelf = stockQuantity
+     * Per API Spec: quantityStorage + quantityShelf = availableQuantity (stockQuantity - reservedQuantity)
+     * Validation: The sum must equal available stock, and values must be non-negative.
      */
     public void updateShelfStorage(Long newQuantityShelf, Long newQuantityStorage) {
-        if (newQuantityShelf != null) {
-            this.quantityShelf = newQuantityShelf;
+        long available = getAvailableQuantity();
+        long shelf = newQuantityShelf != null ? newQuantityShelf : this.quantityShelf;
+        long storage = newQuantityStorage != null ? newQuantityStorage : this.quantityStorage;
+        
+        // Validate non-negative
+        if (shelf < 0 || storage < 0) {
+            throw new IllegalArgumentException("Shelf and storage quantities must be non-negative");
         }
-        if (newQuantityStorage != null) {
-            this.quantityStorage = newQuantityStorage;
+        
+        // Validate sum constraint
+        if (shelf + storage != available) {
+            throw new IllegalStateException(
+                    String.format("Shelf (%d) + Storage (%d) must equal available quantity (%d)", 
+                            shelf, storage, available));
         }
+        
+        this.quantityShelf = shelf;
+        this.quantityStorage = storage;
     }
     
     /**
@@ -196,7 +237,8 @@ public class StockInventory {
     
     /**
      * Commit reserved stock (when order is completed)
-     * Reduces both reserved and total stock
+     * Reduces reserved, total stock, AND shelf quantity (customers buy from shelf)
+     * Business rule: When an item is sold, it comes off the shelf, not storage.
      */
     public void commitReservedStock(Long quantity) {
         if (quantity == null || quantity <= 0) {
@@ -209,6 +251,23 @@ public class StockInventory {
         if (stockQuantity < quantity) {
             throw new IllegalStateException("Insufficient total stock to commit");
         }
+        
+        // Business logic: Customers buy from shelf
+        // If shelf has enough, deduct from shelf
+        // If shelf is insufficient, deduct what's on shelf, rest from storage
+        long shelfQty = quantityShelf != null ? quantityShelf : 0L;
+        long storageQty = quantityStorage != null ? quantityStorage : 0L;
+        
+        if (shelfQty >= quantity) {
+            // All from shelf
+            this.quantityShelf = shelfQty - quantity;
+        } else {
+            // Take all shelf, remainder from storage
+            long fromStorage = quantity - shelfQty;
+            this.quantityShelf = 0L;
+            this.quantityStorage = storageQty - fromStorage;
+        }
+        
         this.reservedQuantity = currentReserved - quantity;
         this.stockQuantity = stockQuantity - quantity;
     }

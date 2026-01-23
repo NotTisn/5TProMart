@@ -56,5 +56,8 @@ public class OrderDetailResponse {
         private Long quantity;
         private BigDecimal unitPrice;
         private BigDecimal subTotal;
+        private BigDecimal originalUnitPrice;
+        private String promotionId;
+        private Boolean isFreeItem;
     }
 }
