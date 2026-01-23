@@ -18,7 +18,7 @@ public interface IOrderItemJpaRepository extends JpaRepository<OrderItemDbo, Str
             FROM OrderItemDbo oi
             JOIN StockInventoryDbo si ON oi.lotId = si.lotId
             JOIN OrderDbo o ON oi.order.orderId = o.orderId
-            WHERE o.status = 'COMPLETED' AND o.orderDate BETWEEN :startDate AND :endDate
+            WHERE o.status IN ('PAID', 'COMPLETED') AND o.orderDate BETWEEN :startDate AND :endDate
             """)
     BigDecimal calculateCostOfGoodsSold(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
@@ -26,7 +26,7 @@ public interface IOrderItemJpaRepository extends JpaRepository<OrderItemDbo, Str
             SELECT SUM(oi.quantity)
             FROM OrderItemDbo oi
             JOIN OrderDbo o ON oi.order.orderId = o.orderId
-            WHERE o.status = 'COMPLETED' AND o.orderDate BETWEEN :startDate AND :endDate
+            WHERE o.status IN ('PAID', 'COMPLETED') AND o.orderDate BETWEEN :startDate AND :endDate
             """)
     Integer sumQuantitySold(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
@@ -36,7 +36,7 @@ public interface IOrderItemJpaRepository extends JpaRepository<OrderItemDbo, Str
             JOIN OrderDbo o ON oi.order.orderId = o.orderId
             JOIN ProductDbo p ON oi.productId = p.productId
             JOIN CategoryDbo c ON p.categoryId = c.categoryId
-            WHERE o.status = 'COMPLETED' AND o.orderDate BETWEEN :startDate AND :endDate
+            WHERE o.status IN ('PAID', 'COMPLETED') AND o.orderDate BETWEEN :startDate AND :endDate
             GROUP BY c.categoryId, c.categoryName
             """)
     List<Object[]> getCategoryRevenue(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
@@ -48,7 +48,7 @@ public interface IOrderItemJpaRepository extends JpaRepository<OrderItemDbo, Str
             JOIN OrderDbo o ON oi.order.orderId = o.orderId
             JOIN ProductDbo p ON oi.productId = p.productId
             JOIN CategoryDbo c ON p.categoryId = c.categoryId
-            WHERE o.status = 'COMPLETED' AND o.orderDate BETWEEN :startDate AND :endDate
+            WHERE o.status IN ('PAID', 'COMPLETED') AND o.orderDate BETWEEN :startDate AND :endDate
             GROUP BY p.productId, p.productName, c.categoryName
             """)
     List<Object[]> getTopSellingProducts(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
