@@ -167,6 +167,7 @@ public class Promotion {
     
     /**
      * Factory method to create appropriate promotion strategy
+     * Supports both old format (PERCENTAGE, BUY_X_GET_Y) and new format (Discount, Buy X Get Y)
      */
     private static PromotionStrategy createStrategy(String promotionType, Integer discountPercent, 
                                                      Integer buyQuantity, Integer getQuantity) {
@@ -175,13 +176,13 @@ public class Promotion {
         }
         
         return switch (promotionType) {
-            case "Discount" -> {
+            case "Discount", "PERCENTAGE" -> {
                 if (discountPercent == null) {
                     throw new InvalidPromotionException("Discount percent is required for Discount promotion");
                 }
                 yield new DiscountPromotionStrategy(discountPercent);
             }
-            case "Buy X Get Y" -> {
+            case "Buy X Get Y", "BUY_X_GET_Y" -> {
                 if (buyQuantity == null || getQuantity == null) {
                     throw new InvalidPromotionException("Buy quantity and get quantity are required for Buy X Get Y promotion");
                 }
