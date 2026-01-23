@@ -130,6 +130,18 @@ public class StockInventory {
     }
     
     /**
+     * Restore stock after order cancellation
+     * Business rule: Restored stock goes back to shelf (where it was sold from)
+     */
+    public void restoreForCancellation(Long quantity) {
+        if (quantity == null || quantity <= 0) {
+            return; // Nothing to restore
+        }
+        this.stockQuantity += quantity;
+        this.quantityShelf = (quantityShelf != null ? quantityShelf : 0L) + quantity;
+    }
+    
+    /**
      * Update shelf and storage quantities
      * Per API Spec: quantityStorage + quantityShelf = availableQuantity (stockQuantity - reservedQuantity)
      * Validation: The sum must equal available stock, and values must be non-negative.
